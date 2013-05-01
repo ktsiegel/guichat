@@ -4,7 +4,7 @@ import java.util.Set;
 
 import user.User;
 
-public abstract class Conversation {
+public class Conversation {
 
     int id;
     Set<User> users;
@@ -15,7 +15,7 @@ public abstract class Conversation {
      * 
      * @param users The Users to be added to the Conversation.
      */
-    public Conversation(Set<User> users) {
+    public Conversation(Set<User> users, int id) {
         this.users = users;
     }
     
