@@ -1,5 +1,7 @@
 package client;
 
-public class ChatClientModel {
+public class ChatClientModel{
 
+  
 }
+

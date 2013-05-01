@@ -15,6 +15,8 @@ public class ChatBox extends JFrame {
     JScrollPane messageScroll;
     
     public ChatBox() {
+        this.setSize(300, 300);
+        
         display = new JTextArea();
         display.setEditable(false);
         display.setLineWrap(true);

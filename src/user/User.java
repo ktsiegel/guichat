@@ -8,6 +8,10 @@ package user;
 public class User {
     
     String username;
+    
+    public User(String username) {
+        this.username = username;
+    }
 
     @Override
     public int hashCode() {
@@ -33,6 +37,10 @@ public class User {
         } else if (!username.equals(other.username))
             return false;
         return true;
+    }
+    
+    public String getUsername() {
+        return this.username;
     }
     
     
