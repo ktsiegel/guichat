@@ -17,6 +17,7 @@ public class Conversation {
      */
     public Conversation(Set<User> users, int id) {
         this.users = users;
+        this.id = id;
     }
     
     /**
@@ -41,6 +42,10 @@ public class Conversation {
         if (users.contains(user)) {
             users.remove(user);
         }
+    }
+    
+    public Set<User> getUsers() {
+        return this.users;
     }
 
     public int getID() {
