@@ -30,13 +30,23 @@ public class ChatClientModel{
         } catch (IOException e) {
 	        System.out.println("Failure with connecting to socket.");
         }
+		ClientListeningThread listener = new ClientListeningThread(this);
+		listener.start();
 	}
 	
+	/**
+	 * Submit a start command to the server
+	 * @param other The User with which the client wants to chat
+	 */
 	public void addChat(User other) {
-		//submit start command to server, receive join command
 		submitCommand("start " + other.getUsername());
 	}
 	
+	/**
+	 * Send a command to the server via the socket. The command
+	 * must follow the grammar detailed in the design document.
+	 * @param command The properly-formatted command that will be sent to the server.
+	 */
 	public void submitCommand(String command) {
 		PrintWriter out;
         try {
@@ -47,6 +57,9 @@ public class ChatClientModel{
         }
 	}
 	
+	/**
+	 * Listen for commands sent from the server.
+	 */
 	public void listenForResponse() {
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -60,6 +73,11 @@ public class ChatClientModel{
 		}
 	}
 	
+	/**
+	 * Handle output from the server according to the guidlines specified
+	 * in the design document.
+	 * @param output The output from the server.
+	 */
 	public void handleRequest(String output) {
 		StringTokenizer outTokenizer = new StringTokenizer(output);
 		if (output.matches("login [A-Za-z0-9]+")) {
@@ -91,6 +109,12 @@ public class ChatClientModel{
 		}
 	}
 	
+	/**
+	 * Attempt to connect to the server via port 4444 (default port).
+	 * @return The socket through which the ChatClientModel is connected
+	 * 			the server.
+	 * @throws IOException If there is an error with connecting to the server.
+	 */
 	public Socket connect() throws IOException {
         int port = 4444;
         Socket ret = null;
