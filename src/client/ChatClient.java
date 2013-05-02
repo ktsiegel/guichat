@@ -110,7 +110,7 @@ public class ChatClient extends JFrame {
     public static void main(final String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                ChatClient main = new ChatClient(new User("Ben"), new ChatServer());
+                ChatClient main = new ChatClient(new User("Ben"), new ChatServer(4444));
 
                 main.addUser(new User("Casey"));
                 main.addUser(new User("Katie"));
