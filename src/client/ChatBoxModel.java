@@ -20,6 +20,14 @@ public class ChatBoxModel implements KeyListener {
         this.chatBox = chatBox;
         this.conversationID = conversationID;
     }
+    
+    public void addChatLine(String username, String time, String text) {
+    	
+    }
+    
+    public void quit() {
+    	chatBox.setVisible(false);
+    }
 
 	@Override
     public void keyPressed(KeyEvent e) {

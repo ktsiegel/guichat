@@ -21,7 +21,7 @@ import user.User;
 public class ChatClient extends JFrame {
     
     User user;
-    Map<User, JLabel> userLabels;
+    Map<String, JLabel> userLabels;
     JPanel users;
     JPanel onlineUsers;
     JScrollPane userScroll;
@@ -31,10 +31,10 @@ public class ChatClient extends JFrame {
     ChatClientModel model;
     
     public ChatClient(User user, ChatServer server) {
-        this.model = new ChatClientModel(this, user, server);
+        this.model = new ChatClientModel(this, user);
         this.setSize(200, 400);
         
-        userLabels = new HashMap<User, JLabel>();
+        userLabels = new HashMap<String, JLabel>();
 
         onlineUsers = new JPanel();
         onlineUsers.setLayout(new BoxLayout(onlineUsers, BoxLayout.PAGE_AXIS));
@@ -73,14 +73,14 @@ public class ChatClient extends JFrame {
     
     public void addUser(User user) {
         JLabel userLabel = new JLabel(user.getUsername());
-        userLabels.put(user, userLabel);
+        userLabels.put(user.getUsername(), userLabel);
         new UserListener(userLabel, model, user);
         onlineUsers.add(userLabel);
        
     }
     
-    public void removeUser(User user) {
-        onlineUsers.remove(userLabels.get(user));
+    public void removeUser(String username) {
+        onlineUsers.remove(userLabels.get(username));
         onlineUsers.revalidate();
     }
     
