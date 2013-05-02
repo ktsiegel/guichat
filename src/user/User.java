@@ -9,6 +9,12 @@ public class User {
     
     String username;
     
+    /**
+     * Create a new User. Each user has a String username which is
+     * used to identify them.
+     * 
+     * @param username
+     */
     public User(String username) {
         this.username = username;
     }
@@ -43,6 +49,4 @@ public class User {
         return this.username;
     }
     
-    
-
 }
