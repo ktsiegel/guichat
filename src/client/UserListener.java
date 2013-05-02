@@ -7,26 +7,25 @@ import java.awt.event.MouseListener;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
+import user.User;
+
 public class UserListener implements MouseListener {
 
     JLabel userLabel;
+    ChatClientModel model;
+    User friend;
     
-    public UserListener(JLabel userLabel) {
+    public UserListener(JLabel userLabel, ChatClientModel model, User friend) {
         this.userLabel = userLabel;
+        this.model = model;
+        this.friend = friend;
         userLabel.addMouseListener(this);
        
     }
     
     @Override
     public void mouseClicked(MouseEvent arg0) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                ChatBox main = new ChatBox();
-
-                main.setVisible(true);
-            }
-        });
-        
+        model.addChat(friend);
     }
 
     @Override

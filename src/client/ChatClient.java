@@ -15,6 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
+import server.ChatServer;
 import user.User;
 
 public class ChatClient extends JFrame {
@@ -26,10 +27,11 @@ public class ChatClient extends JFrame {
     JScrollPane userScroll;
     JLabel welcome;
     JPanel welcomePanel;
-
     
-    public ChatClient(User user) {
-        
+    ChatClientModel model;
+    
+    public ChatClient(User user, ChatServer server) {
+        this.model = new ChatClientModel(this, user, server);
         this.setSize(200, 400);
         
         userLabels = new HashMap<User, JLabel>();
@@ -72,7 +74,7 @@ public class ChatClient extends JFrame {
     public void addUser(User user) {
         JLabel userLabel = new JLabel(user.getUsername());
         userLabels.put(user, userLabel);
-        new UserListener(userLabel);
+        new UserListener(userLabel, model, user);
         onlineUsers.add(userLabel);
        
     }
@@ -108,7 +110,7 @@ public class ChatClient extends JFrame {
     public static void main(final String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                ChatClient main = new ChatClient(new User("Ben"));
+                ChatClient main = new ChatClient(new User("Ben"), new ChatServer());
 
                 main.addUser(new User("Casey"));
                 main.addUser(new User("Katie"));
