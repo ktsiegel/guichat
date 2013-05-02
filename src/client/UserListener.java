@@ -22,6 +22,9 @@ public class UserListener implements MouseListener {
        
     }
     
+    /**
+     * Called when a name is clicked in the friends list.
+     */
     @Override
     public void mouseClicked(MouseEvent arg0) {
         model.addChat(friend);
