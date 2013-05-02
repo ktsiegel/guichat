@@ -156,6 +156,21 @@ public class ChatServer {
                     throw new IllegalStateException(
                             "Invalid login message received from client by server");
                 }
+                int ID = Integer.parseInt(split[1]);
+                String username = split[2];
+                String timestamp = split[3];
+                String text = "";
+                for (int i = 4; i < split.length; i++) {
+                    if (i > 4) {
+                        text += " ";
+                    }
+                    text += split[i];
+                }
+
+                Conversation chat = this.conversations.get(ID);
+                this.sendMessageToClients("say " + ID + " " + username + " "
+                        + timestamp + " " + text,
+                        new ArrayList<User>(chat.getUsers()));
             }
 
             else if (split[0].equals("join")) {
@@ -163,6 +178,12 @@ public class ChatServer {
                     throw new IllegalStateException(
                             "Invalid login message received from client by server");
                 }
+                int ID = Integer.parseInt(split[1]);
+                String username = split[2];
+
+                Conversation chat = this.conversations.get(ID);
+                this.sendMessageToClients("join " + ID + " " + username,
+                        new ArrayList<User>(chat.getUsers()));
             }
 
             else if (split[0].equals("leave")) {
@@ -170,6 +191,12 @@ public class ChatServer {
                     throw new IllegalStateException(
                             "Invalid login message received from client by server");
                 }
+                int ID = Integer.parseInt(split[1]);
+                String username = split[2];
+
+                Conversation chat = this.conversations.get(ID);
+                this.sendMessageToClients("leave " + ID + " " + username,
+                        new ArrayList<User>(chat.getUsers()));
             }
 
             else {
