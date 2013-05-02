@@ -1,5 +1,9 @@
 package main;
 
+import java.io.IOException;
+
+import server.ChatServer;
+
 /**
  * Chat server runner.
  */
@@ -7,10 +11,10 @@ public class Server {
 
     /**
      * Start a chat server.
+     * @throws IOException
      */
-    public static void main(String[] args) {
-        // YOUR CODE HERE
-        // It is not required (or recommended) to implement the server in
-        // this runner class.
+    public static void main(String[] args) throws IOException {
+        ChatServer server = new ChatServer(4567);
+        server.serve();
     }
 }
