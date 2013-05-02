@@ -8,13 +8,14 @@ import javax.swing.SwingUtilities;
 
 public class ChatBox extends JFrame {
 
-    
     JTextArea display;
     JTextArea message;
     JScrollPane displayScroll;
     JScrollPane messageScroll;
+    ChatBoxModel model;
     
-    public ChatBox() {
+    public ChatBox(ChatClientModel chatClientModel, int conversationID) {
+    	this.model = new ChatBoxModel(chatClientModel, this, conversationID);
         this.setSize(300, 300);
         
         display = new JTextArea();
@@ -25,18 +26,9 @@ public class ChatBox extends JFrame {
         message = new JTextArea();
         message.setLineWrap(true);
         messageScroll = new JScrollPane(message);
+        message.addKeyListener(model);
 
         createGroupLayout();
-    }
-    
-    public static void main(final String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                ChatBox main = new ChatBox();
-
-                main.setVisible(true);
-            }
-        });
     }
     
     private void createGroupLayout() {
@@ -60,4 +52,7 @@ public class ChatBox extends JFrame {
                                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addComponent(messageScroll, 60, 60, 60));
     }
+    
+    //accessors
+    public ChatBoxModel getModel() {return model;}
 }
