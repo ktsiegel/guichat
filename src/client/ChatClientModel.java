@@ -21,15 +21,16 @@ public class ChatClientModel{
 		this.client = client;
 		this.user = user;
 		this.server = server;
+		chats = new HashMap<Integer,ChatBoxModel>();
 	}
 	
 	public void addChat(User other) {
 		//submit start command to server, receive join command
 		String output = server.submitCommand("start " + other.getUsername());
-		StringTokenizer outTokenizer = new StringTokenizer(output);
-		if (!output.matches("join \\d+ [A-Za-z0-9]+")) {
+		if (output == null || !output.matches("join \\d+ [A-Za-z0-9]+")) {
 			throw new IllegalArgumentException("Error: join command of illegal form");
 		}
+		StringTokenizer outTokenizer = new StringTokenizer(output);
 		outTokenizer.nextToken();
 		final int ID = Integer.parseInt(outTokenizer.nextToken());
 		String username = outTokenizer.nextToken();
