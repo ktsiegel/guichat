@@ -38,13 +38,6 @@ public class ChatClientModel{
 		ChatBox box = new ChatBox(this,ID);
 		box.setVisible(true);
 		chats.put(ID, box.getModel());
-		
-//		SwingUtilities.invokeLater(new Runnable() {
-//            public void run() {
-//                ChatBox main = new ChatBox(this, ID);
-//                main.setVisible(true);
-//            }
-//        });
 	}
 }
 

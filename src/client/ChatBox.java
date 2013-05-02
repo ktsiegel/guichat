@@ -31,16 +31,6 @@ public class ChatBox extends JFrame {
         createGroupLayout();
     }
     
-//    public static void main(final String[] args) {
-//        SwingUtilities.invokeLater(new Runnable() {
-//            public void run() {
-//                ChatBox main = new ChatBox();
-//
-//                main.setVisible(true);
-//            }
-//        });
-//    }
-    
     private void createGroupLayout() {
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
