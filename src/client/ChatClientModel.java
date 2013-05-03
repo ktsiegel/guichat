@@ -129,7 +129,7 @@ public class ChatClientModel{
 	 * @throws IOException If there is an error with connecting to the server.
 	 */
 	public Socket connect() throws IOException {
-        int port = 4444;
+        int port = 4567;
         Socket ret = null;
         final int MAX_ATTEMPTS = 50;
         int attempts = 0;

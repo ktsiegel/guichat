@@ -1,5 +1,7 @@
 package main;
 
+import javax.swing.SwingUtilities;
+
 import user.User;
 import client.ChatClient;
 
@@ -11,6 +13,15 @@ public class Client {
      * Start a GUI chat client.
      */
     public static void main(String[] args) {
-        //new ChatClient(new User("Ben"));
+    	SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                ChatClient main = new ChatClient();
+
+                main.addUser(new User("Casey"));
+                main.addUser(new User("Katie"));
+                main.addUser(new User("Alex"));
+                //main.setVisible(true);
+            }
+        });
     }
 }

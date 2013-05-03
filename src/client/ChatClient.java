@@ -32,7 +32,7 @@ public class ChatClient extends JFrame {
     
     ChatClientModel model;
     
-    public ChatClient(ChatServer server) {
+    public ChatClient() {
         
         String username = welcomePane();
         User user = new User(username);
@@ -74,7 +74,7 @@ public class ChatClient extends JFrame {
         welcome.setBorder(BorderFactory.createCompoundBorder(welcome.getBorder(),paddingBorder));
 
         createGroupLayout();
-
+        this.setVisible(true);
     }
     
     
@@ -120,15 +120,15 @@ public class ChatClient extends JFrame {
     }
     
     public static void main(final String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                ChatClient main = new ChatClient(new ChatServer(4444));
-
-                main.addUser(new User("Casey"));
-                main.addUser(new User("Katie"));
-                main.addUser(new User("Alex"));
-                main.setVisible(true);
-            }
-        });
+//        SwingUtilities.invokeLater(new Runnable() {
+//            public void run() {
+//                ChatClient main = new ChatClient();
+//
+//                main.addUser(new User("Casey"));
+//                main.addUser(new User("Katie"));
+//                main.addUser(new User("Alex"));
+//                //main.setVisible(true);
+//            }
+//        });
     }
 }
