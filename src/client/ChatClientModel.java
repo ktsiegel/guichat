@@ -64,17 +64,20 @@ public class ChatClientModel{
 	
 	/**
 	 * Listen for commands sent from the server.
+	 * @throws IOException 
 	 */
-	public void listenForResponse() {
+	public void listenForResponse() throws IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			for (String line =in.readLine(); line!=null; line=in.readLine()) {
                 handleRequest(line);
             }
-			in.close();
 		}
 		catch(IOException e) {
 			System.out.println("Error with reading info from server.");
+		}
+		finally {
+			in.close();
 		}
 	}
 	

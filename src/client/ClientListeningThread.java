@@ -1,5 +1,7 @@
 package client;
 
+import java.io.IOException;
+
 public class ClientListeningThread extends Thread{
 	private ChatClientModel model;
 	
@@ -9,7 +11,11 @@ public class ClientListeningThread extends Thread{
 	
 	@Override
 	public void run() {
-		model.listenForResponse();
+		try {
+	        model.listenForResponse();
+        } catch (IOException e1) {
+	        System.out.println("Error listening for server response.");
+        }
 		try {
 	        this.join();
         } catch (InterruptedException e) {
