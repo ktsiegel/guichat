@@ -53,6 +53,17 @@ public class ChatBox extends JFrame {
                         .addComponent(messageScroll, 60, 60, 60));
     }
     
+    
+    public String sendMessage() {
+    	String currentMessage = message.getText();
+    	message.setText("");
+    	return currentMessage;
+    }
+    
+    public void appendChatLine(String username, String time, String message) {
+    	display.append(username + ": " + message);
+    }
+    
     //accessors
     public ChatBoxModel getModel() {return model;}
 }

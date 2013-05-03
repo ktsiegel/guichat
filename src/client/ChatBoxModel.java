@@ -21,8 +21,12 @@ public class ChatBoxModel implements KeyListener {
         this.conversationID = conversationID;
     }
     
-    public void addChatLine(String username, String time, String text) {
-    	
+    public void addChatLine(String text) {
+    	model.sendChat(conversationID, System.currentTimeMillis(), text);
+    }
+    
+    public void addChatToDisplay(String username, String time, String message) {
+    	chatBox.appendChatLine(username, time, message);
     }
     
     public void quit() {
@@ -44,7 +48,7 @@ public class ChatBoxModel implements KeyListener {
 	@Override
     public void keyTyped(KeyEvent e) {
 	    if (e.equals(KeyEvent.VK_ENTER)) {
-	    	//submitChatLineToServer()
+	    	addChatLine(chatBox.sendMessage());
 	    }
     }
 }

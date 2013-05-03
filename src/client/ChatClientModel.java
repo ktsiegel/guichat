@@ -42,6 +42,11 @@ public class ChatClientModel{
 		submitCommand("start " + other.getUsername());
 	}
 	
+	public void sendChat(int ID, long time, String text) {
+		submitCommand("say " + Integer.toString(ID) + " " + user.getUsername() + " " + 
+					Long.toString(time) + " " + text);
+	}
+	
 	/**
 	 * Send a command to the server via the socket. The command
 	 * must follow the grammar detailed in the design document.
@@ -88,10 +93,15 @@ public class ChatClientModel{
 			outTokenizer.nextToken();
 			client.removeUser(outTokenizer.nextToken());
 		}
-		else if (output.matches("say \\d+ [A-Za-z0-9]+ ^_+ ^_")) {
+		else if (output.matches("say \\d+ [A-Za-z0-9]+ [0-9]+ ^_")) {
 			outTokenizer.nextToken();
 			ChatBoxModel currentChatModel = chats.get(outTokenizer.nextToken());
-			currentChatModel.addChatLine(outTokenizer.nextToken(),outTokenizer.nextToken(),outTokenizer.nextToken());
+			String message = output;
+			for (int i=0; i<4; i++) {
+				message = message.substring(message.indexOf(" ")+1);
+			}
+			currentChatModel.addChatToDisplay(outTokenizer.nextToken(),outTokenizer.nextToken(),
+					message);
 		}
 		else if (output.matches("join \\d+ [A-Za-z0-9]+")) {
 			outTokenizer.nextToken();
