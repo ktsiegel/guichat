@@ -8,8 +8,10 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Group;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
@@ -30,7 +32,12 @@ public class ChatClient extends JFrame {
     
     ChatClientModel model;
     
-    public ChatClient(User user, ChatServer server) {
+    public ChatClient(ChatServer server) {
+        
+        String username = welcomePane();
+        User user = new User(username);
+        this.user = user;
+        
         this.model = new ChatClientModel(this, user);
         this.setSize(200, 400);
         
@@ -106,11 +113,16 @@ public class ChatClient extends JFrame {
 
     }
 
+    public String welcomePane() {
+        ImageIcon icon = new ImageIcon("icons/chat.png");
+        String username = (String) JOptionPane.showInputDialog(null, "Enter Username", "Welcome!", JOptionPane.CLOSED_OPTION, icon, null, null);
+        return username;
+    }
     
     public static void main(final String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                ChatClient main = new ChatClient(new User("Ben"), new ChatServer(4444));
+                ChatClient main = new ChatClient(new ChatServer(4444));
 
                 main.addUser(new User("Casey"));
                 main.addUser(new User("Katie"));
