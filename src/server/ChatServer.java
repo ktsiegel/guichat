@@ -56,6 +56,14 @@ public class ChatServer {
             thread.start();
         }
     }
+    
+    public void sendInformationToNewUser(User user) {
+        List<User> list = new ArrayList<User>();
+        list.add(user);
+        for (User oldUser : clients.keySet()) {
+            this.sendMessageToClients("login " + oldUser.getUsername(), list);
+        }
+    }
 
     private void sendMessageToClients(String message, List<User> targets) {
         for (User user : targets) {

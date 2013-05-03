@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import user.User;
+
 public class ChatServerClientThread implements Runnable {
     private final Socket socket;
     private final ChatServer server;
@@ -41,6 +43,7 @@ public class ChatServerClientThread implements Runnable {
 
                     if (this.server.tryAddingUser(username, socket)) {
                         // username is valid
+                        this.server.sendInformationToNewUser(new User(username));
                         this.server.addMessageToQueue(line);
                     } else {
                         // username is invalid

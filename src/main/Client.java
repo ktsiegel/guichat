@@ -16,11 +16,6 @@ public class Client {
     	SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 ChatClient main = new ChatClient();
-
-                main.addUser(new User("Casey"));
-                main.addUser(new User("Katie"));
-                main.addUser(new User("Alex"));
-                //main.setVisible(true);
             }
         });
     }

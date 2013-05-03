@@ -50,6 +50,7 @@ public class ChatClientModel {
                 }
                 
                 if (line.equals("login " + username)) {
+                    this.client.addUser(new User(username));
                     return true;
                 } else if (line.equals("logout " + username)){
                     return false;
@@ -71,7 +72,7 @@ public class ChatClientModel {
      *            The User with which the client wants to chat
      */
     public void addChat(User other) {
-        submitCommand("start " + other.getUsername());
+        submitCommand("start " + this.user.getUsername() + " " + other.getUsername());
     }
 
     public void sendChat(int ID, long time, String text) {
