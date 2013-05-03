@@ -62,9 +62,8 @@ public class ChatServer {
             if (this.clients.containsKey(user)) {
                 try {
                     PrintWriter out = new PrintWriter(this.clients.get(user)
-                            .getOutputStream());
+                            .getOutputStream(), true);
                     out.println(message);
-                    out.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                     throw new RuntimeException(

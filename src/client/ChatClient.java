@@ -34,11 +34,7 @@ public class ChatClient extends JFrame {
     
     public ChatClient() {
         
-        String username = welcomePane();
-        User user = new User(username);
-        this.user = user;
-        
-        this.model = new ChatClientModel(this, user);
+        this.model = new ChatClientModel(this);
         this.setSize(200, 400);
         
         userLabels = new HashMap<String, JLabel>();
@@ -53,7 +49,7 @@ public class ChatClient extends JFrame {
 
         userScroll = new JScrollPane(users);
        
-        welcome = new JLabel("Welcome, " + user.getUsername() + "!");
+        welcome = new JLabel("Welcome!"); //, " + user.getUsername() + "!");
         welcome.setHorizontalAlignment(JLabel.CENTER);
         
         welcomePanel = new JPanel();
@@ -75,6 +71,16 @@ public class ChatClient extends JFrame {
 
         createGroupLayout();
         this.setVisible(true);
+        
+        String username = welcomePane();
+        while (!this.model.tryUsername(username)) {
+            username = welcomePane();
+        }
+        User user = new User(username);
+        this.user = user;
+        
+        welcome.setText("Welcome, " + this.user.getUsername() + "!");
+        this.model.startListening();
     }
     
     
@@ -83,7 +89,6 @@ public class ChatClient extends JFrame {
         userLabels.put(user.getUsername(), userLabel);
         new UserListener(userLabel, model, user);
         onlineUsers.add(userLabel);
-       
     }
     
     public void removeUser(String username) {

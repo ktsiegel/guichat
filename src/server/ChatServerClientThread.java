@@ -27,6 +27,8 @@ public class ChatServerClientThread implements Runnable {
 
             for (String line = in.readLine(); line != null; line = in
                     .readLine()) {
+                System.out.println("received message: " + line);
+                
                 if (line.startsWith("login")) {
                     String[] split = line.split(" ");
 
@@ -51,6 +53,8 @@ public class ChatServerClientThread implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            System.out.println("CLOSING CHAT SERVER CLIENT THREAD");
+            
             // log out
             if (username != null) {
                 this.server.addMessageToQueue("logout " + username);
