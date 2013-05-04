@@ -41,14 +41,12 @@ public class ChatBoxModel implements KeyListener {
 
 	@Override
     public void keyReleased(KeyEvent e) {
-	    // TODO Auto-generated method stub
-	    
+        if (e.getKeyChar() == KeyEvent.VK_ENTER) {
+            addChatLine(chatBox.sendMessage());
+        }
     }
 
 	@Override
     public void keyTyped(KeyEvent e) {
-	    if (e.equals(KeyEvent.VK_ENTER)) {
-	    	addChatLine(chatBox.sendMessage());
-	    }
     }
 }

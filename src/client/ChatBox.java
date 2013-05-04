@@ -14,7 +14,7 @@ public class ChatBox extends JFrame {
     JScrollPane messageScroll;
     ChatBoxModel model;
     
-    public ChatBox(ChatClientModel chatClientModel, int conversationID) {
+    public ChatBox(ChatClientModel chatClientModel, int conversationID, String title) {
     	this.model = new ChatBoxModel(chatClientModel, this, conversationID);
         this.setSize(300, 300);
         
@@ -27,6 +27,8 @@ public class ChatBox extends JFrame {
         message.setLineWrap(true);
         messageScroll = new JScrollPane(message);
         message.addKeyListener(model);
+        
+        this.setTitle(title);
 
         createGroupLayout();
     }
@@ -55,13 +57,13 @@ public class ChatBox extends JFrame {
     
     
     public String sendMessage() {
-    	String currentMessage = message.getText();
+    	String currentMessage = message.getText().trim();
     	message.setText("");
     	return currentMessage;
     }
     
     public void appendChatLine(String username, String time, String message) {
-    	display.append(username + ": " + message);
+    	display.append(username + ": " + message + "\n");
     }
     
     //accessors

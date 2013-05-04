@@ -71,23 +71,24 @@ public class ChatClient extends JFrame {
                 welcome.getBorder(), paddingBorder));
 
         createGroupLayout();
+        this.setTitle("GUI CHAT");
         this.setVisible(true);
 
-        String username = welcomePane();
+        this.user = null;
+
+        this.model.startListening();
+
+        String username = welcomePane("Enter a username:");
         while (!this.model.tryUsername(username)) {
-            username = welcomePane();
+            username = welcomePane("Sorry, that username has already been taken! Enter a username:");
         }
         User user = new User(username);
         this.user = user;
 
         welcome.setText("Welcome, " + this.user.getUsername() + "!");
-        this.model.startListening();
     }
 
     public void addUser(User user) {
-        if (userLabels.containsKey(user.getUsername())) {
-            return;
-        }
         JLabel userLabel = new JLabel(user.getUsername());
         userLabels.put(user.getUsername(), userLabel);
         new UserListener(userLabel, model, user);
@@ -120,11 +121,10 @@ public class ChatClient extends JFrame {
 
     }
 
-    public String welcomePane() {
+    public String welcomePane(String message) {
         ImageIcon icon = new ImageIcon("icons/chat.png");
-        String username = (String) JOptionPane.showInputDialog(null,
-                "Enter Username", "Welcome!", JOptionPane.CLOSED_OPTION, icon,
-                null, null);
+        String username = (String) JOptionPane.showInputDialog(null, message,
+                "Welcome!", JOptionPane.CLOSED_OPTION, icon, null, null);
         return username;
     }
 

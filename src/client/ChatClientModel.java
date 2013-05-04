@@ -8,6 +8,8 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.StringTokenizer;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import client.*;
 import javax.swing.SwingUtilities;
@@ -20,6 +22,7 @@ public class ChatClientModel {
     private Socket socket;
     private ChatClient client;
     private HashMap<Integer, ChatBoxModel> chats;
+    private BlockingQueue<String> messages;
 
     public ChatClientModel(ChatClient client) {
         this.client = client;
@@ -30,8 +33,9 @@ public class ChatClientModel {
         } catch (IOException e) {
             System.out.println("Failure with connecting to socket.");
         }
+        this.messages = new LinkedBlockingQueue<String>();
     }
-    
+
     public void startListening() {
         ClientListeningThread listener = new ClientListeningThread(this);
         listener.start();
@@ -39,30 +43,22 @@ public class ChatClientModel {
 
     public boolean tryUsername(String username) {
         this.submitCommand("login " + username);
-        // wait for response
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-            
-            while (true) {
-                String line = in.readLine();
-                if (line == null) {
-                    return false;
-                }
-                
-                if (line.equals("login " + username)) {
-                    this.client.addUser(new User(username));
-                    return true;
-                } else if (line.equals("logout " + username)){
-                    return false;
-                } else {
-                    // ignore the message
-                }
+            String result = this.messages.take();
+            if (result.equals("success")) {
+                this.user = new User(username);
+                return true;
+            } else if (result.equals("invalid")) {
+                return false;
+            } else {
+                throw new RuntimeException(
+                        "Unexpected message when trying username: " + result);
             }
-            
-        } catch (IOException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
+            throw new RuntimeException(
+                    "Unexpected InterruptedException in tryUsername()");
         }
-        return false;
     }
 
     /**
@@ -72,7 +68,8 @@ public class ChatClientModel {
      *            The User with which the client wants to chat
      */
     public void addChat(User other) {
-        submitCommand("start " + this.user.getUsername() + " " + other.getUsername());
+        submitCommand("start " + this.user.getUsername() + " "
+                + other.getUsername());
     }
 
     public void sendChat(int ID, long time, String text) {
@@ -131,15 +128,27 @@ public class ChatClientModel {
      */
     public void handleRequest(String output) {
         StringTokenizer outTokenizer = new StringTokenizer(output);
-        if (output.matches("login [A-Za-z0-9]+")) {
+        if (output.matches("success")) {
+            try {
+                this.messages.put(output);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } else if (output.matches("invalid")) {
+            try {
+                this.messages.put(output);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } else if (output.matches("login [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
             client.addUser(new User(outTokenizer.nextToken()));
         } else if (output.matches("logout [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
             client.removeUser(outTokenizer.nextToken());
-        } else if (output.matches("say \\d+ [A-Za-z0-9]+ [0-9]+ ^_")) {
+        } else if (output.matches("say \\d+ [A-Za-z0-9]+ [0-9]+ .*")) {
             outTokenizer.nextToken();
-            ChatBoxModel currentChatModel = chats.get(outTokenizer.nextToken());
+            ChatBoxModel currentChatModel = chats.get(Integer.parseInt(outTokenizer.nextToken()));
             String message = output;
             for (int i = 0; i < 4; i++) {
                 message = message.substring(message.indexOf(" ") + 1);
@@ -150,14 +159,18 @@ public class ChatClientModel {
             outTokenizer.nextToken();
             final int ID = Integer.parseInt(outTokenizer.nextToken());
             String username = outTokenizer.nextToken();
-            ChatBox box = new ChatBox(this, ID);
-            box.setVisible(true);
-            chats.put(ID, box.getModel());
+            if (username.equals(this.user.getUsername())) {
+                ChatBox box = new ChatBox(this, ID, "Chat of " + this.user.getUsername());
+                box.setVisible(true);
+                chats.put(ID, box.getModel());
+            }
         } else if (output.matches("leave \\d+ [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
             ChatBoxModel currentChatModel = chats.get(outTokenizer.nextToken());
             currentChatModel.quit();
             chats.remove(Integer.parseInt(outTokenizer.nextToken()));
+        } else {
+            throw new RuntimeException("Illegal message from server: " + output);
         }
     }
 

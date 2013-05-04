@@ -30,7 +30,7 @@ public class ChatServerClientThread implements Runnable {
             for (String line = in.readLine(); line != null; line = in
                     .readLine()) {
                 System.out.println("received message: " + line);
-                
+
                 if (line.startsWith("login")) {
                     String[] split = line.split(" ");
 
@@ -43,11 +43,17 @@ public class ChatServerClientThread implements Runnable {
 
                     if (this.server.tryAddingUser(username, socket)) {
                         // username is valid
-                        this.server.sendInformationToNewUser(new User(username));
+                        System.out
+                                .println("sending \"success\" to " + username);
+                        out.println("success");
+                        this.server
+                                .sendInformationToNewUser(new User(username));
                         this.server.addMessageToQueue(line);
                     } else {
                         // username is invalid
-                        out.println("logout " + username);
+                        System.out
+                                .println("sending \"invalid\" to " + username);
+                        out.println("invalid");
                     }
                 } else {
                     this.server.addMessageToQueue(line);
@@ -57,7 +63,7 @@ public class ChatServerClientThread implements Runnable {
             e.printStackTrace();
         } finally {
             System.out.println("CLOSING CHAT SERVER CLIENT THREAD");
-            
+
             // log out
             if (username != null) {
                 this.server.addMessageToQueue("logout " + username);

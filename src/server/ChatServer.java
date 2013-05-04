@@ -56,18 +56,24 @@ public class ChatServer {
             thread.start();
         }
     }
-    
+
     public void sendInformationToNewUser(User user) {
         List<User> list = new ArrayList<User>();
         list.add(user);
-        for (User oldUser : clients.keySet()) {
-            this.sendMessageToClients("login " + oldUser.getUsername(), list);
+        for (User oldUser : this.clients.keySet()) {
+            if (!oldUser.equals(user)) {
+                this.sendMessageToClients("login " + oldUser.getUsername(),
+                        list);
+            }
         }
     }
 
-    private void sendMessageToClients(String message, List<User> targets) {
+    private void sendMessageToClients(String message, Iterable<User> targets) {
         for (User user : targets) {
             if (this.clients.containsKey(user)) {
+                System.out.println("sending \"" + message + "\" to "
+                        + user.getUsername());
+
                 try {
                     PrintWriter out = new PrintWriter(this.clients.get(user)
                             .getOutputStream(), true);
@@ -114,8 +120,8 @@ public class ChatServer {
                 String username = split[1];
 
                 // notify all clients that a new user has logged in
-                this.sendMessageToClients("login " + username,
-                        new ArrayList<User>(this.clients.keySet()));
+                Set<User> allUsers = new HashSet<User>(this.clients.keySet());
+                this.sendMessageToClients("login " + username, allUsers);
             }
 
             else if (split[0].equals("logout")) {
@@ -125,9 +131,11 @@ public class ChatServer {
                 }
                 String username = split[1];
 
+                this.clients.remove(new User(username));
+
                 // notify all clients that a new user has logged in
                 this.sendMessageToClients("logout " + username,
-                        new ArrayList<User>(this.clients.keySet()));
+                        this.clients.keySet());
             }
 
             else if (split[0].equals("start")) {
@@ -154,7 +162,7 @@ public class ChatServer {
 
                 for (User user : users) {
                     this.sendMessageToClients("join " + chat.getID() + " "
-                            + user.getUsername(), new ArrayList<User>(users));
+                            + user.getUsername(), users);
                 }
             }
 
@@ -176,8 +184,7 @@ public class ChatServer {
 
                 Conversation chat = this.conversations.get(ID);
                 this.sendMessageToClients("say " + ID + " " + username + " "
-                        + timestamp + " " + text,
-                        new ArrayList<User>(chat.getUsers()));
+                        + timestamp + " " + text, chat.getUsers());
             }
 
             else if (split[0].equals("join")) {
@@ -189,8 +196,9 @@ public class ChatServer {
                 String username = split[2];
 
                 Conversation chat = this.conversations.get(ID);
+                chat.addUser(new User(username));
                 this.sendMessageToClients("join " + ID + " " + username,
-                        new ArrayList<User>(chat.getUsers()));
+                        chat.getUsers());
             }
 
             else if (split[0].equals("leave")) {
@@ -203,7 +211,7 @@ public class ChatServer {
 
                 Conversation chat = this.conversations.get(ID);
                 this.sendMessageToClients("leave " + ID + " " + username,
-                        new ArrayList<User>(chat.getUsers()));
+                        chat.getUsers());
             }
 
             else {
