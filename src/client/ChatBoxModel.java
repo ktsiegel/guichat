@@ -49,4 +49,8 @@ public class ChatBoxModel implements KeyListener {
 	@Override
     public void keyTyped(KeyEvent e) {
     }
+	
+	public ChatBox getChatBox() {
+		return chatBox;
+	}
 }

@@ -1,5 +1,7 @@
 package client;
 
+import java.awt.event.WindowEvent;
+
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -31,6 +33,7 @@ public class ChatBox extends JFrame {
         this.setTitle(title);
 
         createGroupLayout();
+   
     }
     
     private void createGroupLayout() {

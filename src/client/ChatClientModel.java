@@ -40,6 +40,16 @@ public class ChatClientModel {
         ClientListeningThread listener = new ClientListeningThread(this);
         listener.start();
     }
+    
+    /**
+     * Quit all of the open chats.
+     */
+    public void quitChats() {
+    	for (Integer ID: chats.keySet()) {
+    		ChatBoxModel model = chats.remove(ID);
+    		model.getChatBox().dispose();
+    	}
+    }
 
     public boolean tryUsername(String username) {
         this.submitCommand("login " + username);

@@ -1,6 +1,7 @@
 package client;
 
 import java.awt.Color;
+import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +37,14 @@ public class ChatClient extends JFrame {
 
         this.model = new ChatClientModel(this);
         this.setSize(200, 400);
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+            	model.quitChats();
+            	System.exit(0);
+            }
+        });
 
         userLabels = new HashMap<String, JLabel>();
 
@@ -86,6 +95,7 @@ public class ChatClient extends JFrame {
         this.user = user;
 
         welcome.setText("Welcome, " + this.user.getUsername() + "!");
+        
     }
 
     public void addUser(User user) {
