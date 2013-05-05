@@ -155,6 +155,16 @@ public class ChatServer {
 
                 this.clients.remove(new User(username));
 
+                // leave all conversations
+                for (int chatID : this.conversations.keySet()) {
+                    Conversation chat = this.conversations.get(chatID);
+                    if (chat.getUsers().contains(new User(username))) {
+                        chat.removeUser(new User(username));
+                        // send a leave message
+                        this.sendMessageToClients("leave " + username, chat.getUsers());
+                    }
+                }
+                
                 // notify all clients that a new user has logged in
                 this.sendMessageToClients("logout " + username,
                         this.clients.keySet());
@@ -244,6 +254,7 @@ public class ChatServer {
                 String username = split[2];
 
                 Conversation chat = this.conversations.get(ID);
+                chat.removeUser(new User(username));
                 this.sendMessageToClients("leave " + ID + " " + username,
                         chat.getUsers());
             }
