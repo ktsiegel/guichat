@@ -205,17 +205,26 @@ public class ChatClientModel {
                         chats.put(ID, box.getModel());
                     }
                 });
+            } else {
+                // TODO: add message to chat box saying that this user has joined the
+                // conversation
             }
         } else if (output.matches("leave \\d+ [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    ChatBoxModel currentChatModel = chats.get(outTokenizer
-                            .nextToken());
-                    currentChatModel.quit();
-                    chats.remove(Integer.parseInt(outTokenizer.nextToken()));
-                }
-            });
+            final int ID = Integer.parseInt(outTokenizer.nextToken());
+            final String username = outTokenizer.nextToken();
+            if (username.equals(this.user.getUsername())) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        ChatBoxModel currentChatModel = chats.get(ID);
+                        currentChatModel.quit();
+                        chats.remove(Integer.parseInt(username));
+                    }
+                });
+            } else {
+                // TODO: add message to chat box saying that this user has left the
+                // conversation
+            }
         } else {
             throw new RuntimeException("Illegal message from server: " + output);
         }
