@@ -19,10 +19,10 @@ import user.User;
 
 public class ChatClientModel {
     private User user;
-    private Socket socket;
-    private ChatClient client;
-    private HashMap<Integer, ChatBoxModel> chats;
-    private BlockingQueue<String> messages;
+    private final Socket socket;
+    private final ChatClient client;
+    private final HashMap<Integer, ChatBoxModel> chats;
+    private final BlockingQueue<String> messages;
 
     public ChatClientModel(ChatClient client) {
         this.client = client;
@@ -32,6 +32,8 @@ public class ChatClientModel {
             this.socket = this.connect();
         } catch (IOException e) {
             System.out.println("Failure with connecting to socket.");
+            throw new RuntimeException(
+                    "Unexpected IOException in ChatClientModel()");
         }
         this.messages = new LinkedBlockingQueue<String>();
     }
@@ -40,17 +42,23 @@ public class ChatClientModel {
         ClientListeningThread listener = new ClientListeningThread(this);
         listener.start();
     }
-    
+
     /**
      * Quit all of the open chats.
      */
     public void quitChats() {
-    	for (Integer ID: chats.keySet()) {
-    		ChatBoxModel model = chats.remove(ID);
-    		model.getChatBox().dispose();
-    	}
+        for (Integer ID : chats.keySet()) {
+            ChatBoxModel model = chats.remove(ID);
+            model.getChatBox().dispose();
+        }
     }
 
+    /**
+     * Must be run from the event thread to avoid concurrency issues.
+     * 
+     * @param username
+     * @return
+     */
     public boolean tryUsername(String username) {
         this.submitCommand("login " + username);
         try {
@@ -117,7 +125,12 @@ public class ChatClientModel {
             for (String line = in.readLine(); line != null; line = in
                     .readLine()) {
                 System.out.println("client received line " + line);
-                handleRequest(line);
+                final String input = line;
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        handleRequest(input);
+                    }
+                });
             }
             System.out.println("received null input line, closing now");
         } catch (IOException e) {
@@ -130,8 +143,8 @@ public class ChatClientModel {
     }
 
     /**
-     * Handle output from the server according to the guidlines specified in the
-     * design document.
+     * Handle output from the server according to the guidelines specified in the
+     * design document. Must be run from the event thread to avoid concurrency issues.
      * 
      * @param output
      *            The output from the server.
@@ -158,7 +171,8 @@ public class ChatClientModel {
             client.removeUser(outTokenizer.nextToken());
         } else if (output.matches("say \\d+ [A-Za-z0-9]+ [0-9]+ .*")) {
             outTokenizer.nextToken();
-            ChatBoxModel currentChatModel = chats.get(Integer.parseInt(outTokenizer.nextToken()));
+            ChatBoxModel currentChatModel = chats.get(Integer
+                    .parseInt(outTokenizer.nextToken()));
             String message = output;
             for (int i = 0; i < 4; i++) {
                 message = message.substring(message.indexOf(" ") + 1);
@@ -170,7 +184,8 @@ public class ChatClientModel {
             final int ID = Integer.parseInt(outTokenizer.nextToken());
             String username = outTokenizer.nextToken();
             if (username.equals(this.user.getUsername())) {
-                ChatBox box = new ChatBox(this, ID, "Chat of " + this.user.getUsername());
+                ChatBox box = new ChatBox(this, ID, "Chat of "
+                        + this.user.getUsername());
                 box.setVisible(true);
                 chats.put(ID, box.getModel());
             }

@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import conversation.Conversation;
@@ -19,8 +21,8 @@ import user.User;
 
 public class ChatServer {
     private final ServerSocket serverSocket;
-    private final Map<User, Socket> clients;
-    private final Map<Integer, Conversation> conversations;
+    private final ConcurrentMap<User, Socket> clients;
+    private final ConcurrentMap<Integer, Conversation> conversations;
     private final BlockingQueue<String> queue;
 
     public ChatServer(int port) {
@@ -32,8 +34,8 @@ public class ChatServer {
                     "Unexpected IOException when creating server socket with port "
                             + port);
         }
-        clients = new HashMap<User, Socket>();
-        conversations = new HashMap<Integer, Conversation>();
+        clients = new ConcurrentHashMap<User, Socket>();
+        conversations = new ConcurrentHashMap<Integer, Conversation>();
         queue = new LinkedBlockingQueue<String>();
     }
 
@@ -57,14 +59,31 @@ public class ChatServer {
         }
     }
 
-    public void sendInformationToNewUser(User user) {
-        List<User> list = new ArrayList<User>();
-        list.add(user);
-        for (User oldUser : this.clients.keySet()) {
-            if (!oldUser.equals(user)) {
-                this.sendMessageToClients("login " + oldUser.getUsername(),
-                        list);
+    public boolean tryAddingUser(String username, Socket socket) {
+        User user = new User(username);
+        PrintWriter out;
+        try {
+            out = new PrintWriter(socket.getOutputStream(), true);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(
+                    "Unexpected IOException in tryAddingUser()");
+        }
+        if (this.clients.containsKey(user)) {
+            out.println("invalid");
+            return false;
+        } else {
+            out.println("success");
+
+            // update the new user with old information
+            for (User oldUser : this.clients.keySet()) {
+                out.println("login " + oldUser.getUsername());
             }
+
+            // this is done last to prevent race conditions with
+            // sendMessageToClients
+            this.clients.put(user, socket);
+            return true;
         }
     }
 
@@ -218,16 +237,6 @@ public class ChatServer {
                 throw new IllegalStateException(
                         "Unexpected command received from client by server");
             }
-        }
-    }
-
-    public boolean tryAddingUser(String username, Socket socket) {
-        User user = new User(username);
-        if (this.clients.containsKey(user)) {
-            return false;
-        } else {
-            this.clients.put(user, socket);
-            return true;
         }
     }
 

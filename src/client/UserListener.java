@@ -10,9 +10,9 @@ import user.User;
 
 public class UserListener implements MouseListener {
 
-    JLabel userLabel;
-    ChatClientModel model;
-    User friend;
+    private final JLabel userLabel;
+    private final ChatClientModel model;
+    private final User friend;
     
     public UserListener(JLabel userLabel, ChatClientModel model, User friend) {
         this.userLabel = userLabel;

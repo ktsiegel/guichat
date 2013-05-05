@@ -6,46 +6,54 @@ import user.User;
 
 public class Conversation {
 
-    int id;
-    Set<User> users;
+    private final int id;
+    private final Set<User> users;
 
     /**
-     * Create a new Conversation. A Conversation must
-     * have at least one user.
+     * Create a new Conversation. A Conversation must have at least one user.
      * 
-     * @param users The Users to be added to the Conversation.
+     * @param users
+     *            The Users to be added to the Conversation.
      */
     public Conversation(Set<User> users, int id) {
         this.users = users;
         this.id = id;
     }
-    
+
     /**
-     * Add a new user to a Conversation. Do nothing if the user is
-     * already part of the Conversation.
+     * Add a new user to a Conversation. Do nothing if the user is already part
+     * of the Conversation.
      * 
-     * @param user The User to be added to the Conversation.
+     * @param user
+     *            The User to be added to the Conversation.
      */
     public void addUser(User user) {
-        if (!users.contains(user)) {
-            users.add(user);   
+        synchronized (this.users) {
+            if (!users.contains(user)) {
+                users.add(user);
+            }
         }
     }
-    
+
     /**
-     * Remove a user from a Conversation. Do nothing if the user is
-     * not part of the Conversation. 
+     * Remove a user from a Conversation. Do nothing if the user is not part of
+     * the Conversation.
      * 
-     * @param user The User to be removed from the Conversation.
+     * @param user
+     *            The User to be removed from the Conversation.
      */
     public void removeUser(User user) {
-        if (users.contains(user)) {
-            users.remove(user);
+        synchronized (this.users) {
+            if (users.contains(user)) {
+                users.remove(user);
+            }
         }
     }
-    
-    public Set<User> getUsers() {
-        return this.users;
+
+    public synchronized Set<User> getUsers() {
+        synchronized (this.users) {
+            return this.users;
+        }
     }
 
     public int getID() {

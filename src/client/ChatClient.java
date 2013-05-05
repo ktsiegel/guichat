@@ -23,15 +23,15 @@ import user.User;
 
 public class ChatClient extends JFrame {
 
-    User user;
-    Map<String, JLabel> userLabels;
-    JPanel users;
-    JPanel onlineUsers;
-    JScrollPane userScroll;
-    JLabel welcome;
-    JPanel welcomePanel;
+    private final User user;
+    private final Map<String, JLabel> userLabels;
+    private final JPanel users;
+    private final JPanel onlineUsers;
+    private final JScrollPane userScroll;
+    private final JLabel welcome;
+    private final JPanel welcomePanel;
 
-    ChatClientModel model;
+    private final ChatClientModel model;
 
     public ChatClient() {
 
@@ -83,16 +83,13 @@ public class ChatClient extends JFrame {
         this.setTitle("GUI CHAT");
         this.setVisible(true);
 
-        this.user = null;
-
         this.model.startListening();
 
         String username = welcomePane("Enter a username:");
         while (!this.model.tryUsername(username)) {
             username = welcomePane("Sorry, that username has already been taken! Enter a username:");
         }
-        User user = new User(username);
-        this.user = user;
+        this.user = new User(username);
 
         welcome.setText("Welcome, " + this.user.getUsername() + "!");
         

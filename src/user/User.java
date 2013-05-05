@@ -7,7 +7,7 @@ package user;
  */
 public class User {
     
-    String username;
+    private final String username;
     
     /**
      * Create a new User. Each user has a String username which is

@@ -2,7 +2,7 @@ package client;
 
 import java.io.IOException;
 
-public class ClientListeningThread extends Thread{
+public class ClientListeningThread extends Thread {
 	private ChatClientModel model;
 	
 	public ClientListeningThread(ChatClientModel model) {

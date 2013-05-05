@@ -41,20 +41,7 @@ public class ChatServerClientThread implements Runnable {
 
                     username = split[1];
 
-                    if (this.server.tryAddingUser(username, socket)) {
-                        // username is valid
-                        System.out
-                                .println("sending \"success\" to " + username);
-                        out.println("success");
-                        this.server
-                                .sendInformationToNewUser(new User(username));
-                        this.server.addMessageToQueue(line);
-                    } else {
-                        // username is invalid
-                        System.out
-                                .println("sending \"invalid\" to " + username);
-                        out.println("invalid");
-                    }
+                    this.server.tryAddingUser(username, socket);
                 } else {
                     this.server.addMessageToQueue(line);
                 }
