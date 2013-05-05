@@ -221,6 +221,18 @@ public class ChatServer {
                 chat.addUser(new User(username));
                 this.sendMessageToClients("join " + ID + " " + username,
                         chat.getUsers());
+
+                // notify the new user of all the users that were already in the
+                // conversation
+                ArrayList<User> targetUser = new ArrayList<User>();
+                targetUser.add(new User(username));
+                for (User user : chat.getUsers()) {
+                    if (!user.equals(new User(username))) {
+                        this.sendMessageToClients(
+                                "join " + ID + " " + user.getUsername(),
+                                targetUser);
+                    }
+                }
             }
 
             else if (split[0].equals("leave")) {
