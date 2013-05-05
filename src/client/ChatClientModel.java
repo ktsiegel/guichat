@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import client.*;
@@ -21,13 +23,13 @@ public class ChatClientModel {
     private User user;
     private final Socket socket;
     private final ChatClient client;
-    private final HashMap<Integer, ChatBoxModel> chats;
+    private final ConcurrentMap<Integer, ChatBoxModel> chats;
     private final BlockingQueue<String> messages;
 
     public ChatClientModel(ChatClient client) {
         this.client = client;
         this.user = null;
-        chats = new HashMap<Integer, ChatBoxModel>();
+        chats = new ConcurrentHashMap<Integer, ChatBoxModel>();
         try {
             this.socket = this.connect();
         } catch (IOException e) {
@@ -125,12 +127,7 @@ public class ChatClientModel {
             for (String line = in.readLine(); line != null; line = in
                     .readLine()) {
                 System.out.println("client received line " + line);
-                final String input = line;
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        handleRequest(input);
-                    }
-                });
+                handleRequest(line);
             }
             System.out.println("received null input line, closing now");
         } catch (IOException e) {
@@ -143,14 +140,15 @@ public class ChatClientModel {
     }
 
     /**
-     * Handle output from the server according to the guidelines specified in the
-     * design document. Must be run from the event thread to avoid concurrency issues.
+     * Handle output from the server according to the guidelines specified in
+     * the design document. Must be run from the event thread to avoid
+     * concurrency issues.
      * 
      * @param output
      *            The output from the server.
      */
     public void handleRequest(String output) {
-        StringTokenizer outTokenizer = new StringTokenizer(output);
+        final StringTokenizer outTokenizer = new StringTokenizer(output);
         if (output.matches("success")) {
             try {
                 this.messages.put(output);
@@ -165,35 +163,59 @@ public class ChatClientModel {
             }
         } else if (output.matches("login [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
-            client.addUser(new User(outTokenizer.nextToken()));
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    client.addUser(new User(outTokenizer.nextToken()));
+                }
+            });
         } else if (output.matches("logout [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
-            client.removeUser(outTokenizer.nextToken());
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    client.removeUser(outTokenizer.nextToken());
+                }
+            });
         } else if (output.matches("say \\d+ [A-Za-z0-9]+ [0-9]+ .*")) {
             outTokenizer.nextToken();
-            ChatBoxModel currentChatModel = chats.get(Integer
+            final ChatBoxModel currentChatModel = chats.get(Integer
                     .parseInt(outTokenizer.nextToken()));
             String message = output;
             for (int i = 0; i < 4; i++) {
                 message = message.substring(message.indexOf(" ") + 1);
             }
-            currentChatModel.addChatToDisplay(outTokenizer.nextToken(),
-                    outTokenizer.nextToken(), message);
+
+            final String chatMessage = message;
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    currentChatModel.addChatToDisplay(outTokenizer.nextToken(),
+                            outTokenizer.nextToken(), chatMessage);
+                }
+            });
         } else if (output.matches("join \\d+ [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
             final int ID = Integer.parseInt(outTokenizer.nextToken());
             String username = outTokenizer.nextToken();
             if (username.equals(this.user.getUsername())) {
-                ChatBox box = new ChatBox(this, ID, "Chat of "
-                        + this.user.getUsername());
-                box.setVisible(true);
-                chats.put(ID, box.getModel());
+                final ChatClientModel temp = this;
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        ChatBox box = new ChatBox(temp, ID, "Chat of "
+                                + user.getUsername());
+                        box.setVisible(true);
+                        chats.put(ID, box.getModel());
+                    }
+                });
             }
         } else if (output.matches("leave \\d+ [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
-            ChatBoxModel currentChatModel = chats.get(outTokenizer.nextToken());
-            currentChatModel.quit();
-            chats.remove(Integer.parseInt(outTokenizer.nextToken()));
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    ChatBoxModel currentChatModel = chats.get(outTokenizer
+                            .nextToken());
+                    currentChatModel.quit();
+                    chats.remove(Integer.parseInt(outTokenizer.nextToken()));
+                }
+            });
         } else {
             throw new RuntimeException("Illegal message from server: " + output);
         }

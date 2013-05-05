@@ -23,7 +23,7 @@ import user.User;
 
 public class ChatClient extends JFrame {
 
-    private final User user;
+    private User user;
     private final Map<String, JLabel> userLabels;
     private final JPanel users;
     private final JPanel onlineUsers;
@@ -58,7 +58,7 @@ public class ChatClient extends JFrame {
 
         userScroll = new JScrollPane(users);
 
-        welcome = new JLabel("Welcome!"); // , " + user.getUsername() + "!");
+        welcome = new JLabel("Log in to start using guichat"); // , " + user.getUsername() + "!");
         welcome.setHorizontalAlignment(JLabel.CENTER);
 
         welcomePanel = new JPanel();
@@ -82,7 +82,7 @@ public class ChatClient extends JFrame {
         createGroupLayout();
         this.setTitle("GUI CHAT");
         this.setVisible(true);
-
+        
         this.model.startListening();
 
         String username = welcomePane("Enter a username:");
@@ -90,9 +90,9 @@ public class ChatClient extends JFrame {
             username = welcomePane("Sorry, that username has already been taken! Enter a username:");
         }
         this.user = new User(username);
+        System.out.println("GOT USERNAME");
 
         welcome.setText("Welcome, " + this.user.getUsername() + "!");
-        
     }
 
     public void addUser(User user) {

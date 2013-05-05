@@ -74,6 +74,7 @@ public class ChatServer {
             return false;
         } else {
             out.println("success");
+            out.println("login " + username);
 
             // update the new user with old information
             for (User oldUser : this.clients.keySet()) {
@@ -83,6 +84,7 @@ public class ChatServer {
             // this is done last to prevent race conditions with
             // sendMessageToClients
             this.clients.put(user, socket);
+            this.addMessageToQueue("login " + username);
             return true;
         }
     }
@@ -140,6 +142,7 @@ public class ChatServer {
 
                 // notify all clients that a new user has logged in
                 Set<User> allUsers = new HashSet<User>(this.clients.keySet());
+                allUsers.remove(new User(username));
                 this.sendMessageToClients("login " + username, allUsers);
             }
 
