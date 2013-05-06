@@ -29,9 +29,7 @@ public class Conversation {
      */
     public void addUser(User user) {
         synchronized (this.users) {
-            if (!users.contains(user)) {
-                users.add(user);
-            }
+            users.add(user);
         }
     }
 
@@ -44,9 +42,7 @@ public class Conversation {
      */
     public void removeUser(User user) {
         synchronized (this.users) {
-            if (users.contains(user)) {
-                users.remove(user);
-            }
+            users.remove(user);
         }
     }
 
