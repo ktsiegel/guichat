@@ -9,6 +9,8 @@ package client.testing;
  *    - Clicking on the username results in a new ChatBox being opened
  *    - Pressing on a username (without releasing) has no effect
  *    - Releasing over a username (without having pressed there) has no effect
+ *    
+ * @category no_didit
  */
 public class UserListenerTest {
 

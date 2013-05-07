@@ -36,6 +36,8 @@ package client.testing;
  *     - Window has initial size 200 x 400
  *     - Height of welcome does not change as window is resized
  *     - All other dimensions increase proportionally as window is resized  
+ *     
+ * @category no_didit
  */
 public class ChatClientTest {
 

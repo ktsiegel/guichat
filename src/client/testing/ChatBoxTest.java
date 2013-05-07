@@ -29,6 +29,7 @@ package client.testing;
  *     - Initial window size is 300 x 300
  *     - Both message and display have black foreground and white background
  *
+ * @category no_didit
  */
 public class ChatBoxTest {
 
