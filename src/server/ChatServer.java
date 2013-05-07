@@ -60,32 +60,34 @@ public class ChatServer {
     }
 
     public boolean tryAddingUser(String username, Socket socket) {
-        User user = new User(username);
-        PrintWriter out;
-        try {
-            out = new PrintWriter(socket.getOutputStream(), true);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(
-                    "Unexpected IOException in tryAddingUser()");
-        }
-        if (this.clients.containsKey(user)) {
-            out.println("invalid");
-            return false;
-        } else {
-            out.println("success");
-            out.println("login " + username);
-
-            // update the new user with old information
-            for (User oldUser : this.clients.keySet()) {
-                out.println("login " + oldUser.getUsername());
+        synchronized (this.clients) {
+            User user = new User(username);
+            PrintWriter out;
+            try {
+                out = new PrintWriter(socket.getOutputStream(), true);
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException(
+                        "Unexpected IOException in tryAddingUser()");
             }
+            if (this.clients.containsKey(user)) {
+                out.println("invalid");
+                return false;
+            } else {
+                out.println("success");
+                out.println("login " + username);
 
-            // this is done last to prevent race conditions with
-            // sendMessageToClients
-            this.clients.put(user, socket);
-            this.addMessageToQueue("login " + username);
-            return true;
+                // update the new user with old information
+                for (User oldUser : this.clients.keySet()) {
+                    out.println("login " + oldUser.getUsername());
+                }
+
+                // this is done last to prevent race conditions with
+                // sendMessageToClients
+                this.clients.put(user, socket);
+                this.addMessageToQueue("login " + username);
+                return true;
+            }
         }
     }
 
@@ -153,18 +155,23 @@ public class ChatServer {
                 }
                 String username = split[1];
 
-                this.clients.remove(new User(username));
+                synchronized (this.clients) {
+                    this.clients.remove(new User(username));
+                }
 
-                // leave all conversations
-                for (int chatID : this.conversations.keySet()) {
-                    Conversation chat = this.conversations.get(chatID);
-                    if (chat.getUsers().contains(new User(username))) {
-                        chat.removeUser(new User(username));
-                        // send a leave message
-                        this.sendMessageToClients("leave " + username, chat.getUsers());
+                synchronized (this.conversations) {
+                    // leave all conversations
+                    for (int chatID : this.conversations.keySet()) {
+                        Conversation chat = this.conversations.get(chatID);
+                        if (chat.getUsers().contains(new User(username))) {
+                            chat.removeUser(new User(username));
+                            // send a leave message
+                            this.sendMessageToClients("leave " + chatID + " "
+                                    + username, chat.getUsers());
+                        }
                     }
                 }
-                
+
                 // notify all clients that a new user has logged in
                 this.sendMessageToClients("logout " + username,
                         this.clients.keySet());
@@ -188,9 +195,12 @@ public class ChatServer {
                     }
                 }
 
-                Conversation chat = new Conversation(users,
-                        this.nextConversationID());
-                conversations.put(chat.getID(), chat);
+                Conversation chat;
+                synchronized (this.conversations) {
+                    chat = new Conversation(users,
+                            this.nextConversationID());
+                    conversations.put(chat.getID(), chat);
+                }
 
                 for (User user : users) {
                     this.sendMessageToClients("join " + chat.getID() + " "
@@ -227,8 +237,12 @@ public class ChatServer {
                 int ID = Integer.parseInt(split[1]);
                 String username = split[2];
 
-                Conversation chat = this.conversations.get(ID);
-                chat.addUser(new User(username));
+                Conversation chat;
+                synchronized (this.conversations) {
+                    chat = this.conversations.get(ID);
+                    chat.addUser(new User(username));
+                }
+
                 this.sendMessageToClients("join " + ID + " " + username,
                         chat.getUsers());
 
@@ -253,8 +267,17 @@ public class ChatServer {
                 int ID = Integer.parseInt(split[1]);
                 String username = split[2];
 
-                Conversation chat = this.conversations.get(ID);
-                chat.removeUser(new User(username));
+                Conversation chat;
+                synchronized (this.conversations) {
+                    chat = this.conversations.get(ID);
+                    chat.removeUser(new User(username));
+                    
+                    if (chat.getUsers().size() == 0) {
+                        // remove conversation
+                        this.conversations.remove(ID);
+                    }
+                }
+                
                 this.sendMessageToClients("leave " + ID + " " + username,
                         chat.getUsers());
             }
