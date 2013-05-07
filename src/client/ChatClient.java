@@ -36,7 +36,6 @@ public class ChatClient extends JFrame {
     public ChatClient() {
 
         this.model = new ChatClientModel(this);
-        this.setSize(200, 400);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -81,7 +80,6 @@ public class ChatClient extends JFrame {
 
         createGroupLayout();
         this.setTitle("GUI CHAT");
-        this.setVisible(true);
         
         this.model.startListening();
 
@@ -92,7 +90,9 @@ public class ChatClient extends JFrame {
         this.user = new User(username);
         System.out.println("GOT USERNAME");
 
+        this.setSize(200, 400);
         welcome.setText("Welcome, " + this.user.getUsername() + "!");
+        this.setVisible(true);
     }
 
     public void addUser(User user) {
@@ -100,7 +100,7 @@ public class ChatClient extends JFrame {
         userLabels.put(user.getUsername(), userLabel);
         new UserListener(userLabel, model, user);
         onlineUsers.add(userLabel);
-        pack();
+        validate();
     }
 
     public void removeUser(String username) {
@@ -133,6 +133,10 @@ public class ChatClient extends JFrame {
         String username = (String) JOptionPane.showInputDialog(null, message,
                 "Welcome!", JOptionPane.CLOSED_OPTION, icon, null, null);
         return username;
+    }
+    
+    public ChatClientModel getModel() {
+        return this.model;
     }
 
     public static void main(final String[] args) {

@@ -259,4 +259,9 @@ public class ChatClientModel {
         } while (ret == null);
         return ret;
     }
+    
+    
+    public ChatClient getClient() {
+        return this.client;
+    }
 }

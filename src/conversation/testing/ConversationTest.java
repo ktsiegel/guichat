@@ -1,9 +1,11 @@
-package conversation;
+package conversation.testing;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
+
+import conversation.Conversation;
 
 import user.User;
 

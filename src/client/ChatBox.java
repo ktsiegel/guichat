@@ -73,4 +73,12 @@ public class ChatBox extends JFrame {
     public ChatBoxModel getModel() {
         return model;
     }
+    
+    public JTextArea getMessage() {
+        return this.message;
+    }
+    
+    public JTextArea getDisplay() {
+        return this.display;
+    }
 }
