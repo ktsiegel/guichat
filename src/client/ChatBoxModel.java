@@ -42,7 +42,10 @@ public class ChatBoxModel implements KeyListener {
 	@Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyChar() == KeyEvent.VK_ENTER) {
-            addChatLine(chatBox.sendMessage());
+            String message = chatBox.sendMessage();
+            if (!message.equals("")) {
+            	addChatLine(chatBox.sendMessage());
+            }
         }
     }
 
