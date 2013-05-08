@@ -25,8 +25,18 @@ public class ChatBoxModel implements KeyListener {
     	model.sendChat(conversationID, System.currentTimeMillis(), text);
     }
     
+    /**
+     * Adds a message from a user at a given time to the display.
+     * @param username The user from which the message is sent.
+     * @param time The time at which this message was sent.
+     * @param message The text of the message that was sent.
+     */
     public void addChatToDisplay(String username, String time, String message) {
     	chatBox.appendChatLine(username, time, message);
+    }
+    
+    public void addMessageToDisplay(String message) {
+    	chatBox.appendMessage(message);
     }
     
     public void quit() {

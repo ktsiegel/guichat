@@ -68,6 +68,10 @@ public class ChatBox extends JFrame {
     public void appendChatLine(String username, String time, String message) {
         display.append(username + ": " + message + "\n");
     }
+    
+    public void appendMessage(String message) {
+    	display.append(message + "\n");
+    }
 
     // accessors
     public ChatBoxModel getModel() {
