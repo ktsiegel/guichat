@@ -54,7 +54,7 @@ public class ChatBoxModel implements KeyListener {
         if (e.getKeyChar() == KeyEvent.VK_ENTER) {
             String message = chatBox.sendMessage();
             if (!message.equals("")) {
-            	addChatLine(chatBox.sendMessage());
+            	addChatLine(message);
             }
         }
     }
