@@ -180,7 +180,7 @@ public class ChatServer {
             else if (split[0].equals("start")) {
                 if (split.length == 1) {
                     throw new IllegalStateException(
-                            "Invalid login message received from client by server");
+                            "Invalid start message received from client by server");
                 }
 
                 Set<User> users = new HashSet<User>();
@@ -197,14 +197,24 @@ public class ChatServer {
 
                 Conversation chat;
                 synchronized (this.conversations) {
-                    chat = new Conversation(users,
-                            this.nextConversationID());
+                    chat = new Conversation(users, this.nextConversationID());
                     conversations.put(chat.getID(), chat);
                 }
 
                 for (User user : users) {
+                    // first send a message to the user that is joining
+                    Set<User> targetUserSet = new HashSet<User>();
+                    targetUserSet.add(user);
                     this.sendMessageToClients("join " + chat.getID() + " "
-                            + user.getUsername(), users);
+                            + user.getUsername(), targetUserSet);
+
+                    // then notify the user that all the other users are joining
+                    for (User otherUser : users) {
+                        if (!otherUser.equals(user)) {
+                            this.sendMessageToClients("join " + chat.getID()
+                                    + " " + otherUser.getUsername(), targetUserSet);
+                        }
+                    }
                 }
             }
 
@@ -232,7 +242,7 @@ public class ChatServer {
             else if (split[0].equals("join")) {
                 if (split.length != 3) {
                     throw new IllegalStateException(
-                            "Invalid login message received from client by server");
+                            "Invalid join message received from client by server");
                 }
                 int ID = Integer.parseInt(split[1]);
                 String username = split[2];
@@ -262,7 +272,7 @@ public class ChatServer {
             else if (split[0].equals("leave")) {
                 if (split.length != 3) {
                     throw new IllegalStateException(
-                            "Invalid login message received from client by server");
+                            "Invalid leave message received from client by server");
                 }
                 int ID = Integer.parseInt(split[1]);
                 String username = split[2];
@@ -271,13 +281,13 @@ public class ChatServer {
                 synchronized (this.conversations) {
                     chat = this.conversations.get(ID);
                     chat.removeUser(new User(username));
-                    
+
                     if (chat.getUsers().size() == 0) {
                         // remove conversation
                         this.conversations.remove(ID);
                     }
                 }
-                
+
                 this.sendMessageToClients("leave " + ID + " " + username,
                         chat.getUsers());
             }
