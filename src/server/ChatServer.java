@@ -202,9 +202,17 @@ public class ChatServer {
                     conversations.put(chat.getID(), chat);
                 }
 
-                for (User user : users) {
+                for (User user : new HashSet<User>(users)) {
+                    // first send a message to the user that is joining
+                    Set<User> targetUserSet = new HashSet<User>();
+                    targetUserSet.add(user);
+                    this.sendMessageToClients("join " + chat.getID() + " " + user.getUsername(), targetUserSet);
+                    
+                    // then notify the user that all the other users are joining
+                    users.remove(user);
                     this.sendMessageToClients("join " + chat.getID() + " "
                             + user.getUsername(), users);
+                    users.add(user);
                 }
             }
 
