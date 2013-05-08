@@ -180,7 +180,7 @@ public class ChatServer {
             else if (split[0].equals("start")) {
                 if (split.length == 1) {
                     throw new IllegalStateException(
-                            "Invalid login message received from client by server");
+                            "Invalid start message received from client by server");
                 }
 
                 Set<User> users = new HashSet<User>();
@@ -232,7 +232,7 @@ public class ChatServer {
             else if (split[0].equals("join")) {
                 if (split.length != 3) {
                     throw new IllegalStateException(
-                            "Invalid login message received from client by server");
+                            "Invalid join message received from client by server");
                 }
                 int ID = Integer.parseInt(split[1]);
                 String username = split[2];
@@ -262,7 +262,7 @@ public class ChatServer {
             else if (split[0].equals("leave")) {
                 if (split.length != 3) {
                     throw new IllegalStateException(
-                            "Invalid login message received from client by server");
+                            "Invalid leave message received from client by server");
                 }
                 int ID = Integer.parseInt(split[1]);
                 String username = split[2];
