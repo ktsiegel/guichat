@@ -226,8 +226,12 @@ public class ChatClientModel {
                     }
                 });
             } else {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
                 chats.get(ID).addMessageToDisplay(
                         username + " has left the conversation.");
+                    }
+                });
             }
         } else {
             throw new RuntimeException("Illegal message from server: " + output);
