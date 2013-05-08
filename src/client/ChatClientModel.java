@@ -206,8 +206,8 @@ public class ChatClientModel {
                     }
                 });
             } else {
-                // TODO: add message to chat box saying that this user has joined the
-                // conversation
+            	//chats.get(ID).addMessageToDisplay(username + " has joined the conversation.");
+            	//TODO: finish this
             }
         } else if (output.matches("leave \\d+ [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
@@ -222,8 +222,8 @@ public class ChatClientModel {
                     }
                 });
             } else {
-                // TODO: add message to chat box saying that this user has left the
-                // conversation
+            	//chats.get(ID).addMessageToDisplay(username + " has left the conversation.");
+            	//TODO: finish this
             }
         } else {
             throw new RuntimeException("Illegal message from server: " + output);
