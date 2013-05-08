@@ -194,7 +194,7 @@ public class ChatClientModel {
         } else if (output.matches("join \\d+ [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
             final int ID = Integer.parseInt(outTokenizer.nextToken());
-            String username = outTokenizer.nextToken();
+            final String username = outTokenizer.nextToken();
             if (username.equals(this.user.getUsername())) {
                 final ChatClientModel temp = this;
                 SwingUtilities.invokeLater(new Runnable() {
@@ -206,7 +206,12 @@ public class ChatClientModel {
                     }
                 });
             } else {
-            	chats.get(ID).addMessageToDisplay(username + " has joined the conversation.");
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        chats.get(ID).addMessageToDisplay(
+                                username + " has joined the conversation.");
+                    }
+                });
             }
         } else if (output.matches("leave \\d+ [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
@@ -221,7 +226,8 @@ public class ChatClientModel {
                     }
                 });
             } else {
-            	chats.get(ID).addMessageToDisplay(username + " has left the conversation.");
+                chats.get(ID).addMessageToDisplay(
+                        username + " has left the conversation.");
             }
         } else {
             throw new RuntimeException("Illegal message from server: " + output);
@@ -257,8 +263,7 @@ public class ChatClientModel {
         } while (ret == null);
         return ret;
     }
-    
-    
+
     public ChatClient getClient() {
         return this.client;
     }

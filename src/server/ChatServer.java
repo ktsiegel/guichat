@@ -197,22 +197,24 @@ public class ChatServer {
 
                 Conversation chat;
                 synchronized (this.conversations) {
-                    chat = new Conversation(users,
-                            this.nextConversationID());
+                    chat = new Conversation(users, this.nextConversationID());
                     conversations.put(chat.getID(), chat);
                 }
 
-                for (User user : new HashSet<User>(users)) {
+                for (User user : users) {
                     // first send a message to the user that is joining
                     Set<User> targetUserSet = new HashSet<User>();
                     targetUserSet.add(user);
-                    this.sendMessageToClients("join " + chat.getID() + " " + user.getUsername(), targetUserSet);
-                    
-                    // then notify the user that all the other users are joining
-                    users.remove(user);
                     this.sendMessageToClients("join " + chat.getID() + " "
-                            + user.getUsername(), users);
-                    users.add(user);
+                            + user.getUsername(), targetUserSet);
+
+                    // then notify the user that all the other users are joining
+                    for (User otherUser : users) {
+                        if (!otherUser.equals(user)) {
+                            this.sendMessageToClients("join " + chat.getID()
+                                    + " " + otherUser.getUsername(), targetUserSet);
+                        }
+                    }
                 }
             }
 
@@ -279,13 +281,13 @@ public class ChatServer {
                 synchronized (this.conversations) {
                     chat = this.conversations.get(ID);
                     chat.removeUser(new User(username));
-                    
+
                     if (chat.getUsers().size() == 0) {
                         // remove conversation
                         this.conversations.remove(ID);
                     }
                 }
-                
+
                 this.sendMessageToClients("leave " + ID + " " + username,
                         chat.getUsers());
             }
