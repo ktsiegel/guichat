@@ -255,7 +255,7 @@ public class ChatClientModel implements ActionListener{
         int attempts = 0;
         do {
             try {
-                ret = new Socket("18.111.115.46", port);
+                ret = new Socket("localhost", port);
             } catch (ConnectException ce) {
                 try {
                     if (++attempts > MAX_ATTEMPTS)
