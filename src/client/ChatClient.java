@@ -10,6 +10,7 @@ import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Group;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -30,6 +31,7 @@ public class ChatClient extends JFrame {
     private final JScrollPane userScroll;
     private final JLabel welcome;
     private final JPanel welcomePanel;
+    //private final JButton logoutButton;
 
     private final ChatClientModel model;
 
