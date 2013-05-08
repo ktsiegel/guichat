@@ -31,7 +31,7 @@ public class ChatClient extends JFrame {
     private final JScrollPane userScroll;
     private final JLabel welcome;
     private final JPanel welcomePanel;
-    //private final JButton logoutButton;
+    private final JButton logoutButton;
 
     private final ChatClientModel model;
 
@@ -46,6 +46,10 @@ public class ChatClient extends JFrame {
             	System.exit(0);
             }
         });
+        
+        logoutButton = new JButton();
+        logoutButton.setActionCommand("logout");
+        logoutButton.addActionListener(model);
 
         userLabels = new HashMap<String, JLabel>();
 

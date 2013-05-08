@@ -1,5 +1,7 @@
 package client;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,7 +21,7 @@ import javax.swing.SwingUtilities;
 import server.ChatServer;
 import user.User;
 
-public class ChatClientModel {
+public class ChatClientModel implements ActionListener{
     private User user;
     private final Socket socket;
     private final ChatClient client;
@@ -206,8 +208,7 @@ public class ChatClientModel {
                     }
                 });
             } else {
-            	//chats.get(ID).addMessageToDisplay(username + " has joined the conversation.");
-                SwingUtilities.invokeLater(new Runnable() {
+            	SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         chats.get(ID).addMessageToDisplay(
                                 username + " has joined the conversation.");
@@ -227,8 +228,7 @@ public class ChatClientModel {
                     }
                 });
             } else {
-            	//chats.get(ID).addMessageToDisplay(username + " has left the conversation.");
-                SwingUtilities.invokeLater(new Runnable() {
+            	SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                 chats.get(ID).addMessageToDisplay(
                         username + " has left the conversation.");
@@ -272,5 +272,15 @@ public class ChatClientModel {
 
     public ChatClient getClient() {
         return this.client;
+    }
+
+	@Override
+    public void actionPerformed(ActionEvent event) {
+	    if (event.getActionCommand().equals("logout")) {
+	    	quitChats();
+	    	this.client.dispose();
+	    	System.exit(0);
+	    }
+	    
     }
 }
