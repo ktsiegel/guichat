@@ -209,9 +209,9 @@ public class ChatServer {
             }
 
             else if (split[0].equals("say")) {
-                if (split.length < 5) {
+                if (split.length < 4) {
                     throw new IllegalStateException(
-                            "Invalid login message received from client by server");
+                            "Invalid say message received from client by server");
                 }
                 int ID = Integer.parseInt(split[1]);
                 String username = split[2];

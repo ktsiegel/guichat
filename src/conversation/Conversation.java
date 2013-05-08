@@ -1,5 +1,6 @@
 package conversation;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import user.User;
@@ -48,7 +49,7 @@ public class Conversation {
 
     public synchronized Set<User> getUsers() {
         synchronized (this.users) {
-            return this.users;
+            return new HashSet<User>(this.users);
         }
     }
 
