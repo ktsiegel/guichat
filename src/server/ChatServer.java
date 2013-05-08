@@ -294,7 +294,7 @@ public class ChatServer {
 
             else {
                 throw new IllegalStateException(
-                        "Unexpected command received from client by server");
+                        "Unexpected command received from client by server: " + message);
             }
         }
     }
