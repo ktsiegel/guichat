@@ -113,6 +113,14 @@ public class ChatClientModel implements ActionListener{
     	submitCommand(command);
     }
     
+    public void addGroupChat(Set<User> others) {
+    	String command = "start " + this.user.getUsername() + " ";
+    	for (User other: others) {
+    		command += other.getUsername() + " ";
+    	}
+    	submitCommand(command.substring(0,command.length()-1));
+    }
+    
     public void removeChat(int conversationID) {
     	System.out.println(this.chats.toString());
     	if (this.chats.containsKey(conversationID)) {
@@ -230,7 +238,7 @@ public class ChatClientModel implements ActionListener{
                             outTokenizer.nextToken(), chatMessage);
                 }
             });
-        } else if (output.matches("join \\d+ [A-Za-z0-9]+")) {
+        } else if (output.matches("join \\d+ [A-Za-z0-9 ]+")) {
             outTokenizer.nextToken();
             final int ID = Integer.parseInt(outTokenizer.nextToken());
             final String username = outTokenizer.nextToken();
@@ -243,7 +251,7 @@ public class ChatClientModel implements ActionListener{
                         chats.put(ID, box.getModel());
                     }
                 });
-            } else {
+            } else if (!outTokenizer.hasMoreTokens()) {
             	SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         chats.get(ID).addMessageToDisplay(username + " has joined the conversation.");
