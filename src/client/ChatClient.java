@@ -2,6 +2,7 @@ package client;
 
 import java.awt.Color;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -143,18 +144,5 @@ public class ChatClient extends JFrame {
     
     public ChatClientModel getModel() {
         return this.model;
-    }
-
-    public static void main(final String[] args) {
-        // SwingUtilities.invokeLater(new Runnable() {
-        // public void run() {
-        // ChatClient main = new ChatClient();
-        //
-        // main.addUser(new User("Casey"));
-        // main.addUser(new User("Katie"));
-        // main.addUser(new User("Alex"));
-        // //main.setVisible(true);
-        // }
-        // });
     }
 }

@@ -42,6 +42,10 @@ public class ChatBoxModel implements KeyListener {
     public void quit() {
     	chatBox.setVisible(false);
     }
+    
+    public void quitChatBox() {
+    	this.model.removeChat(conversationID);
+    }
 
 	@Override
     public void keyPressed(KeyEvent e) {

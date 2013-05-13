@@ -72,6 +72,12 @@ public class ChatBox extends JFrame {
     public void appendMessage(String message) {
     	display.append(message + "\n");
     }
+    
+//    @Override
+//    public void dispose() {
+//    	this.model.quitChatBox();
+//    	super.dispose();
+//    }
 
     // accessors
     public ChatBoxModel getModel() {

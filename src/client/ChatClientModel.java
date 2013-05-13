@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
@@ -27,6 +28,7 @@ public class ChatClientModel implements ActionListener{
     private final ChatClient client;
     private final ConcurrentMap<Integer, ChatBoxModel> chats;
     private final BlockingQueue<String> messages;
+    private ConcurrentMap<Integer, String> history;
 
     public ChatClientModel(ChatClient client) {
         this.client = client;
@@ -40,6 +42,7 @@ public class ChatClientModel implements ActionListener{
                     "Unexpected IOException in ChatClientModel()");
         }
         this.messages = new LinkedBlockingQueue<String>();
+        this.history = new ConcurrentHashMap<Integer,String>();
     }
 
     public void startListening() {
@@ -92,6 +95,11 @@ public class ChatClientModel implements ActionListener{
     public void addChat(User other) {
         submitCommand("start " + this.user.getUsername() + " "
                 + other.getUsername());
+    }
+    
+    public void removeChat(int conversationID) {
+    	String message = this.chats.remove(conversationID).getChatBox().getDisplay().getText();
+    	history.put(conversationID, message);
     }
 
     public void sendChat(int ID, long time, String text) {
@@ -255,7 +263,7 @@ public class ChatClientModel implements ActionListener{
         int attempts = 0;
         do {
             try {
-                ret = new Socket("18.111.115.46", port);
+                ret = new Socket("18.111.5.249", port);
             } catch (ConnectException ce) {
                 try {
                     if (++attempts > MAX_ATTEMPTS)
