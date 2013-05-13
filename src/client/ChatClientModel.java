@@ -101,8 +101,10 @@ public class ChatClientModel implements ActionListener{
     }
     
     public void removeChat(int conversationID) {
-    	String message = this.chats.remove(conversationID).getChatBox().getDisplay().getText();
-    	history.put(conversationID, message);
+    	if (this.chats.containsKey(conversationID)) {
+    		String message = this.chats.remove(conversationID).getChatBox().getDisplay().getText();
+        	history.put(conversationID, message);
+    	}
     }
 
     public void sendChat(int ID, long time, String text) {
@@ -214,6 +216,9 @@ public class ChatClientModel implements ActionListener{
                     public void run() {
                         ChatBox box = new ChatBox(temp, ID, "Chat of "
                                 + user.getUsername());
+                        if (history.containsKey(ID)) {
+                        	box.appendMessage(history.get(ID));
+                        }
                         box.setVisible(true);
                         chats.put(ID, box.getModel());
                     }
