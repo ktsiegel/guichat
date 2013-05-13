@@ -10,6 +10,7 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,6 +19,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import client.*;
 import javax.swing.SwingUtilities;
+
+import conversation.ChatHistory;
 
 import server.ChatServer;
 import user.User;
@@ -28,7 +31,8 @@ public class ChatClientModel implements ActionListener{
     private final ChatClient client;
     private final ConcurrentMap<Integer, ChatBoxModel> chats;
     private final BlockingQueue<String> messages;
-    private ConcurrentMap<Integer, String> history;
+    private ConcurrentMap<Integer, ChatHistory> history;
+    private ConcurrentMap<String, Integer> conversationIDMap;
 
     public ChatClientModel(ChatClient client) {
         this.client = client;
@@ -42,7 +46,8 @@ public class ChatClientModel implements ActionListener{
                     "Unexpected IOException in ChatClientModel()");
         }
         this.messages = new LinkedBlockingQueue<String>();
-        this.history = new ConcurrentHashMap<Integer,String>();
+        this.history = new ConcurrentHashMap<Integer,ChatHistory>();
+        this.conversationIDMap = new ConcurrentHashMap<String, Integer>();
     }
 
     public void startListening() {
@@ -96,14 +101,21 @@ public class ChatClientModel implements ActionListener{
      *            The User with which the client wants to chat
      */
     public void addChat(User other) {
-        submitCommand("start " + this.user.getUsername() + " "
-                + other.getUsername());
+        if (conversationIDMap.containsKey(other.getUsername())) {
+        	submitCommand("join " + Integer.toString(conversationIDMap.get(other.getUsername())) + 
+        			" " + this.user.getUsername());
+        }
+        else {
+        	submitCommand("start " + this.user.getUsername() + " " + other.getUsername());
+        }
     }
     
     public void removeChat(int conversationID) {
     	if (this.chats.containsKey(conversationID)) {
-    		String message = this.chats.remove(conversationID).getChatBox().getDisplay().getText();
-        	history.put(conversationID, message);
+    		ChatBox box = this.chats.remove(conversationID).getChatBox();
+    		String message = box.getDisplay().getText();
+    		Set<User> others = box.getOthers();
+        	history.put(conversationID, new ChatHistory(others,message));
     	}
     }
 
@@ -215,9 +227,10 @@ public class ChatClientModel implements ActionListener{
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         ChatBox box = new ChatBox(temp, ID, "Chat of "
-                                + user.getUsername());
+                                + user.getUsername(), username);
+                        conversationIDMap.put(username, ID);
                         if (history.containsKey(ID)) {
-                        	box.appendMessage(history.get(ID));
+                        	box.appendMessage(history.get(ID).getHistory());
                         }
                         box.setVisible(true);
                         chats.put(ID, box.getModel());

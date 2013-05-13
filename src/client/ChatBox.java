@@ -1,12 +1,16 @@
 package client;
 
 import java.awt.event.WindowEvent;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+
+import user.User;
 
 public class ChatBox extends JFrame {
 
@@ -15,9 +19,10 @@ public class ChatBox extends JFrame {
     private final JScrollPane displayScroll;
     private final JScrollPane messageScroll;
     private final ChatBoxModel model;
+    private Set<User> others;
 
     public ChatBox(ChatClientModel chatClientModel, int conversationID,
-            String title) {
+            String title, String other) {
         this.model = new ChatBoxModel(chatClientModel, this, conversationID);
         this.setSize(300, 300);
 
@@ -30,6 +35,9 @@ public class ChatBox extends JFrame {
         message.setLineWrap(true);
         messageScroll = new JScrollPane(message);
         message.addKeyListener(model);
+        
+        others = new HashSet<User>();
+        others.add(new User(other));
 
         this.setTitle(title);
 
@@ -90,5 +98,9 @@ public class ChatBox extends JFrame {
     
     public JTextArea getDisplay() {
         return this.display;
+    }
+    
+    public Set<User> getOthers() {
+    	return others;
     }
 }

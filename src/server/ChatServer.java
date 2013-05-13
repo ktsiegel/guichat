@@ -280,7 +280,8 @@ public class ChatServer {
                 Conversation chat;
                 synchronized (this.conversations) {
                     chat = this.conversations.get(ID);
-                    chat.removeUser(new User(username));
+                    chat.removeUser(new User(username)); //CHANGED
+                	//chat.deactivateUser(new User(username)); 
 
                     if (chat.getUsers().size() == 0) {
                         // remove conversation

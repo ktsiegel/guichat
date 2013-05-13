@@ -9,6 +9,7 @@ public class Conversation {
 
     private final int id;
     private final Set<User> users;
+    private final Set<User> inactiveUsers;
 
     /**
      * Create a new Conversation. A Conversation must have at least one user.
@@ -19,6 +20,7 @@ public class Conversation {
     public Conversation(Set<User> users, int id) {
         this.users = users;
         this.id = id;
+        this.inactiveUsers = new HashSet<User>();
     }
 
     /**
@@ -31,6 +33,11 @@ public class Conversation {
     public void addUser(User user) {
         synchronized (this.users) {
             users.add(user);
+            synchronized (this.inactiveUsers){
+            	if (this.inactiveUsers.contains(user)) {
+                	inactiveUsers.remove(user);
+                }
+            }
         }
     }
 
@@ -46,11 +53,26 @@ public class Conversation {
             users.remove(user);
         }
     }
+    
+    public void deactivateUser(User user) {
+    	synchronized (this.users) {
+    		this.users.remove(user);
+    		synchronized(this.inactiveUsers) {
+    			this.inactiveUsers.add(user);
+    		}
+    	}
+    }
 
     public synchronized Set<User> getUsers() {
         synchronized (this.users) {
             return new HashSet<User>(this.users);
         }
+    }
+    
+    public synchronized Set<User> getInactiveUsers() {
+    	synchronized(this.inactiveUsers) {
+    		return new HashSet<User>(this.inactiveUsers);
+    	}
     }
 
     public int getID() {

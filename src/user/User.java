@@ -8,6 +8,7 @@ package user;
 public class User {
     
     private final String username;
+    private boolean isActive;
     
     /**
      * Create a new User. Each user has a String username which is
@@ -17,6 +18,7 @@ public class User {
      */
     public User(String username) {
         this.username = username;
+        this.isActive = true;
     }
 
     @Override
@@ -48,5 +50,4 @@ public class User {
     public String getUsername() {
         return this.username;
     }
-    
 }
