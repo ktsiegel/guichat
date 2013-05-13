@@ -67,23 +67,26 @@ public class ChatClientModel implements ActionListener{
      * @return
      */
     public boolean tryUsername(String username) {
-        this.submitCommand("login " + username);
-        try {
-            String result = this.messages.take();
-            if (result.equals("success")) {
-                this.user = new User(username);
-                return true;
-            } else if (result.equals("invalid")) {
-                return false;
-            } else {
+        if (username != null && !username.equals("")) {
+        	this.submitCommand("login " + username);
+            try {
+                String result = this.messages.take();
+                if (result.equals("success")) {
+                    this.user = new User(username);
+                    return true;
+                } else if (result.equals("invalid")) {
+                    return false;
+                } else {
+                    throw new RuntimeException(
+                            "Unexpected message when trying username: " + result);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
                 throw new RuntimeException(
-                        "Unexpected message when trying username: " + result);
+                        "Unexpected InterruptedException in tryUsername()");
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            throw new RuntimeException(
-                    "Unexpected InterruptedException in tryUsername()");
         }
+        return false;
     }
 
     /**
@@ -263,7 +266,8 @@ public class ChatClientModel implements ActionListener{
         int attempts = 0;
         do {
             try {
-                ret = new Socket("18.111.5.249", port);
+                ret = new Socket("18.189.17.62", port);
+                //ret = new Socket("localhost", port);
             } catch (ConnectException ce) {
                 try {
                     if (++attempts > MAX_ATTEMPTS)

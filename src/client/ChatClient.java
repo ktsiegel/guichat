@@ -92,7 +92,12 @@ public class ChatClient extends JFrame {
 
         String username = welcomePane("Enter a username:");
         while (!this.model.tryUsername(username)) {
-            username = welcomePane("Sorry, that username has already been taken! Enter a username:");
+            if (username != null && !username.equals("")) {
+            	username = welcomePane("Sorry, that username has already been taken! Enter a username:");
+            }
+            else {
+            	username = welcomePane("Usernames must be >0 characters long.");
+            }
         }
         this.user = new User(username);
         System.out.println("GOT USERNAME");
@@ -139,6 +144,7 @@ public class ChatClient extends JFrame {
         ImageIcon icon = new ImageIcon("icons/chat.png");
         String username = (String) JOptionPane.showInputDialog(null, message,
                 "Welcome!", JOptionPane.CLOSED_OPTION, icon, null, null);
+        System.out.println(username);
         return username;
     }
     
