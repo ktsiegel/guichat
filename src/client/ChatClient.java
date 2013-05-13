@@ -31,12 +31,13 @@ public class ChatClient extends JFrame {
     private User user;
     private final Map<String, JLabel> userLabels;
     private final JPanel users;
-    //private final JPanel onlineUsers;
     private final JScrollPane userScroll;
     private final JLabel welcome;
     private final JPanel welcomePanel;
     private final JButton logoutButton;
     private final JPanel userPanel;
+    private final JPanel userNest;
+    private final JPanel conversationNest;
 
     private final ChatClientModel model;
 
@@ -52,7 +53,7 @@ public class ChatClient extends JFrame {
         });
         
         userPanel = new JPanel();
-        userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.PAGE_AXIS));
+        //userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.PAGE_AXIS));
         
         logoutButton = new JButton();
         logoutButton.setActionCommand("logout");
@@ -69,12 +70,12 @@ public class ChatClient extends JFrame {
         conversations.setLayout(new BoxLayout(conversations, BoxLayout.PAGE_AXIS));
         JScrollPane conversationScroll = new JScrollPane(conversations);
 
-        JPanel userNest = new JPanel();
+        userNest = new JPanel();
         userNest.add(userScroll);
         userNest.setLayout(new BoxLayout(userNest, BoxLayout.PAGE_AXIS));
         userNest.setOpaque(false);
         
-        JPanel conversationNest = new JPanel();
+        conversationNest = new JPanel();
         conversationNest.add(conversationScroll);
         conversationNest.setLayout(new BoxLayout(conversationNest, BoxLayout.PAGE_AXIS));
         conversationNest.setOpaque(false);
@@ -104,6 +105,7 @@ public class ChatClient extends JFrame {
         TitledBorder userBorder = BorderFactory.createTitledBorder(emptyBorder, "Friends");
         userBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         userBorder.setTitleColor(Color.white);
+        userBorder.setTitleFont(userBorder.getTitleFont().deriveFont(Font.BOLD));
         
         users.setBorder(paddingBorder);
         userScroll.setBorder(lineBorder);
@@ -113,6 +115,7 @@ public class ChatClient extends JFrame {
         TitledBorder conversationBorder = BorderFactory.createTitledBorder(emptyBorder, "Past Group Chats");
         conversationBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         conversationBorder.setTitleColor(Color.white);
+        conversationBorder.setTitleFont(conversationBorder.getTitleFont().deriveFont(Font.BOLD));
         
         conversations.setBorder(paddingBorder);
         conversationScroll.setBorder(lineBorder);
@@ -177,9 +180,9 @@ public class ChatClient extends JFrame {
         conversations.add(new JLabel("tester6"));
         conversations.add(new JLabel("tester7"));
         conversations.add(new JLabel("tester8"));*/
-        
+        userPanelLayout();
         this.setSize(200, 500);
-        welcome.setText("<html><font size=+1>Welcome, " + this.user.getUsername() + "!</font></html>");
+        welcome.setText("<html><font size=+1><b>Welcome, " + this.user.getUsername() + "!</b></font></html>");
         this.setVisible(true);
     }
 
@@ -194,6 +197,23 @@ public class ChatClient extends JFrame {
     public void removeUser(String username) {
         users.remove(userLabels.get(username));
         validate();
+    }
+    
+    public void userPanelLayout() {
+        GroupLayout layout = new GroupLayout(userPanel);
+        userPanel.setLayout(layout);
+        
+        Group h = layout.createParallelGroup();
+        h.addComponent(userNest, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        h.addComponent(conversationNest, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        
+        Group v = layout.createSequentialGroup();
+        v.addComponent(userNest, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        v.addComponent(conversationNest, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, 150);
+        
+        layout.setHorizontalGroup(h);
+        layout.setVerticalGroup(v);
+        
     }
 
     private void createGroupLayout() {

@@ -1,14 +1,22 @@
 package client;
 
+import java.awt.Color;
 import java.awt.event.WindowEvent;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.GroupLayout.Group;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 
 import user.User;
 
@@ -19,7 +27,10 @@ public class ChatBox extends JFrame {
     private final JScrollPane displayScroll;
     private final JScrollPane messageScroll;
     private final ChatBoxModel model;
+    private final JPanel background;
+    private final JPanel gap;
     private Set<User> others;
+
 
     public ChatBox(ChatClientModel chatClientModel, int conversationID,
             String title) {
@@ -45,33 +56,50 @@ public class ChatBox extends JFrame {
         message.addKeyListener(model);
         
         others = new HashSet<User>();
-
-        this.setTitle(title);
+        
+        background = new JPanel();
+        gap = new JPanel();
+        gap.setBackground(new Color(0, 51, 102));
+        
+        background.setBackground(new Color(0, 51, 102));
+        
+        Border paddingBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+        Border textBorder = BorderFactory.createEmptyBorder(5, 5, 5, 5);
+        Border lineBorder = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
+        
+        display.setBorder(textBorder);
+        displayScroll.setBorder(lineBorder);
+        message.setBorder(textBorder);
+        messageScroll.setBorder(lineBorder);
+        background.setBorder(paddingBorder);
+        
+        this.add(background);
+        this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
 
         createGroupLayout();
     }
 
+
     private void createGroupLayout() {
-        GroupLayout layout = new GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
+        GroupLayout layout = new GroupLayout(background);
+        background.setLayout(layout);
 
-        layout.setHorizontalGroup(layout
-                .createParallelGroup()
-                .addGroup(
-                        layout.createSequentialGroup().addComponent(
-                                displayScroll, GroupLayout.DEFAULT_SIZE,
-                                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addComponent(messageScroll, GroupLayout.DEFAULT_SIZE,
-                        GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
+        Group h = layout.createParallelGroup();
+        h.addComponent(displayScroll, GroupLayout.DEFAULT_SIZE,
+                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        h.addComponent(gap, GroupLayout.DEFAULT_SIZE,
+                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        h.addComponent(messageScroll, GroupLayout.DEFAULT_SIZE,
+                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
 
-        layout.setVerticalGroup(layout
-                .createSequentialGroup()
-                .addGroup(
-                        layout.createParallelGroup(
-                                GroupLayout.Alignment.BASELINE).addComponent(
-                                displayScroll, GroupLayout.DEFAULT_SIZE,
-                                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addComponent(messageScroll, 60, 60, 60));
+        Group v = layout.createSequentialGroup();
+        v.addComponent(displayScroll, GroupLayout.DEFAULT_SIZE,
+                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        v.addComponent(gap, 10, 10, 10);
+        v.addComponent(messageScroll, 60, 60, 60);
+
+        layout.setHorizontalGroup(h);
+        layout.setVerticalGroup(v);
     }
 
     public String sendMessage() {
@@ -104,4 +132,5 @@ public class ChatBox extends JFrame {
     public Set<User> getOthers() {
     	return others;
     }
+
 }
