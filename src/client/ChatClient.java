@@ -193,7 +193,7 @@ public class ChatClient extends JFrame {
 
     public void removeUser(String username) {
         users.remove(userLabels.get(username));
-        users.revalidate();
+        validate();
     }
 
     private void createGroupLayout() {
