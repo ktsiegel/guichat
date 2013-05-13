@@ -22,8 +22,16 @@ public class ChatBox extends JFrame {
     private Set<User> others;
 
     public ChatBox(ChatClientModel chatClientModel, int conversationID,
-            String title, String other) {
+            String title) {
         this.model = new ChatBoxModel(chatClientModel, this, conversationID);
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+        	@Override
+	        public void windowClosing(WindowEvent e) {
+	        	System.out.println("dispose was called");
+	        	model.quitChatBox();
+	        	dispose();
+	        }
+        });
         this.setSize(300, 300);
 
         display = new JTextArea();
@@ -37,7 +45,6 @@ public class ChatBox extends JFrame {
         message.addKeyListener(model);
         
         others = new HashSet<User>();
-        others.add(new User(other));
 
         this.setTitle(title);
 
@@ -79,12 +86,6 @@ public class ChatBox extends JFrame {
     
     public void appendMessage(String message) {
     	display.append(message + "\n");
-    }
-    
-    @Override
-    public void dispose() {
-    	this.model.quitChatBox();
-    	super.dispose();
     }
 
     // accessors
