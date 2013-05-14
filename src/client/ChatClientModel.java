@@ -8,8 +8,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
@@ -17,12 +15,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import client.*;
 import javax.swing.SwingUtilities;
 
 import conversation.ChatHistory;
 
-import server.ChatServer;
 import user.User;
 
 public class ChatClientModel implements ActionListener{
@@ -73,13 +69,13 @@ public class ChatClientModel implements ActionListener{
      */
     public boolean tryUsername(String username) {
         if (username != null && !username.equals("")) {
-        	this.submitCommand("login " + username);
+        	this.submitCommand("login_attempt " + username);
             try {
                 String result = this.messages.take();
-                if (result.equals("success")) {
+                if (result.equals("login_success")) {
                     this.user = new User(username);
                     return true;
-                } else if (result.equals("invalid")) {
+                } else if (result.equals("login_invalid")) {
                     return false;
                 } else {
                     throw new RuntimeException(
@@ -103,18 +99,18 @@ public class ChatClientModel implements ActionListener{
     public void addChat(User other) {
     	String command = "";
     	if (conversationIDMap.containsKey(other.getUsername())) {
-        	command = "join " + Integer.toString(conversationIDMap.get(other.getUsername())) + 
+        	command = "chat_join " + Integer.toString(conversationIDMap.get(other.getUsername())) + 
         			" " + this.user.getUsername();
         }
         else {
-        	command = "start " + this.user.getUsername() + " " + other.getUsername();
+        	command = "chat_start " + this.user.getUsername() + " " + other.getUsername();
         }
     	System.out.println("client sent " + command);
     	submitCommand(command);
     }
     
     public void addGroupChat(Set<User> others) {
-    	String command = "start " + this.user.getUsername() + " ";
+    	String command = "chat_start " + this.user.getUsername() + " ";
     	for (User other: others) {
     		command += other.getUsername() + " ";
     	}
@@ -135,13 +131,13 @@ public class ChatClientModel implements ActionListener{
     }
     
     public void exitChat(int ID) {
-    	submitCommand("leave " + Integer.toString(ID) + " " + user.getUsername());
+    	submitCommand("chat_leave " + Integer.toString(ID) + " " + user.getUsername());
     	removeChat(ID);
     }
 
-    public void sendChat(int ID, long time, String text) {
-        submitCommand("say " + Integer.toString(ID) + " " + user.getUsername()
-                + " " + Long.toString(time) + " " + text);
+    public void sendChat(int ID, String text) {
+        submitCommand("chat_say " + Integer.toString(ID) + " " + user.getUsername()
+                + " " + text);
     }
 
     /**
@@ -196,38 +192,38 @@ public class ChatClientModel implements ActionListener{
      */
     public void handleRequest(String output) {
         final StringTokenizer outTokenizer = new StringTokenizer(output);
-        if (output.matches("success")) {
+        if (output.matches("login_success")) {
             try {
                 this.messages.put(output);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        } else if (output.matches("invalid")) {
+        } else if (output.matches("login_invalid")) {
             try {
                 this.messages.put(output);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        } else if (output.matches("login [A-Za-z0-9]+")) {
+        } else if (output.matches("user_joins [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     client.addUser(new User(outTokenizer.nextToken()));
                 }
             });
-        } else if (output.matches("logout [A-Za-z0-9]+")) {
+        } else if (output.matches("user_leaves [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     client.removeUser(outTokenizer.nextToken());
                 }
             });
-        } else if (output.matches("say \\d+ [A-Za-z0-9]+ [0-9]+ .*")) {
+        } else if (output.matches("chat_say \\d+ [A-Za-z0-9]+ .*")) {
             outTokenizer.nextToken();
             final ChatBoxModel currentChatModel = chats.get(Integer
                     .parseInt(outTokenizer.nextToken()));
             String message = output;
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 3; i++) {
                 message = message.substring(message.indexOf(" ") + 1);
             }
 
@@ -235,10 +231,10 @@ public class ChatClientModel implements ActionListener{
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     currentChatModel.addChatToDisplay(outTokenizer.nextToken(),
-                            outTokenizer.nextToken(), chatMessage);
+                            chatMessage);
                 }
             });
-        } else if (output.matches("join \\d+ [A-Za-z0-9 ]+")) {
+        } else if (output.matches("chat_join \\d+ [A-Za-z0-9 ]+")) {
             outTokenizer.nextToken();
             final int ID = Integer.parseInt(outTokenizer.nextToken());
             if (!chats.containsKey(ID)) {
@@ -266,7 +262,7 @@ public class ChatClientModel implements ActionListener{
                     });
                 }
             }
-        } else if (output.matches("leave \\d+ [A-Za-z0-9]+")) {
+        } else if (output.matches("chat_leave \\d+ [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
             final int ID = Integer.parseInt(outTokenizer.nextToken());
             final String username = outTokenizer.nextToken();
