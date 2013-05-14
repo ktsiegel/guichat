@@ -97,16 +97,16 @@ public class ChatClient extends JFrame {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String username = usernameBox.getText();
+                int a = 1;
+                for (int i = 1; i <= 12; i++) {
+                    JLabel label = avatarLabels.get(i - 1);
+                    if (label.getBackground().equals(Color.white)) {
+                        a = i;
+                    }
+                }
                 if (!username.matches("[A-Za-z0-9]+")) {
                     usernameIllegalUpdate();
-                } else if (model.tryUsername(username)) {
-                    int a = 1;
-                    for (int i = 1; i <= 12; i++) {
-                        JLabel label = avatarLabels.get(i - 1);
-                        if (label.getBackground().equals(Color.white)) {
-                            a = i;
-                        }
-                    }
+                } else if (model.tryUsername(username, a)) {
                     user = new User(username, a);
                     startPostLoginWindow();
                 } else {
