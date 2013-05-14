@@ -76,7 +76,7 @@ public class ChatClientModel implements ActionListener {
      */
     public boolean tryUsername(String username) {
         if (username != null && !username.equals("")) {
-            this.submitCommand("login_attempt " + username);
+            this.submitCommand("login_attempt " + username + " " + avatar);
             try {
                 String result = this.messages.take();
                 if (result.equals("login_success")) {
@@ -228,12 +228,13 @@ public class ChatClientModel implements ActionListener {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        } else if (output.matches("user_joins [A-Za-z0-9]+")) {
+        } else if (output.matches("user_joins [A-Za-z0-9]+ \\d+")) {
             outTokenizer.nextToken();
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     String username = outTokenizer.nextToken();
-                    users.add(new User(username));
+                    int avatar = Integer.parseInt(outTokenizer.nextToken());
+                    users.add(new User(username, avatar));
                     client.setUserList(users);
 
                     // find private conversation with user

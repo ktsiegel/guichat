@@ -119,7 +119,7 @@ public class ChatServer {
                 }
 
                 String username = split[1];
-                int avatar = Integer.parseInt(split[1]);
+                int avatar = Integer.parseInt(split[2]);
                 User user = new User(username, avatar);
 
                 if (clients.containsKey(user)) {
