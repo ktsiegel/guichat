@@ -17,8 +17,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.GroupLayout.Group;
+import javax.swing.JTextPane;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import user.User;
 
@@ -29,7 +34,7 @@ public class ChatBox extends JFrame {
      */
     private static final long serialVersionUID = 1L;
 
-    private final JTextArea display;
+    private final JTextPane display;
     private final JTextArea message;
     private final JScrollPane displayScroll;
     private final JScrollPane messageScroll;
@@ -41,7 +46,8 @@ public class ChatBox extends JFrame {
 
     public ChatBox(ChatClientModel chatClientModel, int conversationID,
             String title, boolean isGroupChat) {
-        this.model = new ChatBoxModel(chatClientModel, this, conversationID, isGroupChat);
+        this.model = new ChatBoxModel(chatClientModel, this, conversationID,
+                isGroupChat);
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -52,9 +58,8 @@ public class ChatBox extends JFrame {
         });
         this.setSize(300, 300);
 
-        display = new JTextArea();
+        display = new JTextPane();
         display.setEditable(false);
-        display.setLineWrap(true);
         displayScroll = new JScrollPane(display);
 
         message = new JTextArea();
@@ -80,7 +85,7 @@ public class ChatBox extends JFrame {
         message.setBorder(textBorder);
         messageScroll.setBorder(lineBorder);
         background.setBorder(paddingBorder);
-        
+
         bottomLabel = new JLabel("");
         bottomLabel.setForeground(Color.WHITE);
 
@@ -104,7 +109,8 @@ public class ChatBox extends JFrame {
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
         h.addComponent(gap, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
                 Short.MAX_VALUE);
-        h.addComponent(bottomLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        h.addComponent(bottomLabel, GroupLayout.DEFAULT_SIZE,
+                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
 
         Group v = layout.createSequentialGroup();
         v.addComponent(displayScroll, GroupLayout.DEFAULT_SIZE,
@@ -129,25 +135,50 @@ public class ChatBox extends JFrame {
             this.setVisible(true);
         }
         String timestamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
-        display.append(username + " [" + timestamp + "]: " + message + "\n");
+        String text = username + " [" + timestamp + "]: " + message + "\n";
+
+        StyledDocument doc = display.getStyledDocument();
+        SimpleAttributeSet keyWord = new SimpleAttributeSet();
+        StyleConstants.setForeground(keyWord, Color.RED);
+        StyleConstants.setBackground(keyWord, Color.YELLOW);
+        StyleConstants.setBold(keyWord, true);
+        
+        try {
+            doc.insertString(doc.getLength(), text, keyWord);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
     }
 
     public void appendMessage(String message) {
         String timestamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
-        display.append(message + " [" + timestamp + "]\n");
+        String text = message + " [" + timestamp + "]\n";
+        
+        StyledDocument doc = display.getStyledDocument();
+        SimpleAttributeSet keyWord = new SimpleAttributeSet();
+        StyleConstants.setForeground(keyWord, Color.RED);
+        StyleConstants.setBackground(keyWord, Color.YELLOW);
+        StyleConstants.setBold(keyWord, true);
+        
+        try {
+            doc.insertString(doc.getLength(), text, keyWord);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
     }
-    
+
     public void setBottomMessage(String message) {
         bottomLabel.setText(message);
     }
-    
-    private String generateUserListWithVerb(Set<String> users, String verb1, String verb2) {
+
+    private String generateUserListWithVerb(Set<String> users, String verb1,
+            String verb2) {
         String res = "";
         if (users.size() == 0) {
             return res;
         } else if (users.size() == 1) {
             Iterator<String> iterator = users.iterator();
-            res += iterator.next(); 
+            res += iterator.next();
             return res + " " + verb1;
         } else if (users.size() == 2) {
             Iterator<String> iterator = users.iterator();
@@ -163,12 +194,16 @@ public class ChatBox extends JFrame {
             return res + " " + verb2;
         }
     }
-    
-    public void updateStatus(Set<String> usersTyping, Set<String> usersEnteredText) {
+
+    public void updateStatus(Set<String> usersTyping,
+            Set<String> usersEnteredText) {
         if (usersTyping.size() > 0) {
-            this.setBottomMessage(this.generateUserListWithVerb(usersTyping, "is typing...", "are typing..."));
+            this.setBottomMessage(this.generateUserListWithVerb(usersTyping,
+                    "is typing...", "are typing..."));
         } else if (usersEnteredText.size() > 0) {
-            this.setBottomMessage(this.generateUserListWithVerb(usersEnteredText, "has entered text...", "have entered text..."));
+            this.setBottomMessage(this.generateUserListWithVerb(
+                    usersEnteredText, "has entered text...",
+                    "have entered text..."));
         } else {
             this.setBottomMessage("");
         }
@@ -183,7 +218,7 @@ public class ChatBox extends JFrame {
         return this.message;
     }
 
-    public JTextArea getDisplay() {
+    public JTextPane getDisplay() {
         return this.display;
     }
 
