@@ -59,6 +59,7 @@ public class ChatClientModel implements ActionListener {
             ChatBoxModel model = chats.remove(ID);
             model.getChatBox().dispose();
         }
+        submitCommand("logout " + this.user.getUsername());
     }
 
     /**
