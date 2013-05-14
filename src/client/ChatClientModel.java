@@ -76,7 +76,8 @@ public class ChatClientModel implements ActionListener {
      */
     public boolean tryUsername(String username, int avatar) {
         if (username != null && !username.equals("")) {
-            this.submitCommand("login_attempt " + username + " " + Integer.toString(avatar));
+            this.submitCommand("login_attempt " + username + " "
+                    + Integer.toString(avatar));
             try {
                 String result = this.messages.take();
                 if (result.equals("login_success")) {
@@ -125,26 +126,27 @@ public class ChatClientModel implements ActionListener {
     }
 
     public void removeChat(int conversationID) {
-    	System.out.println(this.chats.toString());
-    	if (this.chats.containsKey(conversationID)) {
-    		System.out.println("removing conversation " + Integer.toString(conversationID));
-    		ChatBoxModel boxModel = this.chats.remove(conversationID);
-    		ChatBox box = boxModel.getChatBox();
-    		String message = box.getDisplay().getText();
-    		Set<User> others = box.getOthers();
-    		ChatHistory currentHistory = new ChatHistory(others,message);
-        	history.put(conversationID, currentHistory);
-        	client.addHistory(currentHistory, conversationID);
-        	boxModel.quit();
-    	}
+        System.out.println(this.chats.toString());
+        if (this.chats.containsKey(conversationID)) {
+            System.out.println("removing conversation "
+                    + Integer.toString(conversationID));
+            ChatBoxModel boxModel = this.chats.remove(conversationID);
+            ChatBox box = boxModel.getChatBox();
+            String message = box.getDisplay().getText();
+            Set<User> others = box.getOthers();
+            ChatHistory currentHistory = new ChatHistory(others, message);
+            history.put(conversationID, currentHistory);
+            client.addHistory(currentHistory, conversationID);
+            boxModel.quit();
+        }
     }
-    
+
     public void showChatHistory(int ID) {
-    	ChatHistory currentHistory = history.get(ID);
-    	HistoryBox box = new HistoryBox(currentHistory);
-    	box.setVisible(true);
+        ChatHistory currentHistory = history.get(ID);
+        HistoryBox box = new HistoryBox(currentHistory);
+        box.setVisible(true);
     }
-    
+
     public void exitChat(int ID) {
         submitCommand("group_chat_leave " + Integer.toString(ID) + " "
                 + user.getUsername());
@@ -152,16 +154,22 @@ public class ChatClientModel implements ActionListener {
     }
 
     public void sendChat(int ID, String text) {
-        submitCommand("say " + Integer.toString(ID) + " " + user.getUsername()
-                + " " + text);
+        // divide text into multiple lines
+        StringTokenizer lineBreaker = new StringTokenizer(text, "\n");
+        while (lineBreaker.hasMoreTokens()) {
+            submitCommand("say " + Integer.toString(ID) + " "
+                    + user.getUsername() + " " + lineBreaker.nextToken());
+        }
     }
-    
+
     public void sendTyping(int ID) {
-        submitCommand("typing " + Integer.toString(ID) + " " + user.getUsername());
+        submitCommand("typing " + Integer.toString(ID) + " "
+                + user.getUsername());
     }
-    
+
     public void sendCleared(int ID) {
-        submitCommand("cleared " + Integer.toString(ID) + " " + user.getUsername());
+        submitCommand("cleared " + Integer.toString(ID) + " "
+                + user.getUsername());
     }
 
     /**
@@ -276,8 +284,9 @@ public class ChatClientModel implements ActionListener {
                             if (!conversationIDMap.containsKey(username2)) {
                                 conversationIDMap.put(username2, ID);
                             }
-                            ChatBox box = new ChatBox(temp, ID, user.getUsername() + ": chat with "
-                                    + username2, false);
+                            ChatBox box = new ChatBox(temp, ID,
+                                    user.getUsername() + ": chat with "
+                                            + username2, false);
                             box.setVisible(true);
                             chats.put(ID, box.getModel());
                         }
@@ -289,8 +298,9 @@ public class ChatClientModel implements ActionListener {
                             if (!conversationIDMap.containsKey(username1)) {
                                 conversationIDMap.put(username1, ID);
                             }
-                            ChatBox box = new ChatBox(temp, ID, user.getUsername() + ": chat with "
-                            		+ username1, false);
+                            ChatBox box = new ChatBox(temp, ID,
+                                    user.getUsername() + ": chat with "
+                                            + username1, false);
                             chats.put(ID, box.getModel());
                         }
                     });
@@ -360,10 +370,11 @@ public class ChatClientModel implements ActionListener {
                         public void run() {
                             chats.get(ID).addMessageToDisplay(
                                     username + " has joined the conversation.");
-//                            if (!conversationIDMap.containsKey(username)) {
-//                                conversationIDMap.put(username, ID);
-//                            }
-                            chats.get(ID).getChatBox().addOther(new User(username));
+                            // if (!conversationIDMap.containsKey(username)) {
+                            // conversationIDMap.put(username, ID);
+                            // }
+                            chats.get(ID).getChatBox()
+                                    .addOther(new User(username));
                             if (history.containsKey(ID)) {
                                 chats.get(ID)
                                         .getChatBox()
@@ -380,12 +391,14 @@ public class ChatClientModel implements ActionListener {
             final String username = outTokenizer.nextToken();
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    chats.get(ID).addMessageToDisplay(username + " has left the conversation.");
+                    chats.get(ID).addMessageToDisplay(
+                            username + " has left the conversation.");
                 }
             });
         } else if (output.matches("say \\d+ [A-Za-z0-9]+ .*")) {
             outTokenizer.nextToken();
-            final ChatBoxModel currentChatModel = chats.get(Integer.parseInt(outTokenizer.nextToken()));
+            final ChatBoxModel currentChatModel = chats.get(Integer
+                    .parseInt(outTokenizer.nextToken()));
             String message = output;
             for (int i = 0; i < 3; i++) {
                 message = message.substring(message.indexOf(" ") + 1);
@@ -455,13 +468,13 @@ public class ChatClientModel implements ActionListener {
     public ChatClient getClient() {
         return this.client;
     }
-    
+
     public Set<User> getUsers() {
-    	return users;
+        return users;
     }
-    
+
     public User getUser() {
-    	return user;
+        return user;
     }
 
     @Override

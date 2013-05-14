@@ -90,10 +90,7 @@ public class ChatClient extends JFrame {
         ImageIcon imageIcon = new ImageIcon("icons/chat.jpg");
         icon = new JLabel(imageIcon);
 
-        usernameBox = new JTextField();
-        login.add(usernameBox);
-        JButton loginButton = new JButton("Login");
-        loginButton.addActionListener(new ActionListener() {
+        ActionListener listener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String username = usernameBox.getText();
@@ -116,8 +113,13 @@ public class ChatClient extends JFrame {
                 }
 
             }
-
-        });
+        };
+        
+        usernameBox = new JTextField();
+        login.add(usernameBox);
+        JButton loginButton = new JButton("Login");
+        loginButton.addActionListener(listener);
+        usernameBox.addActionListener(listener);
 
         Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
 
@@ -161,7 +163,21 @@ public class ChatClient extends JFrame {
             label.setBackground(DARK_BLUE);
             label.addMouseListener(new AvatarListener(avatarLabels, label));
         }
-        avatar1.setBackground(Color.white);
+        
+        switch ((int) (Math.random() * 12) + 1) {
+        case 1: avatar1.setBackground(Color.white); break;
+        case 2: avatar2.setBackground(Color.white); break;
+        case 3: avatar3.setBackground(Color.white); break;
+        case 4: avatar4.setBackground(Color.white); break;
+        case 5: avatar5.setBackground(Color.white); break;
+        case 6: avatar6.setBackground(Color.white); break;
+        case 7: avatar7.setBackground(Color.white); break;
+        case 8: avatar8.setBackground(Color.white); break;
+        case 9: avatar9.setBackground(Color.white); break;
+        case 10: avatar10.setBackground(Color.white); break;
+        case 11: avatar11.setBackground(Color.white); break;
+        case 12: avatar12.setBackground(Color.white); break;
+        }
 
         avatarsRow1.add(avatar1);
         avatarsRow1.add(avatar2);
