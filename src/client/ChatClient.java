@@ -105,7 +105,9 @@ public class ChatClient extends JFrame {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String username = usernameBox.getText();
-                if (model.tryUsername(username)) {
+                if (!username.matches("[A-Za-z0-9]+")) {
+                    usernameIllegalUpdate();
+                } else if (model.tryUsername(username)) {
                     user = new User(username);
                     startPostLoginWindow();
                 } else {
@@ -243,7 +245,23 @@ public class ChatClient extends JFrame {
     public void usernameTakenUpdate() {
         Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
         TitledBorder loginBorder = BorderFactory.createTitledBorder(
-                emptyBorder, "Username Taken");
+                emptyBorder, "Username taken");
+        loginBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
+        loginBorder.setTitleColor(Color.white);
+        loginBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
+                Font.BOLD));
+
+        login.setBorder(loginBorder);
+        // login.revalidate();
+        usernameBox.setText("");
+        // usernameBox.revalidate();
+        validate();
+    }
+    
+    public void usernameIllegalUpdate() {
+        Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
+        TitledBorder loginBorder = BorderFactory.createTitledBorder(
+                emptyBorder, "Username has illegal characters");
         loginBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         loginBorder.setTitleColor(Color.white);
         loginBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
@@ -260,7 +278,7 @@ public class ChatClient extends JFrame {
         JPanel postLoginBackground = new JPanel();
         userPanel = new JPanel();
 
-        logoutButton = new JButton();
+        logoutButton = new JButton("Logout");
         logoutButton.setActionCommand("logout");
         logoutButton.addActionListener(model);
 
@@ -343,6 +361,18 @@ public class ChatClient extends JFrame {
         userPanelLayout();
         welcome.setText("<html><font size=+1><b>Welcome, "
                 + this.user.getUsername() + "!</b></font></html>");
+        
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(logoutButton);
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+        buttonPanel.setOpaque(true);
+        buttonPanel.setBackground(DARK_BLUE);
+        
+        buttonPanel.setBorder(emptyBorder);
+        
+        JButton startChatButton = new JButton("Group Chat");
+
+        buttonPanel.add(startChatButton);
 
         getContentPane().removeAll();
 
@@ -354,11 +384,15 @@ public class ChatClient extends JFrame {
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
         h.addComponent(userPanel, GroupLayout.DEFAULT_SIZE,
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        h.addComponent(buttonPanel, GroupLayout.DEFAULT_SIZE,
+                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+
 
         Group v = layout.createSequentialGroup();
         v.addComponent(welcomePanel, 40, 40, 40);
         v.addComponent(userPanel, GroupLayout.DEFAULT_SIZE,
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        v.addComponent(buttonPanel, 25, 25, 25);
 
         layout.setHorizontalGroup(h);
         layout.setVerticalGroup(v);

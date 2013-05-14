@@ -2,6 +2,8 @@ package client;
 
 import java.awt.Color;
 import java.awt.event.WindowEvent;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -126,11 +128,13 @@ public class ChatBox extends JFrame {
         if (!this.isVisible()) {
             this.setVisible(true);
         }
-        display.append(username + ": " + message + "\n");
+        String timestamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
+        display.append(username + " [" + timestamp + "]: " + message + "\n");
     }
 
     public void appendMessage(String message) {
-        display.append(message + "\n");
+        String timestamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
+        display.append(message + " [" + timestamp + "]\n");
     }
     
     public void setBottomMessage(String message) {
