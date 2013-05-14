@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -137,6 +138,26 @@ public class ChatServer {
                         this.sendMessageToUser(
                                 "user_joins " + onlineUser.getUsername(), user);
                     }
+
+                    // have the user rejoin all private conversations
+                    for (int ID : this.conversations.keySet()) {
+                        Conversation conversation = this.conversations.get(ID);
+                        if (!conversation.isGroupChat()) {
+                            Iterator<User> iterator = conversation.getUsers()
+                                    .iterator();
+                            User a = iterator.next();
+                            User b = iterator.next();
+                            if (!a.equals(user)) {
+                                this.sendMessageToUser(
+                                        "chat_start " + conversation.getID() + " " + a.getUsername() + " "
+                                                + b.getUsername(), user);
+                            } else {
+                                this.sendMessageToUser(
+                                        "chat_start " + conversation.getID() + " " + a.getUsername() + " "
+                                                + b.getUsername(), user);
+                            }
+                        }
+                    }
                 }
             } else if (split[0].equals("logout")) {
                 if (split.length != 2) {
@@ -192,10 +213,10 @@ public class ChatServer {
                         this.nextConversationID());
                 conversations.put(chat.getID(), chat);
 
-                this.sendMessageToUser("chat_start " + chat.getID() + " " + username1 + " "
-                        + username2, user1);
-                this.sendMessageToUser("chat_start " + chat.getID() + " " + username1 + " "
-                        + username2, user2);
+                this.sendMessageToUser("chat_start " + chat.getID() + " "
+                        + username1 + " " + username2, user1);
+                this.sendMessageToUser("chat_start " + chat.getID() + " "
+                        + username1 + " " + username2, user2);
             } else if (split[0].equals("group_chat_start")) {
                 if (split.length == 1) {
                     throw new IllegalStateException(
