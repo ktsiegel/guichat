@@ -13,69 +13,69 @@ public class Emoticon {
 
     public String getURL() {
         if (text.equals("(:")) {
-            return "emoticon_backwards_smile.gif";
+            return "emoticon__backwards_smile.gif";
         } else if (text.equals("</3")) {
-            return "emoticons_broken_heart.gif";
+            return "emoticon_broken_heart.gif";
         } else if (text.equals(":bunny")) {
-            return "emoticons_bunny.gif";
+            return "emoticon_bunny.gif";
         } else if (text.equals(":camel")) {
-            return "emoticons_camel.gif";
+            return "emoticon_camel.gif";
         } else if (text.equals(":cat")) {
-            return "emoticons_cat.gif";
+            return "emoticon_cat.gif";
         } else if (text.equals(":cow")) {
-            return "emoticons_cow.gif";
+            return "emoticon_cow.gif";
         } else if (text.equals(":'(")) {
-            return "emoticons_cry.gif";
+            return "emoticon_cry.gif";
         } else if (text.equals(":dog")) {
-            return "emoticons_dog.gif";
+            return "emoticon_dog.gif";
         } else if (text.equals(":dolphin")) {
-            return "emoticons_dolphin.gif";
+            return "emoticon_dolphin.gif";
         } else if (text.equals(":duck")) {
-            return "emoticons_duck.gif";
+            return "emoticon_duck.gif";
         } else if (text.equals(":elephant")) {
-            return "emoticons_elephant.gif";
+            return "emoticon_elephant.gif";
         } else if (text.equals(":fish")) {
-            return "emoticons_fish.gif";
+            return "emoticon_fish.gif";
         } else if (text.equals(":frog")) {
-            return "emoticons_frog.gif";
+            return "emoticon_frog.gif";
         } else if (text.equals("<3")) {
-            return "emoticons_heart.gif";
+            return "emoticon_heart.gif";
         } else if (text.equals(":horse")) {
-            return "emoticons_horse.gif";
+            return "emoticon_horse.gif";
         } else if (text.equals(":koala")) {
-            return "emoticons_koala.gif";
+            return "emoticon_koala.gif";
         } else if (text.equals(":D")) {
-            return "emoticons_laugh.gif";
+            return "emoticon_laugh.gif";
         } else if (text.equals(">.>")) {
-            return "emoticons_left.gif";
+            return "emoticon_left.gif";
         } else if (text.equals(">:(")) {
-            return "emoticons_mad.gif";
+            return "emoticon_mad.gif";
         } else if (text.equals(":-/")) {
-            return "emoticons_meh.gif";
+            return "emoticon_meh.gif";
         } else if (text.equals(":$")) {
-            return "emoticons_money.gif";
+            return "emoticon_money.gif";
         } else if (text.equals(":mouse")) {
-            return "emoticons_mouse.gif";
+            return "emoticon_mouse.gif";
         } else if (text.equals(":O")) {
-            return "emoticons_O.gif";
+            return "emoticon_O.gif";
         } else if (text.equals(":penguin")) {
-            return "emoticons_penguin.gif";
+            return "emoticon_penguin.gif";
         } else if (text.equals(":pig")) {
-            return "emoticons_pig.gif";
+            return "emoticon_pig.gif";
         } else if (text.equals("~@~")) {
-            return "emoticons_poop.gif";
+            return "emoticon_poop.gif";
         } else if (text.equals(":(")) {
-            return "emoticons_sad.gif";
+            return "emoticon_sad.gif";
         } else if (text.equals(":sheep")) {
-            return "emoticons_sheep.gif";
+            return "emoticon_sheep.gif";
         } else if (text.equals(":)")) {
-            return "emoticons_smile.gif";
+            return "emoticon_smile.gif";
         } else if (text.equals(":snake")) {
-            return "emoticons_snake.gif";
+            return "emoticon_snake.gif";
         } else if (text.equals(":P")) {
-            return "emoticons_tongue.gif";
+            return "emoticon_tongue.gif";
         } else if (text.equals(";)")) {
-            return "emoticions_wink.gif";
+            return "emoticion_wink.gif";
         } else {
             return null;
         }

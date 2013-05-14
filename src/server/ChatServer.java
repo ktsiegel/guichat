@@ -324,8 +324,11 @@ public class ChatServer {
                 }
 
                 Conversation chat = this.conversations.get(ID);
-                this.sendMessageToUsers("say " + ID + " " + username + " "
-                        + text, chat.getUsers());
+                for (User user : chat.getUsers()) {
+                    if (this.clients.containsKey(user)) {
+                        this.sendMessageToUser("say " + ID + " " + username + " " + text, user);
+                    }
+                }
             } else if (split[0].equals("typing")) {
                 if (split.length != 3) {
                     throw new IllegalStateException(
@@ -340,10 +343,11 @@ public class ChatServer {
                 }
 
                 Conversation chat = this.conversations.get(ID);
-                Set<User> chatUsers = new HashSet<User>(chat.getUsers());
-                chatUsers.remove(new User(username));
-                this.sendMessageToUsers("typing " + ID + " " + username,
-                        chatUsers);
+                for (User user : chat.getUsers()) {
+                    if (!user.equals(new User(username)) && this.clients.containsKey(user)) {
+                        this.sendMessageToUser("typing " + ID + " " + username, user);
+                    }
+                }
             } else if (split[0].equals("cleared")) {
                 if (split.length != 3) {
                     throw new IllegalStateException(
@@ -358,10 +362,11 @@ public class ChatServer {
                 }
 
                 Conversation chat = this.conversations.get(ID);
-                Set<User> chatUsers = new HashSet<User>(chat.getUsers());
-                chatUsers.remove(new User(username));
-                this.sendMessageToUsers("cleared " + ID + " " + username,
-                        chatUsers);
+                for (User user : chat.getUsers()) {
+                    if (!user.equals(new User(username)) && this.clients.containsKey(user)) {
+                        this.sendMessageToUser("cleared " + ID + " " + username, user);
+                    }
+                }
             } else {
                 throw new IllegalStateException(
                         "Unexpected command received from client by server: "

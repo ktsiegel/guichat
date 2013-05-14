@@ -22,8 +22,11 @@ import javax.swing.JTextPane;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
 import emoticons.Emoticon;
@@ -138,16 +141,16 @@ public class ChatBox extends JFrame {
             this.setVisible(true);
         }
         String timestamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
-        String text = username + " [" + timestamp + "]: ";
+        String text = username + " [" + timestamp + "]:";
 
         StyledDocument doc = display.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        StyleConstants.setForeground(keyWord, Color.WHITE);
-        StyleConstants.setBackground(keyWord, Color.BLUE);
+        StyleConstants.setForeground(keyWord, Color.BLUE);
         StyleConstants.setBold(keyWord, true);
         
         try {
             doc.insertString(doc.getLength(), text, keyWord);
+            doc.insertString(doc.getLength(), " ", null);
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
@@ -157,21 +160,28 @@ public class ChatBox extends JFrame {
             // see if we have any smileys
             boolean found = false;
             for (int i = 1; i <= message.length(); i++) {
-                String substring = message.substring(i);
+                String substring = message.substring(0, i);
                 if (Emoticon.isValid(substring)) {
                     Emoticon emoticon = new Emoticon(substring);
-                    ImageIcon icon = new ImageIcon("emoticons/" + emoticon.getURL());
-                    SimpleAttributeSet iconStyle = new SimpleAttributeSet();
-                    StyleConstants.setIcon(iconStyle, icon);
+                    ImageIcon icon = new ImageIcon("icons/" + emoticon.getURL());
+
+                    StyleContext context = new StyleContext();
+                    StyledDocument document = new DefaultStyledDocument(context);
+
+                    Style labelStyle = context.getStyle(StyleContext.DEFAULT_STYLE);
+
+                    JLabel label = new JLabel(icon);
+                    StyleConstants.setComponent(labelStyle, label);
                     
                     try {
-                        doc.insertString(doc.getLength(), substring, iconStyle);
+                        doc.insertString(doc.getLength(), substring, labelStyle);
                     } catch (BadLocationException e) {
                         e.printStackTrace();
                     }
                     
                     message = message.substring(i);
                     found = true;
+                    System.out.println("FOUND AN EMOTICON");
                     break;
                 }
             }
@@ -179,6 +189,7 @@ public class ChatBox extends JFrame {
             if (!found) {
                 try {
                     doc.insertString(doc.getLength(), message.substring(0, 1), null);
+                    message = message.substring(1);
                 } catch (BadLocationException e) {
                     e.printStackTrace();
                 }
@@ -198,8 +209,7 @@ public class ChatBox extends JFrame {
         
         StyledDocument doc = display.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        StyleConstants.setForeground(keyWord, Color.WHITE);
-        StyleConstants.setBackground(keyWord, Color.BLUE);
+        StyleConstants.setForeground(keyWord, Color.MAGENTA);
         StyleConstants.setItalic(keyWord, true);
         
         try {
