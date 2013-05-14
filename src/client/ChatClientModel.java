@@ -73,13 +73,13 @@ public class ChatClientModel implements ActionListener {
      * @param username
      * @return
      */
-    public boolean tryUsername(String username) {
+    public boolean tryUsername(String username, int avatar) {
         if (username != null && !username.equals("")) {
             this.submitCommand("login_attempt " + username);
             try {
                 String result = this.messages.take();
                 if (result.equals("login_success")) {
-                    this.user = new User(username);
+                    this.user = new User(username, avatar);
                     return true;
                 } else if (result.equals("login_invalid")) {
                     return false;
