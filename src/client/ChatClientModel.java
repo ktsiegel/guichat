@@ -119,19 +119,26 @@ public class ChatClientModel implements ActionListener {
     }
 
     public void removeChat(int conversationID) {
-        System.out.println(this.chats.toString());
-        if (this.chats.containsKey(conversationID)) {
-            System.out.println("removing conversation "
-                    + Integer.toString(conversationID));
-            ChatBoxModel boxModel = this.chats.remove(conversationID);
-            ChatBox box = boxModel.getChatBox();
-            String message = box.getDisplay().getText();
-            Set<User> others = box.getOthers();
-            history.put(conversationID, new ChatHistory(others, message));
-            boxModel.quit();
-        }
+    	System.out.println(this.chats.toString());
+    	if (this.chats.containsKey(conversationID)) {
+    		System.out.println("removing conversation " + Integer.toString(conversationID));
+    		ChatBoxModel boxModel = this.chats.remove(conversationID);
+    		ChatBox box = boxModel.getChatBox();
+    		String message = box.getDisplay().getText();
+    		Set<User> others = box.getOthers();
+    		ChatHistory currentHistory = new ChatHistory(others,message);
+        	history.put(conversationID, currentHistory);
+        	client.addHistory(currentHistory, conversationID);
+        	boxModel.quit();
+    	}
     }
-
+    
+    public void showChatHistory(int ID) {
+    	ChatHistory currentHistory = history.get(ID);
+    	HistoryBox box = new HistoryBox(currentHistory);
+    	box.setVisible(true);
+    }
+    
     public void exitChat(int ID) {
         submitCommand("chat_leave " + Integer.toString(ID) + " "
                 + user.getUsername());
