@@ -60,6 +60,7 @@ public class ChatBox extends JFrame {
     private final JPanel gap;
     private final JLabel bottomLabel;
     private Set<User> others;
+    private Set<User> leftChat;
 
     public ChatBox(ChatClientModel chatClientModel, int conversationID,
             String title, boolean isGroupChat) {
@@ -86,6 +87,7 @@ public class ChatBox extends JFrame {
         message.addKeyListener(model);
 
         others = new HashSet<User>();
+        leftChat = new HashSet<User>();
 
         background = new JPanel();
         gap = new JPanel();
@@ -339,17 +341,34 @@ public class ChatBox extends JFrame {
     public Set<User> getOthers() {
         return others;
     }
+    
+    public Set<User> getLeftChat() {
+    	return leftChat;
+    }
 
     public void addOther(User other) {
     	others.add(other);
     	updateTitle();
     }
     
-    public void updateTitle() {
-    	String title = "Group chat including ";
-    	for (User friend: others) {
-    		title += friend.getUsername() + ", ";
+    public void removeOther(User other) {
+    	if (others.contains(other)) {
+    		others.remove(other);
+    		leftChat.add(other);
+    		updateTitle();
     	}
-    	this.setTitle(title.substring(0,title.length()-2));
+    }
+    
+    public void updateTitle() {
+    	if (others.size() > 0) {
+    		String title = "Group chat including ";
+        	for (User friend: others) {
+        		title += friend.getUsername() + ", ";
+        	}
+        	this.setTitle(title.substring(0,title.length()-2));
+    	}
+    	else {
+    		this.setTitle("Empty group chat.");
+    	}
     }
 }
