@@ -54,6 +54,7 @@ public class ChatClient extends JFrame {
     private final ChatClientModel model;
     private JPanel login;
     private JTextField usernameBox;
+    private List<JLabel> avatarLabels;
     Color DARK_BLUE = new Color(0, 51, 102);
     Color LIGHT_BLUE = new Color(102, 178, 255);
     Color MEDIUM_BLUE = new Color(0, 102, 204);
@@ -77,16 +78,6 @@ public class ChatClient extends JFrame {
 
         this.model.startListening();
 
-        /*
-         * String username = welcomePane("Enter a username:"); while
-         * (!this.model.tryUsername(username)) { if (username != null &&
-         * !username.equals("")) { username = welcomePane(
-         * "Sorry, that username has already been taken! Enter a username:"); }
-         * else { username =
-         * welcomePane("Usernames must be >0 characters long."); } } this.user =
-         * new User(username); System.out.println("GOT USERNAME");
-         */
-
     }
 
     public void startLoginWindow() {
@@ -108,7 +99,14 @@ public class ChatClient extends JFrame {
                 if (!username.matches("[A-Za-z0-9]+")) {
                     usernameIllegalUpdate();
                 } else if (model.tryUsername(username)) {
-                    user = new User(username);
+                    int a = 1;
+                    for (int i = 1; i <= 12; i++) {
+                        JLabel label = avatarLabels.get(i - 1);
+                        if (label.getBackground().equals(Color.white)) {
+                            a = i;
+                        }
+                    }
+                    user = new User(username, a);
                     startPostLoginWindow();
                 } else {
                     if (username != null && !username.equals("")) {
@@ -142,7 +140,7 @@ public class ChatClient extends JFrame {
         JLabel avatar11 = new JLabel(new ImageIcon("icons/avatar11.png"));
         JLabel avatar12 = new JLabel(new ImageIcon("icons/avatar12.png"));
 
-        List<JLabel> avatarLabels = new ArrayList<JLabel>();
+        avatarLabels = new ArrayList<JLabel>();
         avatarLabels.add(avatar1);
         avatarLabels.add(avatar2);
         avatarLabels.add(avatar3);
@@ -308,12 +306,18 @@ public class ChatClient extends JFrame {
         userPanel.add(conversationNest);
         userPanel.setOpaque(true);
 
-        welcome = new JLabel("Log in to start using guichat"); // ,
-                                                               // " + user.getUsername() + "!");
+        welcome = new JLabel();
         welcome.setHorizontalAlignment(JLabel.CENTER);
+        
+        ImageIcon avatar = new ImageIcon("icons/avatar" + user.getAvatar() + ".png");
+        JLabel avatarIcon = new JLabel(avatar);
 
         welcomePanel = new JPanel();
         welcomePanel.add(welcome);
+        welcomePanel.add(avatarIcon);
+        welcomePanel.setLayout(new BoxLayout(welcomePanel, BoxLayout.LINE_AXIS));
+        Border smallBorder = BorderFactory.createEmptyBorder(15, 5, 5, 5);
+        avatarIcon.setBorder(smallBorder);
 
         // Add color
         users.setBackground(Color.white);
@@ -359,8 +363,9 @@ public class ChatClient extends JFrame {
         this.setTitle("GUI CHAT");
 
         userPanelLayout();
-        welcome.setText("<html><font size=+1><b>Welcome, "
-                + this.user.getUsername() + "!</b></font></html>");
+        welcome.setText("<html><b>Welcome, "
+                + this.user.getUsername() + "!</b></html>");
+        welcome.setFont(new Font(welcome.getFont().getName(), Font.PLAIN, 16));
         
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(logoutButton);
@@ -389,7 +394,7 @@ public class ChatClient extends JFrame {
 
 
         Group v = layout.createSequentialGroup();
-        v.addComponent(welcomePanel, 40, 40, 40);
+        v.addComponent(welcomePanel, 50, 50, 50);
         v.addComponent(userPanel, GroupLayout.DEFAULT_SIZE,
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
         v.addComponent(buttonPanel, 25, 25, 25);
