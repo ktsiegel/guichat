@@ -25,8 +25,6 @@ public class ChatBoxModel implements KeyListener {
      * 
      * @param username
      *            The user from which the message is sent.
-     * @param time
-     *            The time at which this message was sent.
      * @param message
      *            The text of the message that was sent.
      */

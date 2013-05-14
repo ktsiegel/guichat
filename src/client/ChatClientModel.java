@@ -244,7 +244,6 @@ public class ChatClientModel implements ActionListener{
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             ChatBox box = new ChatBox(temp, ID, "Chat of " + user.getUsername());
-                            box.setVisible(true);
                             chats.put(ID, box.getModel());
                         }
                     });

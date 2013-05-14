@@ -112,10 +112,16 @@ public class ChatBox extends JFrame {
     }
 
     public void appendChatLine(String username, String message) {
+        if (!this.isVisible()) {
+            this.setVisible(true);
+        }
         display.append(username + ": " + message + "\n");
     }
 
     public void appendMessage(String message) {
+        if (!this.isVisible()) {
+            this.setVisible(true);
+        }
         display.append(message + "\n");
     }
 
