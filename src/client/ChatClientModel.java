@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -231,7 +232,9 @@ public class ChatClientModel implements ActionListener {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     String username = outTokenizer.nextToken();
-                    client.addUser(new User(username));
+                    users.add(new User(username));
+                    Collections.sort(users);
+                    client.setUserList(users);
 
                     // find private conversation with user
                     if (conversationIDMap.containsKey(username)) {
@@ -247,7 +250,9 @@ public class ChatClientModel implements ActionListener {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     String username = outTokenizer.nextToken();
-                    client.removeUser(username);
+                    users.remove(new User(username));
+                    Collections.sort(users);
+                    client.setUserList(users);
 
                     // find private conversation with user
                     if (conversationIDMap.containsKey(username)) {

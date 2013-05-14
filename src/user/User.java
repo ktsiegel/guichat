@@ -5,7 +5,7 @@ package user;
  * unique username upon login.
  *
  */
-public class User {
+public class User implements Comparable<User> {
     
     private final String username;
     private boolean isActive;
@@ -19,6 +19,10 @@ public class User {
     public User(String username) {
         this.username = username;
         this.isActive = true;
+    }
+    
+    public int compareTo(User other) {
+        return this.username.compareTo(other.getUsername());
     }
 
     @Override
