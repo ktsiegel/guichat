@@ -28,4 +28,8 @@ public class ChatHistory {
 	public String getHistory() {
 		return history;
 	}
+	
+	public Set<User> getParticipants() {
+		return participants;
+	}
 }

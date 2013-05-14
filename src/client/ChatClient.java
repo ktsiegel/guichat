@@ -41,6 +41,7 @@ public class ChatClient extends JFrame {
 
     private Map<String, JLabel> userLabels;
     private JPanel users;
+    private JPanel conversations;
     private JScrollPane userScroll;
     private JLabel welcome;
     private JPanel welcomePanel;
@@ -175,7 +176,7 @@ public class ChatClient extends JFrame {
         users.setLayout(new BoxLayout(users, BoxLayout.PAGE_AXIS));
         userScroll = new JScrollPane(users);
 
-        JPanel conversations = new JPanel();
+        conversations = new JPanel();
         conversations.setLayout(new BoxLayout(conversations,
                 BoxLayout.PAGE_AXIS));
         JScrollPane conversationScroll = new JScrollPane(conversations);
@@ -280,10 +281,16 @@ public class ChatClient extends JFrame {
         validate();
     }
     
-    public void addHistory(String label, ChatHistory history, int ID) {
+    public void addHistory(ChatHistory history, int ID) {
+    	String label = "Chat with ";
+    	for (User user: history.getParticipants()) {
+    		label += user.getUsername() + ", ";
+    	}
+    	label = label.substring(0,label.length()-2);
     	JLabel historyLabel = new JLabel(label);
     	histories.put(ID, history);
     	new HistoryListener(historyLabel, model, ID);
+    	conversations.add(historyLabel);
     	validate();
     }
 
