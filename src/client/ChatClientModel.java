@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
@@ -29,6 +31,7 @@ public class ChatClientModel implements ActionListener {
     private final BlockingQueue<String> messages;
     private ConcurrentMap<Integer, ChatHistory> history;
     private ConcurrentMap<String, Integer> conversationIDMap;
+    private List<User> users;
 
     public ChatClientModel(ChatClient client) {
         this.client = client;
@@ -44,6 +47,7 @@ public class ChatClientModel implements ActionListener {
         this.messages = new LinkedBlockingQueue<String>();
         this.history = new ConcurrentHashMap<Integer, ChatHistory>();
         this.conversationIDMap = new ConcurrentHashMap<String, Integer>();
+        this.users = new ArrayList<User>();
     }
 
     public void startListening() {
@@ -148,6 +152,14 @@ public class ChatClientModel implements ActionListener {
     public void sendChat(int ID, String text) {
         submitCommand("say " + Integer.toString(ID) + " " + user.getUsername()
                 + " " + text);
+    }
+    
+    public void sendTyping(int ID) {
+        submitCommand("typing " + Integer.toString(ID) + " " + user.getUsername());
+    }
+    
+    public void sendCleared(int ID) {
+        submitCommand("cleared " + Integer.toString(ID) + " " + user.getUsername());
     }
 
     /**
@@ -377,6 +389,24 @@ public class ChatClientModel implements ActionListener {
                 public void run() {
                     currentChatModel.addChatToDisplay(outTokenizer.nextToken(),
                             chatMessage);
+                }
+            });
+        } else if (output.matches("typing \\d+ [A-Za-z0-9]+")) {
+            outTokenizer.nextToken();
+            final ChatBoxModel currentChatModel = chats.get(Integer
+                    .parseInt(outTokenizer.nextToken()));
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    currentChatModel.markTyping(outTokenizer.nextToken());
+                }
+            });
+        } else if (output.matches("cleared \\d+ [A-Za-z0-9]+")) {
+            outTokenizer.nextToken();
+            final ChatBoxModel currentChatModel = chats.get(Integer
+                    .parseInt(outTokenizer.nextToken()));
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    currentChatModel.markCleared(outTokenizer.nextToken());
                 }
             });
         } else {

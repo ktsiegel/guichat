@@ -15,26 +15,19 @@ import javax.swing.border.Border;
 
 import conversation.ChatHistory;
 
-public class HistoryBox extends JFrame {
-	/**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-    
-    private JPanel background;
+public class GroupChatSelectBox extends JFrame{
+	private ChatClientModel client;
 	private JScrollPane displayScroll;
+	private JPanel background;
 	
-	public HistoryBox(ChatHistory history) {
-		this.setSize(300, 300);
-		JTextArea display = new JTextArea();
-		display.setEditable(false);
-		display.setLineWrap(true);
+	public GroupChatSelectBox(ChatClient client) {
+		this.setSize(100, 300);
+		JPanel display = new JPanel();
 		displayScroll = new JScrollPane(display);
 		Border lineBorder = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
 		Border paddingBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
 		display.setBorder(lineBorder);
         displayScroll.setBorder(lineBorder);
-		display.append(history.getHistory());
 		background = new JPanel();
 		background.setBackground(new Color(0, 51, 102));
 		background.setBorder(paddingBorder);

@@ -20,10 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
@@ -55,7 +52,6 @@ public class ChatClient extends JFrame {
     GroupLayout layout;
     private JLabel icon;
     private final ChatClientModel model;
-    private Map<Integer, ChatHistory> histories;
     private JPanel login;
     private JTextField usernameBox;
     Color DARK_BLUE = new Color(0, 51, 102);
@@ -132,7 +128,6 @@ public class ChatClient extends JFrame {
         JPanel avatarsRow1 = new JPanel();
         JPanel avatarsRow2 = new JPanel();
         JPanel avatarsRow3 = new JPanel();
-
 
         JLabel avatar1 = new JLabel(new ImageIcon("icons/avatar1.png"));
         JLabel avatar2 = new JLabel(new ImageIcon("icons/avatar2.png"));
@@ -256,9 +251,6 @@ public class ChatClient extends JFrame {
     public void startPostLoginWindow() {
         JPanel postLoginBackground = new JPanel(); 
         userPanel = new JPanel();
-        
-        this.histories = new HashMap<Integer, ChatHistory>();
-
 
         logoutButton = new JButton();
         logoutButton.setActionCommand("logout");
@@ -385,7 +377,6 @@ public class ChatClient extends JFrame {
     	}
     	label = label.substring(0,label.length()-2);
     	JLabel historyLabel = new JLabel(label);
-    	histories.put(ID, history);
     	new HistoryListener(historyLabel, model, ID);
     	conversations.add(historyLabel);
     	conversations.revalidate();
