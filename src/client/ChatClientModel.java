@@ -74,9 +74,9 @@ public class ChatClientModel implements ActionListener {
      * @param username
      * @return
      */
-    public boolean tryUsername(String username) {
+    public boolean tryUsername(String username, int avatar) {
         if (username != null && !username.equals("")) {
-            this.submitCommand("login_attempt " + username + " " + avatar);
+            this.submitCommand("login_attempt " + username + " " + Integer.toString(avatar));
             try {
                 String result = this.messages.take();
                 if (result.equals("login_success")) {
@@ -251,11 +251,7 @@ public class ChatClientModel implements ActionListener {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     String username = outTokenizer.nextToken();
-                    for (User user: users) {
-                    	System.out.println(user.getUsername());
-                    }
                     users.remove(new User(username));
-                    System.out.println(users.toString());
                     client.setUserList(users);
 
                     // find private conversation with user

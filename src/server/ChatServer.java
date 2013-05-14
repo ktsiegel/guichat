@@ -128,7 +128,7 @@ public class ChatServer {
                     this.writeMessageToSocket("login_success", socket);
 
                     // notify all current users that a new user has joined
-                    this.sendMessageToUsers("user_joins " + username,
+                    this.sendMessageToUsers("user_joins " + username + " " + Integer.toString(avatar),
                             this.clients.keySet());
 
                     // add new user to list
@@ -136,7 +136,7 @@ public class ChatServer {
 
                     // notify new user of logged-in users
                     for (User onlineUser : this.clients.keySet()) {
-                        this.sendMessageToUser(
+                    	this.sendMessageToUser(
                                 "user_joins " + onlineUser.getUsername() + " " + onlineUser.getAvatar(), user);
                     }
 
