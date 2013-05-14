@@ -416,24 +416,28 @@ public class ChatClient extends JFrame {
 
     public void setUserList(Set<User> userList) {
         synchronized(userList) {
-        	users.removeAll();
-            for (String label: userLabels.keySet()) {
-            	userLabels.get(label).setVisible(false);
-            	userLabels.remove(label);
-            }
+        	synchronized(users) {
+        		synchronized(userLabels) {
+        			users.removeAll();
+                    for (String label: userLabels.keySet()) {
+                    	userLabels.get(label).setVisible(false);
+                    	userLabels.remove(label);
+                    }
 
-            for (User user : userList) {
-                if (user.equals(this.user)) {
-                    continue;
-                }
-                JLabel userLabel = new JLabel(user.getUsername());
-                userLabels.put(user.getUsername(), userLabel);
-                new UserListener(userLabel, model, user);
-                users.add(userLabel);
-                validate();
-            }
-            this.getContentPane().validate();
-            this.getContentPane().repaint();
+                    for (User user : userList) {
+                        if (user.equals(this.user)) {
+                            continue;
+                        }
+                        JLabel userLabel = new JLabel(user.getUsername());
+                        userLabels.put(user.getUsername(), userLabel);
+                        new UserListener(userLabel, model, user);
+                        users.add(userLabel);
+                        validate();
+                    }
+                    this.getContentPane().validate();
+                    this.getContentPane().repaint();
+        		}
+        	}
         }
     }
 
