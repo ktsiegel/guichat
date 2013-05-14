@@ -3,15 +3,19 @@ package client.testing;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.junit.Test;
+
 import client.HistoryBox;
 import user.User;
 import conversation.ChatHistory;
 
+/**
+ * 
+ * @category no_didit
+ */
+
 public class HistoryBoxTest {
-	@Test
-	public void basicTest() {
-		
-	}
+	
 
 	/*
 	 * This class should create and show new HistoryBoxes with various displays.
