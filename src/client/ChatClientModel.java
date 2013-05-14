@@ -363,6 +363,7 @@ public class ChatClientModel implements ActionListener {
                             if (!conversationIDMap.containsKey(username)) {
                                 conversationIDMap.put(username, ID);
                             }
+                            chats.get(ID).getChatBox().addOther(new User(username));
                             if (history.containsKey(ID)) {
                                 chats.get(ID)
                                         .getChatBox()
@@ -457,6 +458,10 @@ public class ChatClientModel implements ActionListener {
     
     public Set<User> getUsers() {
     	return users;
+    }
+    
+    public User getUser() {
+    	return user;
     }
 
     @Override

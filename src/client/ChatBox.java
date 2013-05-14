@@ -278,4 +278,7 @@ public class ChatBox extends JFrame {
         return others;
     }
 
+    public void addOther(User other) {
+    	others.add(other);
+    }
 }
