@@ -64,7 +64,9 @@ public class ChatClient extends JFrame {
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                model.quitChats();
+                if (user != null) {
+                    model.quitChats();
+                }
                 System.exit(0);
             }
         });
@@ -95,7 +97,7 @@ public class ChatClient extends JFrame {
         login = new JPanel();
         JPanel avatars = new JPanel();
         
-        ImageIcon imageIcon = new ImageIcon("icons/chat.png");
+        ImageIcon imageIcon = new ImageIcon("icons/chat.jpg");
         icon = new JLabel(imageIcon);
         
         usernameBox = new JTextField();
