@@ -233,7 +233,8 @@ public class ChatClientModel implements ActionListener {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     String username = outTokenizer.nextToken();
-                    users.add(new User(username));
+                    int avatar = Integer.parseInt(outTokenizer.nextToken());
+                    users.add(new User(username, avatar));
                     client.setUserList(users);
 
                     // find private conversation with user
