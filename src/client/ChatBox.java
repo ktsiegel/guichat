@@ -63,6 +63,7 @@ public class ChatBox extends JFrame {
             }
         });
         this.setSize(300, 300);
+        this.setTitle(title);
 
         display = new JTextPane();
         display.setEditable(false);
@@ -280,5 +281,14 @@ public class ChatBox extends JFrame {
 
     public void addOther(User other) {
     	others.add(other);
+    	updateTitle();
+    }
+    
+    public void updateTitle() {
+    	String title = "Group chat including ";
+    	for (User friend: others) {
+    		title += friend.getUsername() + ", ";
+    	}
+    	this.setTitle(title.substring(0,title.length()-2));
     }
 }

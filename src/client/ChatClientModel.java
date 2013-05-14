@@ -276,8 +276,8 @@ public class ChatClientModel implements ActionListener {
                             if (!conversationIDMap.containsKey(username2)) {
                                 conversationIDMap.put(username2, ID);
                             }
-                            ChatBox box = new ChatBox(temp, ID, "Chat of "
-                                    + user.getUsername(), false);
+                            ChatBox box = new ChatBox(temp, ID, user.getUsername() + ": chat with "
+                                    + username2, false);
                             box.setVisible(true);
                             chats.put(ID, box.getModel());
                         }
@@ -289,8 +289,8 @@ public class ChatClientModel implements ActionListener {
                             if (!conversationIDMap.containsKey(username1)) {
                                 conversationIDMap.put(username1, ID);
                             }
-                            ChatBox box = new ChatBox(temp, ID, "Chat of "
-                                    + user.getUsername(), false);
+                            ChatBox box = new ChatBox(temp, ID, user.getUsername() + ": chat with "
+                            		+ username1, false);
                             chats.put(ID, box.getModel());
                         }
                     });
@@ -360,9 +360,9 @@ public class ChatClientModel implements ActionListener {
                         public void run() {
                             chats.get(ID).addMessageToDisplay(
                                     username + " has joined the conversation.");
-                            if (!conversationIDMap.containsKey(username)) {
-                                conversationIDMap.put(username, ID);
-                            }
+//                            if (!conversationIDMap.containsKey(username)) {
+//                                conversationIDMap.put(username, ID);
+//                            }
                             chats.get(ID).getChatBox().addOther(new User(username));
                             if (history.containsKey(ID)) {
                                 chats.get(ID)
