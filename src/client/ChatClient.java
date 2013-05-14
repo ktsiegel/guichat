@@ -2,6 +2,8 @@ package client;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,7 +18,9 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -67,7 +71,7 @@ public class ChatClient extends JFrame {
         
         this.model.startListening();
 
-        String username = welcomePane("Enter a username:");
+        /*String username = welcomePane("Enter a username:");
         while (!this.model.tryUsername(username)) {
             if (username != null && !username.equals("")) {
             	username = welcomePane("Sorry, that username has already been taken! Enter a username:");
@@ -77,27 +81,60 @@ public class ChatClient extends JFrame {
             }
         }
         this.user = new User(username);
-        System.out.println("GOT USERNAME");
-        startPostLoginWindow();
+        System.out.println("GOT USERNAME");*/
+
     }
     
     public void startLoginWindow() {
         background = new JPanel();
+        background.setBackground(new Color(0, 51, 102));
         JPanel login = new JPanel();
         JPanel avatars = new JPanel();
         
         ImageIcon imageIcon = new ImageIcon("icons/chat.png");
         icon = new JLabel(imageIcon);
         
-        JTextField usernameBox = new JTextField();
+        final JTextField usernameBox = new JTextField();
+        usernameBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                System.out.println("Here");
+                String username = usernameBox.getText();
+                model.tryUsername(username);
+                user = new User(username);
+                startPostLoginWindow();
+            }
+
+        });
         login.add(usernameBox);
         JButton loginButton = new JButton("Login");
-        login.add(loginButton);
+        //login.add(loginButton);
 
-        login.setAlignmentX(RIGHT_ALIGNMENT);
+
         login.setLayout(new BoxLayout(login, BoxLayout.PAGE_AXIS));
+        login.setOpaque(false);
+        
+
+        JLabel avatar1 = new JLabel(new ImageIcon("icons/avatar1.png"));
         
         
+        avatars.add(avatar1);
+        avatars.setOpaque(false);
+        
+        Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
+        TitledBorder loginBorder = BorderFactory.createTitledBorder(emptyBorder, "Enter Username");
+        loginBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
+        loginBorder.setTitleColor(Color.white);
+        loginBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(Font.BOLD));
+        
+        login.setBorder(loginBorder);
+        
+        TitledBorder avatarBorder = BorderFactory.createTitledBorder(emptyBorder, "Choose Avatar");
+        avatarBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
+        avatarBorder.setTitleColor(Color.white);
+        avatarBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(Font.BOLD));
+        
+        avatars.setBorder(avatarBorder);
         
         // Create layout
         layout = new GroupLayout(background);
@@ -111,7 +148,7 @@ public class ChatClient extends JFrame {
         Group v = layout.createSequentialGroup();
         v.addComponent(icon, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
         v.addComponent(login, 50, 50, 50);
-        v.addComponent(avatars, 60, 60, 60);
+        v.addComponent(avatars, 150, 150, 150);
 
         layout.setHorizontalGroup(h);
         layout.setVerticalGroup(v);
