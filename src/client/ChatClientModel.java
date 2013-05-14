@@ -241,28 +241,30 @@ public class ChatClientModel implements ActionListener{
         } else if (output.matches("join \\d+ [A-Za-z0-9 ]+")) {
             outTokenizer.nextToken();
             final int ID = Integer.parseInt(outTokenizer.nextToken());
-            final String username = outTokenizer.nextToken();
-            if (username.equals(this.user.getUsername())) {
-                final ChatClientModel temp = this;
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        ChatBox box = new ChatBox(temp, ID, "Chat of " + user.getUsername());
-                        box.setVisible(true);
-                        chats.put(ID, box.getModel());
-                    }
-                });
-            } else if (!outTokenizer.hasMoreTokens()) {
-            	SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        chats.get(ID).addMessageToDisplay(username + " has joined the conversation.");
-                        if (!conversationIDMap.containsKey(username)) {
-                            conversationIDMap.put(username, ID);
+            if (!chats.containsKey(ID)) {
+            	final String username = outTokenizer.nextToken();
+                if (username.equals(this.user.getUsername())) {
+                    final ChatClientModel temp = this;
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            ChatBox box = new ChatBox(temp, ID, "Chat of " + user.getUsername());
+                            box.setVisible(true);
+                            chats.put(ID, box.getModel());
                         }
-                        if (history.containsKey(ID)) {
-                        	chats.get(ID).getChatBox().appendMessage(history.get(ID).getHistory());
+                    });
+                } else if (!outTokenizer.hasMoreTokens()) {
+                	SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            chats.get(ID).addMessageToDisplay(username + " has joined the conversation.");
+                            if (!conversationIDMap.containsKey(username)) {
+                                conversationIDMap.put(username, ID);
+                            }
+                            if (history.containsKey(ID)) {
+                            	chats.get(ID).getChatBox().appendMessage(history.get(ID).getHistory());
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
         } else if (output.matches("leave \\d+ [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
@@ -318,6 +320,7 @@ public class ChatClientModel implements ActionListener{
     public void actionPerformed(ActionEvent event) {
 	    if (event.getActionCommand().equals("logout")) {
 	    	quitChats();
+	    	submitCommand("logout " + user.getUsername());
 	    	this.client.dispose();
 	    	System.exit(0);
 	    }
