@@ -156,8 +156,8 @@ public class ChatServer {
                             } else {
                                 this.sendMessageToUser(
                                         "chat_start " + conversation.getID()
-                                                + " " + a.getUsername() + " "
-                                                + b.getUsername(), user);
+                                                + " " + b.getUsername() + " "
+                                                + a.getUsername(), user);
                             }
                         }
                     }

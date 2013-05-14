@@ -13,7 +13,7 @@ public class Emoticon {
 
     public String getURL() {
         if (text.equals("(:")) {
-            return "emoticon__backwards_smile.gif";
+            return "emoticon_backwards_smile.gif";
         } else if (text.equals("</3")) {
             return "emoticon_broken_heart.gif";
         } else if (text.equals(":bunny")) {
@@ -75,7 +75,7 @@ public class Emoticon {
         } else if (text.equals(":P")) {
             return "emoticon_tongue.gif";
         } else if (text.equals(";)")) {
-            return "emoticion_wink.gif";
+            return "emoticon_wink.gif";
         } else {
             return null;
         }
