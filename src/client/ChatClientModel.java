@@ -146,7 +146,7 @@ public class ChatClientModel implements ActionListener {
     }
     
     public void exitChat(int ID) {
-        submitCommand("chat_leave " + Integer.toString(ID) + " "
+        submitCommand("group_chat_leave " + Integer.toString(ID) + " "
                 + user.getUsername());
         removeChat(ID);
     }

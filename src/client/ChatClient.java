@@ -421,8 +421,8 @@ public class ChatClient extends JFrame {
         			users.removeAll();
                     for (String label: userLabels.keySet()) {
                     	userLabels.get(label).setVisible(false);
-                    	userLabels.remove(label);
                     }
+                    userLabels.clear();
 
                     for (User user : userList) {
                         if (user.equals(this.user)) {
