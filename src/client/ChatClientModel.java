@@ -133,8 +133,16 @@ public class ChatClientModel implements ActionListener {
             ChatBoxModel boxModel = this.chats.remove(conversationID);
             ChatBox box = boxModel.getChatBox();
             String message = box.getDisplay().getText();
+            Set<User> historyOthers = new HashSet<User>();
             Set<User> others = box.getOthers();
-            ChatHistory currentHistory = new ChatHistory(others, message);
+            for (User user: others) {
+            	historyOthers.add(user);
+            }
+            Set<User> oldOthers = box.getLeftChat();
+            for (User user: oldOthers) {
+            	historyOthers.add(user);
+            }
+            ChatHistory currentHistory = new ChatHistory(historyOthers, message);
             history.put(conversationID, currentHistory);
             client.addHistory(currentHistory, conversationID);
             boxModel.quit();
@@ -393,6 +401,7 @@ public class ChatClientModel implements ActionListener {
                 public void run() {
                     chats.get(ID).addMessageToDisplay(
                             username + " has left the conversation.");
+                    chats.get(ID).getChatBox().removeOther(new User(username));
                 }
             });
         } else if (output.matches("say \\d+ [A-Za-z0-9]+ .*")) {
