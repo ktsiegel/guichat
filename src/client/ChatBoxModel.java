@@ -5,15 +5,17 @@ import java.awt.event.KeyListener;
 
 public class ChatBoxModel implements KeyListener {
 
-    private ChatBox chatBox;
-    private int conversationID;
-    private ChatClientModel model;
+    private final ChatBox chatBox;
+    private final int conversationID;
+    private final ChatClientModel model;
+    private final boolean isGroupChat;
 
     public ChatBoxModel(ChatClientModel model, ChatBox chatBox,
-            int conversationID) {
+            int conversationID, boolean isGroupChat) {
         this.model = model;
         this.chatBox = chatBox;
         this.conversationID = conversationID;
+        this.isGroupChat = isGroupChat;
     }
 
     public void addChatLine(String text) {
@@ -35,13 +37,19 @@ public class ChatBoxModel implements KeyListener {
     public void addMessageToDisplay(String message) {
         chatBox.appendMessage(message);
     }
+    
+    public void show() {
+        chatBox.setVisible(true);
+    }
 
     public void quit() {
         chatBox.setVisible(false);
     }
-    
+
     public void quitChatBox() {
-    	this.model.exitChat(conversationID);
+        if (this.isGroupChat) {
+            this.model.exitChat(conversationID);
+        }
     }
 
     @Override

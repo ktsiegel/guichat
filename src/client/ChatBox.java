@@ -35,8 +35,8 @@ public class ChatBox extends JFrame {
     private Set<User> others;
 
     public ChatBox(ChatClientModel chatClientModel, int conversationID,
-            String title) {
-        this.model = new ChatBoxModel(chatClientModel, this, conversationID);
+            String title, boolean isGroupChat) {
+        this.model = new ChatBoxModel(chatClientModel, this, conversationID, isGroupChat);
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
