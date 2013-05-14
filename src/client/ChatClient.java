@@ -123,11 +123,40 @@ public class ChatClient extends JFrame {
         login.setLayout(new BoxLayout(login, BoxLayout.PAGE_AXIS));
         login.setOpaque(false);
         
+        JPanel avatarsRow1 = new JPanel();
+        JPanel avatarsRow2 = new JPanel();
+        JPanel avatarsRow3 = new JPanel();
 
         JLabel avatar1 = new JLabel(new ImageIcon("icons/avatar1.png"));
+        JLabel avatar2 = new JLabel(new ImageIcon("icons/avatar2.png"));
+        JLabel avatar3 = new JLabel(new ImageIcon("icons/avatar3.png"));
+        JLabel avatar4 = new JLabel(new ImageIcon("icons/avatar4.png"));
+        JLabel avatar5 = new JLabel(new ImageIcon("icons/avatar5.png"));
+        JLabel avatar6 = new JLabel(new ImageIcon("icons/avatar6.png"));
+        JLabel avatar7 = new JLabel(new ImageIcon("icons/avatar7.png"));
+        JLabel avatar8 = new JLabel(new ImageIcon("icons/avatar8.png"));
+        JLabel avatar9 = new JLabel(new ImageIcon("icons/avatar9.png"));
+        JLabel avatar10 = new JLabel(new ImageIcon("icons/avatar10.png"));
+        JLabel avatar11 = new JLabel(new ImageIcon("icons/avatar11.png"));
+        JLabel avatar12 = new JLabel(new ImageIcon("icons/avatar12.png"));
+
+        avatarsRow1.add(avatar1);
+        avatarsRow1.add(avatar2);
+        avatarsRow1.add(avatar3);
+        avatarsRow1.add(avatar4);
+        avatarsRow2.add(avatar5);
+        avatarsRow2.add(avatar6);
+        avatarsRow2.add(avatar7);
+        avatarsRow2.add(avatar8);
+        avatarsRow3.add(avatar9);
+        avatarsRow3.add(avatar10);
+        avatarsRow3.add(avatar11);
+        avatarsRow3.add(avatar12);
         
-        
-        avatars.add(avatar1);
+        avatars.add(avatarsRow1);
+        avatars.add(avatarsRow2);
+        avatars.add(avatarsRow3);
+        avatars.setLayout(new BoxLayout(avatars, BoxLayout.PAGE_AXIS));
         avatars.setOpaque(false);
         
         Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
@@ -157,7 +186,7 @@ public class ChatClient extends JFrame {
         Group v = layout.createSequentialGroup();
         v.addComponent(icon, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
         v.addComponent(login, 50, 50, 50);
-        v.addComponent(avatars, 150, 150, 150);
+        v.addComponent(avatars, 180, 180, 180);
 
         layout.setHorizontalGroup(h);
         layout.setVerticalGroup(v);
