@@ -361,14 +361,12 @@ public class ChatClientModel implements ActionListener {
             final String username = outTokenizer.nextToken();
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    chats.get(ID).addMessageToDisplay(
-                            username + " has left the conversation.");
+                    chats.get(ID).addMessageToDisplay(username + " has left the conversation.");
                 }
             });
         } else if (output.matches("say \\d+ [A-Za-z0-9]+ .*")) {
             outTokenizer.nextToken();
-            final ChatBoxModel currentChatModel = chats.get(Integer
-                    .parseInt(outTokenizer.nextToken()));
+            final ChatBoxModel currentChatModel = chats.get(Integer.parseInt(outTokenizer.nextToken()));
             String message = output;
             for (int i = 0; i < 3; i++) {
                 message = message.substring(message.indexOf(" ") + 1);
