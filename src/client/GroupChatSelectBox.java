@@ -99,12 +99,12 @@ public class GroupChatSelectBox extends JFrame{
 	}
 	
 	public static void main(String[] args) {
-		ChatClientModel model = new ChatClientModel(new ChatClient());
-		List<User> userList = model.getUsers();
-		userList.add(new User("casey"));
-		userList.add(new User("katie"));
-		userList.add(new User("alex"));
-		GroupChatSelectBox box = new GroupChatSelectBox(model);
-		box.setVisible(true);
+//		ChatClientModel model = new ChatClientModel(new ChatClient());
+//		List<User> userList = model.getUsers();
+//		userList.add(new User("casey"));
+//		userList.add(new User("katie"));
+//		userList.add(new User("alex"));
+//		GroupChatSelectBox box = new GroupChatSelectBox(model);
+//		box.setVisible(true);
 	}
 }
