@@ -260,7 +260,7 @@ public class ChatClient extends JFrame {
         JPanel postLoginBackground = new JPanel();
         userPanel = new JPanel();
 
-        logoutButton = new JButton();
+        logoutButton = new JButton("Logout");
         logoutButton.setActionCommand("logout");
         logoutButton.addActionListener(model);
 
@@ -343,6 +343,18 @@ public class ChatClient extends JFrame {
         userPanelLayout();
         welcome.setText("<html><font size=+1><b>Welcome, "
                 + this.user.getUsername() + "!</b></font></html>");
+        
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(logoutButton);
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+        buttonPanel.setOpaque(true);
+        buttonPanel.setBackground(DARK_BLUE);
+        
+        buttonPanel.setBorder(emptyBorder);
+        
+        JButton startChatButton = new JButton("Group Chat");
+
+        buttonPanel.add(startChatButton);
 
         getContentPane().removeAll();
 
@@ -354,11 +366,15 @@ public class ChatClient extends JFrame {
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
         h.addComponent(userPanel, GroupLayout.DEFAULT_SIZE,
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        h.addComponent(buttonPanel, GroupLayout.DEFAULT_SIZE,
+                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+
 
         Group v = layout.createSequentialGroup();
         v.addComponent(welcomePanel, 40, 40, 40);
         v.addComponent(userPanel, GroupLayout.DEFAULT_SIZE,
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        v.addComponent(buttonPanel, 25, 25, 25);
 
         layout.setHorizontalGroup(h);
         layout.setVerticalGroup(v);
