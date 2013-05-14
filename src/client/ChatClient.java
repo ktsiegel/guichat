@@ -54,6 +54,8 @@ public class ChatClient extends JFrame {
     private JLabel icon;
     private final ChatClientModel model;
     private Map<Integer, ChatHistory> histories;
+    private JPanel login;
+    private JTextField usernameBox;
 
     public ChatClient() {
         this.model = new ChatClientModel(this);
@@ -89,21 +91,27 @@ public class ChatClient extends JFrame {
     public void startLoginWindow() {
         background = new JPanel();
         background.setBackground(new Color(0, 51, 102));
-        JPanel login = new JPanel();
+        login = new JPanel();
         JPanel avatars = new JPanel();
         
         ImageIcon imageIcon = new ImageIcon("icons/chat.png");
         icon = new JLabel(imageIcon);
         
-        final JTextField usernameBox = new JTextField();
+        usernameBox = new JTextField();
         usernameBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                System.out.println("Here");
                 String username = usernameBox.getText();
-                model.tryUsername(username);
-                user = new User(username);
-                startPostLoginWindow();
+                if (model.tryUsername(username)) {
+                    user = new User(username);
+                    startPostLoginWindow();
+                } else {
+                    if (username != null && !username.equals("")) {
+                        usernameTakenUpdate();
+                    }
+                }
+
+                
             }
 
         });
@@ -157,6 +165,20 @@ public class ChatClient extends JFrame {
         this.add(background);
         this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
         
+    }
+        
+    public void usernameTakenUpdate() {
+        Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
+        TitledBorder loginBorder = BorderFactory.createTitledBorder(emptyBorder, "Username Taken");
+        loginBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
+        loginBorder.setTitleColor(Color.white);
+        loginBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(Font.BOLD));
+        
+        login.setBorder(loginBorder);
+        //login.revalidate();
+        usernameBox.setText("");
+        //usernameBox.revalidate();
+        validate();
     }
     
     public void startPostLoginWindow() {
@@ -296,7 +318,8 @@ public class ChatClient extends JFrame {
 
     public void removeUser(String username) {
         users.remove(userLabels.get(username));
-        validate();
+        users.validate();
+        repaint();
     }
 
     public void userPanelLayout() {
