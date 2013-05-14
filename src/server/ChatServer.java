@@ -310,7 +310,7 @@ public class ChatServer {
                     this.conversations.remove(ID);
                 }
 
-                this.sendMessageToUsers("leave " + ID + " " + username,
+                this.sendMessageToUsers("chat_leave " + ID + " " + username,
                         chat.getUsers());
             } else {
                 throw new IllegalStateException(
