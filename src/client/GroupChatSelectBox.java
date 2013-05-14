@@ -45,6 +45,7 @@ public class GroupChatSelectBox extends JFrame{
 				for (JLabel label: selected) {
 					chatters.add(new User(label.getText()));
 				}
+				chatters.add(clientModel.getUser());
 				clientModel.addGroupChat(chatters);
 				dispose();
 			}
@@ -53,9 +54,11 @@ public class GroupChatSelectBox extends JFrame{
 		
 		
 		for (User user: clientModel.getUsers()) {
-			JLabel label = new JLabel(user.getUsername());
-			new GroupChatListener(label, this, user);
-			display.add(label);
+			if (!user.equals(clientModel.getUser())) {
+				JLabel label = new JLabel(user.getUsername());
+				new GroupChatListener(label, this, user);
+				display.add(label);
+			}
 		}
 		displayScroll = new JScrollPane(display);
 		Border lineBorder = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
