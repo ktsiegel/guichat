@@ -210,7 +210,16 @@ public class ChatClientModel implements ActionListener {
             outTokenizer.nextToken();
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    client.addUser(new User(outTokenizer.nextToken()));
+                    String username = outTokenizer.nextToken();
+                    client.addUser(new User(username));
+
+                    // find private conversation with user
+                    if (conversationIDMap.containsKey(username)) {
+                        ChatBoxModel temp = chats.get(conversationIDMap
+                                .get(username));
+                        temp.addMessageToDisplay(username
+                                + " has logged back in.");
+                    }
                 }
             });
         } else if (output.matches("user_leaves [A-Za-z0-9]+")) {
