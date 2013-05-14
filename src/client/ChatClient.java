@@ -313,6 +313,7 @@ public class ChatClient extends JFrame {
     	histories.put(ID, history);
     	new HistoryListener(historyLabel, model, ID);
     	conversations.add(historyLabel);
+    	conversations.revalidate();
     	validate();
     }
 
