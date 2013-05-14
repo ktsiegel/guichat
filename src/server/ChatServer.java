@@ -113,13 +113,14 @@ public class ChatServer {
             String[] split = message.split(" ");
 
             if (split[0].equals("login_attempt")) {
-                if (split.length != 2) {
+                if (split.length != 3) {
                     throw new IllegalStateException(
                             "Invalid login_attempt message received from client by server");
                 }
 
                 String username = split[1];
-                User user = new User(username);
+                int avatar = Integer.parseInt(split[1]);
+                User user = new User(username, avatar);
 
                 if (clients.containsKey(user)) {
                     this.writeMessageToSocket("login_invalid", socket);
@@ -136,7 +137,7 @@ public class ChatServer {
                     // notify new user of logged-in users
                     for (User onlineUser : this.clients.keySet()) {
                         this.sendMessageToUser(
-                                "user_joins " + onlineUser.getUsername(), user);
+                                "user_joins " + onlineUser.getUsername() + " " + onlineUser.getAvatar(), user);
                     }
 
                     // have the user rejoin all private conversations

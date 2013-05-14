@@ -11,6 +11,12 @@ public class User implements Comparable<User> {
     private boolean isActive;
     private int avatar;
     
+    public User(String username) {
+        this.username = username;
+        this.avatar = -1;
+        this.isActive = true;
+    }
+    
     /**
      * Create a new User. Each user has a String username which is
      * used to identify them.
