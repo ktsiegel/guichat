@@ -6,8 +6,6 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JLabel;
 
-import user.User;
-
 public class HistoryListener implements MouseListener {
 
     private final JLabel historyLabel;
