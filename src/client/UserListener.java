@@ -32,7 +32,7 @@ public class UserListener implements MouseListener {
 
     @Override
     public void mouseEntered(MouseEvent arg0) {
-        userLabel.setForeground(Color.blue);
+        userLabel.setForeground(new Color(102, 178, 255));
         
     }
 

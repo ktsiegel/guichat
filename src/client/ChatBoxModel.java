@@ -43,7 +43,7 @@ public class ChatBoxModel implements KeyListener {
     }
     
     public void quitChatBox() {
-    	this.model.removeChat(conversationID);
+    	this.model.exitChat(conversationID);
     }
 
     @Override

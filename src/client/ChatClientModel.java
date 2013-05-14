@@ -97,22 +97,42 @@ public class ChatClientModel implements ActionListener{
      *            The User with which the client wants to chat
      */
     public void addChat(User other) {
-        if (conversationIDMap.containsKey(other.getUsername())) {
-        	submitCommand("chat_join " + Integer.toString(conversationIDMap.get(other.getUsername())) + 
-        			" " + this.user.getUsername());
+    	String command = "";
+    	if (conversationIDMap.containsKey(other.getUsername())) {
+        	command = "chat_join " + Integer.toString(conversationIDMap.get(other.getUsername())) + 
+        			" " + this.user.getUsername();
         }
         else {
-        	submitCommand("chat_start " + this.user.getUsername() + " " + other.getUsername());
+        	command = "chat_start " + this.user.getUsername() + " " + other.getUsername();
         }
+    	System.out.println("client sent " + command);
+    	submitCommand(command);
+    }
+    
+    public void addGroupChat(Set<User> others) {
+    	String command = "start " + this.user.getUsername() + " ";
+    	for (User other: others) {
+    		command += other.getUsername() + " ";
+    	}
+    	submitCommand(command.substring(0,command.length()-1));
     }
     
     public void removeChat(int conversationID) {
+    	System.out.println(this.chats.toString());
     	if (this.chats.containsKey(conversationID)) {
-    		ChatBox box = this.chats.remove(conversationID).getChatBox();
+    		System.out.println("removing conversation " + Integer.toString(conversationID));
+    		ChatBoxModel boxModel = this.chats.remove(conversationID);
+    		ChatBox box = boxModel.getChatBox();
     		String message = box.getDisplay().getText();
     		Set<User> others = box.getOthers();
         	history.put(conversationID, new ChatHistory(others,message));
+        	boxModel.quit();
     	}
+    }
+    
+    public void exitChat(int ID) {
+    	submitCommand("leave " + Integer.toString(ID) + " " + user.getUsername());
+    	removeChat(ID);
     }
 
     public void sendChat(int ID, String text) {
@@ -214,52 +234,44 @@ public class ChatClientModel implements ActionListener{
                             chatMessage);
                 }
             });
-        } else if (output.matches("chat_join \\d+ [A-Za-z0-9]+")) {
+        } else if (output.matches("chat_join \\d+ [A-Za-z0-9 ]+")) {
             outTokenizer.nextToken();
             final int ID = Integer.parseInt(outTokenizer.nextToken());
-            final String username = outTokenizer.nextToken();
-            if (username.equals(this.user.getUsername())) {
-                final ChatClientModel temp = this;
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        ChatBox box = new ChatBox(temp, ID, "Chat of "
-                                + user.getUsername(), username);
-                        conversationIDMap.put(username, ID);
-                        if (history.containsKey(ID)) {
-                        	box.appendMessage(history.get(ID).getHistory());
+            if (!chats.containsKey(ID)) {
+            	final String username = outTokenizer.nextToken();
+                if (username.equals(this.user.getUsername())) {
+                    final ChatClientModel temp = this;
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            ChatBox box = new ChatBox(temp, ID, "Chat of " + user.getUsername());
+                            box.setVisible(true);
+                            chats.put(ID, box.getModel());
                         }
-                        box.setVisible(true);
-                        chats.put(ID, box.getModel());
-                    }
-                });
-            } else {
-            	SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        chats.get(ID).addMessageToDisplay(
-                                username + " has joined the conversation.");
-                    }
-                });
+                    });
+                } else if (!outTokenizer.hasMoreTokens()) {
+                	SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            chats.get(ID).addMessageToDisplay(username + " has joined the conversation.");
+                            if (!conversationIDMap.containsKey(username)) {
+                                conversationIDMap.put(username, ID);
+                            }
+                            if (history.containsKey(ID)) {
+                            	chats.get(ID).getChatBox().appendMessage(history.get(ID).getHistory());
+                            }
+                        }
+                    });
+                }
             }
         } else if (output.matches("chat_leave \\d+ [A-Za-z0-9]+")) {
             outTokenizer.nextToken();
             final int ID = Integer.parseInt(outTokenizer.nextToken());
             final String username = outTokenizer.nextToken();
-            if (username.equals(this.user.getUsername())) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        ChatBoxModel currentChatModel = chats.get(ID);
-                        currentChatModel.quit();
-                        chats.remove(Integer.parseInt(username));
-                    }
-                });
-            } else {
-            	SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                chats.get(ID).addMessageToDisplay(
-                        username + " has left the conversation.");
-                    }
-                });
-            }
+            SwingUtilities.invokeLater(new Runnable() {
+            	public void run() {
+            		chats.get(ID).addMessageToDisplay(
+            				username + " has left the conversation.");
+            	}
+            });
         } else {
             throw new RuntimeException("Illegal message from server: " + output);
         }
@@ -304,6 +316,7 @@ public class ChatClientModel implements ActionListener{
     public void actionPerformed(ActionEvent event) {
 	    if (event.getActionCommand().equals("logout")) {
 	    	quitChats();
+	    	submitCommand("logout " + user.getUsername());
 	    	this.client.dispose();
 	    	System.exit(0);
 	    }

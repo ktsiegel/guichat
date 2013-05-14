@@ -27,9 +27,7 @@ public class ChatServer {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException(
-                    "Unexpected IOException when creating server socket with port "
-                            + port);
+            throw new RuntimeException("Unexpected IOException when creating server socket with port " + port);
         }
         clients = new HashMap<User, Socket>();
         conversations = new HashMap<Integer, Conversation>();
