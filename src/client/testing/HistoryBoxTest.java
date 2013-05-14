@@ -8,6 +8,10 @@ import user.User;
 import conversation.ChatHistory;
 
 public class HistoryBoxTest {
+	@Test
+	public void basicTest() {
+		
+	}
 
 	/*
 	 * This class should create and show new HistoryBoxes with various displays.
