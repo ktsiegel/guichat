@@ -1,6 +1,7 @@
 package client;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -445,9 +446,17 @@ public class ChatClient extends JFrame {
                             continue;
                         }
                         JLabel userLabel = new JLabel(user.getUsername());
+                        JPanel userPanel = new JPanel();
+                        ImageIcon avatar = new ImageIcon("icons/avatar" + user.getAvatar() + ".png");
+                        JLabel avatarIcon = new JLabel(avatar);
+                        userPanel.add(avatarIcon);
+                        userPanel.add(userLabel);
+                        userPanel.setOpaque(false);
+                        userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.LINE_AXIS));
+                        userPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
                         userLabels.put(user.getUsername(), userLabel);
                         new UserListener(userLabel, model, user);
-                        users.add(userLabel);
+                        users.add(userPanel);
                         validate();
                     }
                     this.getContentPane().validate();
