@@ -125,9 +125,17 @@ public class ChatClientModel implements ActionListener{
     		ChatBox box = boxModel.getChatBox();
     		String message = box.getDisplay().getText();
     		Set<User> others = box.getOthers();
-        	history.put(conversationID, new ChatHistory(others,message));
+    		ChatHistory currentHistory = new ChatHistory(others,message);
+        	history.put(conversationID, currentHistory);
+        	client.addHistory(currentHistory, conversationID);
         	boxModel.quit();
     	}
+    }
+    
+    public void showChatHistory(int ID) {
+    	ChatHistory currentHistory = history.get(ID);
+    	HistoryBox box = new HistoryBox(currentHistory);
+    	box.setVisible(true);
     }
     
     public void exitChat(int ID) {
