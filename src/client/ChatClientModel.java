@@ -153,6 +153,14 @@ public class ChatClientModel implements ActionListener {
         submitCommand("say " + Integer.toString(ID) + " " + user.getUsername()
                 + " " + text);
     }
+    
+    public void sendTyping(int ID) {
+        submitCommand("typing " + Integer.toString(ID) + " " + user.getUsername());
+    }
+    
+    public void sendCleared(int ID) {
+        submitCommand("cleared " + Integer.toString(ID) + " " + user.getUsername());
+    }
 
     /**
      * Send a command to the server via the socket. The command must follow the
@@ -381,6 +389,24 @@ public class ChatClientModel implements ActionListener {
                 public void run() {
                     currentChatModel.addChatToDisplay(outTokenizer.nextToken(),
                             chatMessage);
+                }
+            });
+        } else if (output.matches("typing \\d+ [A-Za-z0-9]+")) {
+            outTokenizer.nextToken();
+            final ChatBoxModel currentChatModel = chats.get(Integer
+                    .parseInt(outTokenizer.nextToken()));
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    currentChatModel.markTyping(outTokenizer.nextToken());
+                }
+            });
+        } else if (output.matches("cleared \\d+ [A-Za-z0-9]+")) {
+            outTokenizer.nextToken();
+            final ChatBoxModel currentChatModel = chats.get(Integer
+                    .parseInt(outTokenizer.nextToken()));
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    currentChatModel.markCleared(outTokenizer.nextToken());
                 }
             });
         } else {

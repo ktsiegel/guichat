@@ -33,6 +33,7 @@ public class ChatServerClientThread implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            this.server.forceLogout(socket);
             System.out.println("CLOSING CHAT SERVER CLIENT THREAD");
 
             try {

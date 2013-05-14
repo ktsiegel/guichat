@@ -149,11 +149,13 @@ public class ChatServer {
                             User b = iterator.next();
                             if (!a.equals(user)) {
                                 this.sendMessageToUser(
-                                        "chat_start " + conversation.getID() + " " + a.getUsername() + " "
+                                        "chat_start " + conversation.getID()
+                                                + " " + a.getUsername() + " "
                                                 + b.getUsername(), user);
                             } else {
                                 this.sendMessageToUser(
-                                        "chat_start " + conversation.getID() + " " + a.getUsername() + " "
+                                        "chat_start " + conversation.getID()
+                                                + " " + a.getUsername() + " "
                                                 + b.getUsername(), user);
                             }
                         }
@@ -325,6 +327,40 @@ public class ChatServer {
                 Conversation chat = this.conversations.get(ID);
                 this.sendMessageToUsers("say " + ID + " " + username + " "
                         + text, chat.getUsers());
+            } else if (split[0].equals("typing")) {
+                if (split.length != 3) {
+                    throw new IllegalStateException(
+                            "Invalid typing message received from client by server");
+                }
+                int ID = Integer.parseInt(split[1]);
+                String username = split[2];
+
+                if (!this.clients.containsKey(new User(username))) {
+                    throw new IllegalStateException(
+                            "Invalid typing message received from client by server: unknown user");
+                }
+
+                Conversation chat = this.conversations.get(ID);
+                Set<User> chatUsers = new HashSet<User>(chat.getUsers());
+                chatUsers.remove(new User(username));
+                this.sendMessageToUsers("typing " + ID + " " + username, chatUsers);
+            } else if (split[0].equals("cleared")) {
+                if (split.length != 3) {
+                    throw new IllegalStateException(
+                            "Invalid cleared message received from client by server");
+                }
+                int ID = Integer.parseInt(split[1]);
+                String username = split[2];
+
+                if (!this.clients.containsKey(new User(username))) {
+                    throw new IllegalStateException(
+                            "Invalid cleared message received from client by server: unknown user");
+                }
+
+                Conversation chat = this.conversations.get(ID);
+                Set<User> chatUsers = new HashSet<User>(chat.getUsers());
+                chatUsers.remove(new User(username));
+                this.sendMessageToUsers("cleared " + ID + " " + username, chatUsers);
             } else {
                 throw new IllegalStateException(
                         "Unexpected command received from client by server: "
@@ -340,6 +376,14 @@ public class ChatServer {
             e.printStackTrace();
             throw new RuntimeException(
                     "Unexpected InterruptedException in addMessageToQueue()");
+        }
+    }
+    
+    public void forceLogout(Socket socket) {
+        for (User user : this.clients.keySet()) {
+            if (this.clients.get(user).equals(socket)) {
+                this.addMessageToQueue("logout " + user.getUsername(), socket);
+            }
         }
     }
 }

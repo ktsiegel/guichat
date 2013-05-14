@@ -3,12 +3,14 @@ package client;
 import java.awt.Color;
 import java.awt.event.WindowEvent;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -32,6 +34,7 @@ public class ChatBox extends JFrame {
     private final ChatBoxModel model;
     private final JPanel background;
     private final JPanel gap;
+    private final JLabel bottomLabel;
     private Set<User> others;
 
     public ChatBox(ChatClientModel chatClientModel, int conversationID,
@@ -75,6 +78,9 @@ public class ChatBox extends JFrame {
         message.setBorder(textBorder);
         messageScroll.setBorder(lineBorder);
         background.setBorder(paddingBorder);
+        
+        bottomLabel = new JLabel("");
+        bottomLabel.setForeground(Color.WHITE);
 
         this.add(background);
         this.getContentPane().setLayout(
@@ -94,12 +100,17 @@ public class ChatBox extends JFrame {
                 Short.MAX_VALUE);
         h.addComponent(messageScroll, GroupLayout.DEFAULT_SIZE,
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        h.addComponent(gap, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
+                Short.MAX_VALUE);
+        h.addComponent(bottomLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
 
         Group v = layout.createSequentialGroup();
         v.addComponent(displayScroll, GroupLayout.DEFAULT_SIZE,
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
         v.addComponent(gap, 10, 10, 10);
         v.addComponent(messageScroll, 60, 60, 60);
+        v.addComponent(gap, 10, 10, 10);
+        v.addComponent(bottomLabel, 20, 20, 20);
 
         layout.setHorizontalGroup(h);
         layout.setVerticalGroup(v);
@@ -119,10 +130,44 @@ public class ChatBox extends JFrame {
     }
 
     public void appendMessage(String message) {
-        if (!this.isVisible()) {
-            this.setVisible(true);
-        }
         display.append(message + "\n");
+    }
+    
+    public void setBottomMessage(String message) {
+        bottomLabel.setText(message);
+    }
+    
+    private String generateUserListWithVerb(Set<String> users, String verb1, String verb2) {
+        String res = "";
+        if (users.size() == 0) {
+            return res;
+        } else if (users.size() == 1) {
+            Iterator<String> iterator = users.iterator();
+            res += iterator.next(); 
+            return res + " " + verb1;
+        } else if (users.size() == 2) {
+            Iterator<String> iterator = users.iterator();
+            res += iterator.next() + " " + iterator.next();
+            return res + " " + verb2;
+        } else {
+            Iterator<String> iterator = users.iterator();
+            int num = 0;
+            while (num < users.size() - 1) {
+                res += iterator.next() + ", ";
+            }
+            res += "and " + iterator.next();
+            return res + " " + verb2;
+        }
+    }
+    
+    public void updateStatus(Set<String> usersTyping, Set<String> usersEnteredText) {
+        if (usersTyping.size() > 0) {
+            this.setBottomMessage(this.generateUserListWithVerb(usersTyping, "is typing...", "are typing..."));
+        } else if (usersEnteredText.size() > 0) {
+            this.setBottomMessage(this.generateUserListWithVerb(usersEnteredText, "has entered text...", "have entered text..."));
+        } else {
+            this.setBottomMessage("");
+        }
     }
 
     // accessors
