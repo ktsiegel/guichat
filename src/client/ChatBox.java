@@ -1,6 +1,5 @@
 package client;
 
-import java.awt.event.WindowEvent;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,12 +7,16 @@ import javax.swing.GroupLayout;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 
 import user.User;
 
 public class ChatBox extends JFrame {
 
+    /**
+     * Auto-generated default serial ID.
+     */
+    private static final long serialVersionUID = 1L;
+    
     private final JTextArea display;
     private final JTextArea message;
     private final JScrollPane displayScroll;
@@ -73,7 +76,7 @@ public class ChatBox extends JFrame {
         return currentMessage;
     }
 
-    public void appendChatLine(String username, String time, String message) {
+    public void appendChatLine(String username, String message) {
         display.append(username + ": " + message + "\n");
     }
     
