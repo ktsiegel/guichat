@@ -10,6 +10,7 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -32,7 +33,7 @@ public class ChatClientModel implements ActionListener {
     private final BlockingQueue<String> messages;
     private ConcurrentMap<Integer, ChatHistory> history;
     private ConcurrentMap<String, Integer> conversationIDMap;
-    private List<User> users;
+    private Set<User> users;
 
     public ChatClientModel(ChatClient client) {
         this.client = client;
@@ -48,7 +49,7 @@ public class ChatClientModel implements ActionListener {
         this.messages = new LinkedBlockingQueue<String>();
         this.history = new ConcurrentHashMap<Integer, ChatHistory>();
         this.conversationIDMap = new ConcurrentHashMap<String, Integer>();
-        this.users = new ArrayList<User>();
+        this.users = new HashSet<User>();
     }
 
     public void startListening() {
@@ -233,7 +234,6 @@ public class ChatClientModel implements ActionListener {
                 public void run() {
                     String username = outTokenizer.nextToken();
                     users.add(new User(username));
-                    Collections.sort(users);
                     client.setUserList(users);
 
                     // find private conversation with user
@@ -250,8 +250,11 @@ public class ChatClientModel implements ActionListener {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     String username = outTokenizer.nextToken();
+                    for (User user: users) {
+                    	System.out.println(user.getUsername());
+                    }
                     users.remove(new User(username));
-                    Collections.sort(users);
+                    System.out.println(users.toString());
                     client.setUserList(users);
 
                     // find private conversation with user
@@ -342,6 +345,7 @@ public class ChatClientModel implements ActionListener {
                         ChatBox box = new ChatBox(temp, ID, "Chat of "
                                 + user.getUsername(), true);
                         chats.put(ID, box.getModel());
+                        box.setVisible(true);
                     }
                 });
             } else {
@@ -454,7 +458,7 @@ public class ChatClientModel implements ActionListener {
         return this.client;
     }
     
-    public List<User> getUsers() {
+    public Set<User> getUsers() {
     	return users;
     }
 
