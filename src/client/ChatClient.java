@@ -103,7 +103,9 @@ public class ChatClient extends JFrame {
         icon = new JLabel(imageIcon);
         
         usernameBox = new JTextField();
-        usernameBox.addActionListener(new ActionListener() {
+        login.add(usernameBox);
+        JButton loginButton = new JButton("Login");
+        loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String username = usernameBox.getText();
@@ -120,12 +122,9 @@ public class ChatClient extends JFrame {
             }
 
         });
-        login.add(usernameBox);
-        JButton loginButton = new JButton("Login");
-        loginButton.setOpaque(true);
-        loginButton.setBackground(Color.black);
-        //login.add(loginButton);
+
         Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
+
 
         login.setLayout(new BoxLayout(login, BoxLayout.PAGE_AXIS));
         login.setOpaque(false);
@@ -214,6 +213,7 @@ public class ChatClient extends JFrame {
         Group buttonH = layout.createSequentialGroup();
         buttonH.addGap(0, 0, Short.MAX_VALUE);
         buttonH.addComponent(loginButton, 100, 100, 100);
+        buttonH.addGap(0, 10, 10);
         Group buttonV = layout.createParallelGroup();
         buttonV.addGap(0, 0, 0);
         buttonV.addComponent(loginButton, 20, 20, 20);
@@ -229,6 +229,7 @@ public class ChatClient extends JFrame {
         v.addComponent(login, 50, 50, 50);
         v.addComponent(avatars, 180, 180, 180);
         v.addGroup(buttonV);
+        v.addGap(0, 10, 10);
 
         layout.setHorizontalGroup(h);
         layout.setVerticalGroup(v);
