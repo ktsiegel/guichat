@@ -9,6 +9,7 @@ public class User implements Comparable<User> {
     
     private final String username;
     private boolean isActive;
+    private int avatar;
     
     /**
      * Create a new User. Each user has a String username which is
@@ -16,8 +17,9 @@ public class User implements Comparable<User> {
      * 
      * @param username
      */
-    public User(String username) {
+    public User(String username, int avatar) {
         this.username = username;
+        this.avatar = avatar;
         this.isActive = true;
     }
     
@@ -53,5 +55,9 @@ public class User implements Comparable<User> {
     
     public String getUsername() {
         return this.username;
+    }
+    
+    public int getAvatar() {
+        return this.avatar;
     }
 }
