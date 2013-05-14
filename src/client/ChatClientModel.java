@@ -436,7 +436,7 @@ public class ChatClientModel implements ActionListener {
         int attempts = 0;
         do {
             try {
-                // ret = new Socket("18.189.17.62", port);
+                //ret = new Socket("18.189.54.215", port);
                 ret = new Socket("localhost", port);
             } catch (ConnectException ce) {
                 try {

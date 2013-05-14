@@ -1,7 +1,10 @@
 package client;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
@@ -32,6 +35,14 @@ import javax.swing.text.StyledDocument;
 import emoticons.Emoticon;
 
 import user.User;
+
+import javax.imageio.ImageIO;
+import javax.swing.Icon;
+import javax.swing.JLabel;
+
+import org.scilab.forge.jlatexmath.TeXConstants; 
+import org.scilab.forge.jlatexmath.TeXFormula;
+import org.scilab.forge.jlatexmath.TeXIcon;
 
 public class ChatBox extends JFrame {
 
@@ -167,7 +178,6 @@ public class ChatBox extends JFrame {
                     ImageIcon icon = new ImageIcon("icons/" + emoticon.getURL());
 
                     StyleContext context = new StyleContext();
-                    StyledDocument document = new DefaultStyledDocument(context);
 
                     Style labelStyle = context.getStyle(StyleContext.DEFAULT_STYLE);
 
@@ -185,6 +195,57 @@ public class ChatBox extends JFrame {
                     System.out.println("FOUND AN EMOTICON");
                     break;
                 }
+                
+            }
+            int dollarIndex = message.indexOf("\\$");
+            if (dollarIndex > 0) {
+            	int endIndex = message.indexOf("$",dollarIndex+2);
+            	if (endIndex > -1) {
+            		try {
+            			String latex = message.substring(dollarIndex+2,endIndex);
+            			System.out.println(latex);
+            			TeXFormula formula = new TeXFormula(latex);
+            			TeXIcon icon = formula.new TeXIconBuilder().setStyle(TeXConstants.STYLE_DISPLAY).setSize(20).build();
+
+            			icon.setInsets(new Insets(5, 5, 5, 5));
+
+            			BufferedImage image = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
+
+
+            			Graphics2D g2 = image.createGraphics();
+            			g2.setColor(Color.white);
+            			g2.fillRect(0,0,icon.getIconWidth(),icon.getIconHeight());
+            			JLabel jl = new JLabel();
+            			jl.setForeground(new Color(0, 0, 0));
+            			icon.paintIcon(jl, g2, 0, 0);
+
+
+
+            			ImageIcon icon1 = new ImageIcon(image);
+
+            			StyleContext context = new StyleContext();
+
+            			Style labelStyle = context.getStyle(StyleContext.DEFAULT_STYLE);
+
+            			JLabel label = new JLabel(icon1);
+            			StyleConstants.setComponent(labelStyle, label);
+
+            			try {
+            				doc.insertString(doc.getLength(), latex, labelStyle);
+            			} catch (BadLocationException e) {
+            				e.printStackTrace();
+            			}
+            		}
+            		catch (org.scilab.forge.jlatexmath.ParseException e) {
+            			System.out.println("oops! bad latex!");
+            		}
+                    
+                    message = message.substring(endIndex + 1);
+                    found = true;
+                    System.out.println("FOUND A LATEX!");
+                    break;   
+
+            	}
             }
             
             if (!found) {
