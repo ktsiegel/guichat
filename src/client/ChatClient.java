@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -376,6 +377,13 @@ public class ChatClient extends JFrame {
         buttonPanel.setBorder(emptyBorder);
         
         JButton startChatButton = new JButton("Group Chat");
+        startChatButton.addActionListener(new ActionListener() {
+			@Override
+            public void actionPerformed(ActionEvent arg0) {
+	            GroupChatSelectBox box = new GroupChatSelectBox(model);
+	            box.setVisible(true);
+            }
+        });
 
         buttonPanel.add(startChatButton);
 
@@ -406,20 +414,27 @@ public class ChatClient extends JFrame {
 
     }
 
-    public void setUserList(List<User> userList) {
-        users.removeAll();
-
-        for (User user : userList) {
-            if (user.equals(this.user)) {
-                continue;
+    public void setUserList(Set<User> userList) {
+        synchronized(userList) {
+        	users.removeAll();
+            for (String label: userLabels.keySet()) {
+            	userLabels.get(label).setVisible(false);
+            	userLabels.remove(label);
             }
-            JLabel userLabel = new JLabel(user.getUsername());
-            userLabels.put(user.getUsername(), userLabel);
-            new UserListener(userLabel, model, user);
-            users.add(userLabel);
-            validate();
+
+            for (User user : userList) {
+                if (user.equals(this.user)) {
+                    continue;
+                }
+                JLabel userLabel = new JLabel(user.getUsername());
+                userLabels.put(user.getUsername(), userLabel);
+                new UserListener(userLabel, model, user);
+                users.add(userLabel);
+                validate();
+            }
+            this.getContentPane().validate();
+            this.getContentPane().repaint();
         }
-        validate();
     }
 
     public void addHistory(ChatHistory history, int ID) {

@@ -39,12 +39,14 @@ public class GroupChatSelectBox extends JFrame{
 		this.selected = new HashSet<JLabel>();
 		createChatButton = new JButton("Start Group Chat!");
 		createChatButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				Set<User> chatters = new HashSet<User>();
 				for (JLabel label: selected) {
 					chatters.add(new User(label.getText()));
 				}
 				clientModel.addGroupChat(chatters);
+				dispose();
 			}
 		});
 		display = new JPanel();
