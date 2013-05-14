@@ -20,6 +20,8 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
+import conversation.ChatHistory;
+
 import user.User;
 
 public class ChatClient extends JFrame {
@@ -39,8 +41,8 @@ public class ChatClient extends JFrame {
     private final JPanel userPanel;
     private final JPanel userNest;
     private final JPanel conversationNest;
-
     private final ChatClientModel model;
+    private Map<Integer, ChatHistory> histories;
 
     public ChatClient() {
         this.model = new ChatClientModel(this);
@@ -52,6 +54,8 @@ public class ChatClient extends JFrame {
                 System.exit(0);
             }
         });
+        
+        this.histories = new HashMap<Integer, ChatHistory>();
 
         userPanel = new JPanel();
         // userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.PAGE_AXIS));
@@ -186,6 +190,13 @@ public class ChatClient extends JFrame {
         new UserListener(userLabel, model, user);
         users.add(userLabel);
         validate();
+    }
+    
+    public void addHistory(String label, ChatHistory history, int ID) {
+    	JLabel historyLabel = new JLabel(label);
+    	histories.put(ID, history);
+    	new HistoryListener(historyLabel, model, ID);
+    	validate();
     }
 
     public void removeUser(String username) {
