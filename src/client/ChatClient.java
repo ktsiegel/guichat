@@ -4,11 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-<<<<<<< HEAD
-import java.net.URL;
-=======
 import java.util.ArrayList;
->>>>>>> 491fa135a7eced2463a03c88671628a4f775350f
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
