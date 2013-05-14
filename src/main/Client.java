@@ -2,7 +2,6 @@ package main;
 
 import javax.swing.SwingUtilities;
 
-import user.User;
 import client.ChatClient;
 
 /**

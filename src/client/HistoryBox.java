@@ -16,7 +16,12 @@ import javax.swing.border.Border;
 import conversation.ChatHistory;
 
 public class HistoryBox extends JFrame {
-	private JPanel background;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    
+    private JPanel background;
 	private JScrollPane displayScroll;
 	
 	public HistoryBox(ChatHistory history) {
