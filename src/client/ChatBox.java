@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -24,6 +25,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
+import emoticons.Emoticon;
 
 import user.User;
 
@@ -135,16 +138,55 @@ public class ChatBox extends JFrame {
             this.setVisible(true);
         }
         String timestamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
-        String text = username + " [" + timestamp + "]: " + message + "\n";
+        String text = username + " [" + timestamp + "]: ";
 
         StyledDocument doc = display.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        StyleConstants.setForeground(keyWord, Color.RED);
-        StyleConstants.setBackground(keyWord, Color.YELLOW);
+        StyleConstants.setForeground(keyWord, Color.WHITE);
+        StyleConstants.setBackground(keyWord, Color.BLUE);
         StyleConstants.setBold(keyWord, true);
         
         try {
             doc.insertString(doc.getLength(), text, keyWord);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+        
+        // add message
+        while (message.length() > 0) {
+            // see if we have any smileys
+            boolean found = false;
+            for (int i = 1; i <= message.length(); i++) {
+                String substring = message.substring(i);
+                if (Emoticon.isValid(substring)) {
+                    Emoticon emoticon = new Emoticon(substring);
+                    ImageIcon icon = new ImageIcon("emoticons/" + emoticon.getURL());
+                    SimpleAttributeSet iconStyle = new SimpleAttributeSet();
+                    StyleConstants.setIcon(iconStyle, icon);
+                    
+                    try {
+                        doc.insertString(doc.getLength(), substring, iconStyle);
+                    } catch (BadLocationException e) {
+                        e.printStackTrace();
+                    }
+                    
+                    message = message.substring(i);
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (!found) {
+                try {
+                    doc.insertString(doc.getLength(), message.substring(0, 1), null);
+                } catch (BadLocationException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
+        try {
+            doc.insertString(doc.getLength(), "\n", null);
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
@@ -156,9 +198,9 @@ public class ChatBox extends JFrame {
         
         StyledDocument doc = display.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        StyleConstants.setForeground(keyWord, Color.RED);
-        StyleConstants.setBackground(keyWord, Color.YELLOW);
-        StyleConstants.setBold(keyWord, true);
+        StyleConstants.setForeground(keyWord, Color.WHITE);
+        StyleConstants.setBackground(keyWord, Color.BLUE);
+        StyleConstants.setItalic(keyWord, true);
         
         try {
             doc.insertString(doc.getLength(), text, keyWord);
