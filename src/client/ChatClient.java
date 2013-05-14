@@ -103,6 +103,9 @@ public class ChatClient extends JFrame {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String username = usernameBox.getText();
+                if (!username.matches("[A-Za-z0-9]+")) {
+                    usernameIllegalUpdate();
+                }
                 if (model.tryUsername(username)) {
                     user = new User(username);
                     startPostLoginWindow();
@@ -242,6 +245,22 @@ public class ChatClient extends JFrame {
         Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
         TitledBorder loginBorder = BorderFactory.createTitledBorder(
                 emptyBorder, "Username Taken");
+        loginBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
+        loginBorder.setTitleColor(Color.white);
+        loginBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
+                Font.BOLD));
+
+        login.setBorder(loginBorder);
+        // login.revalidate();
+        usernameBox.setText("");
+        // usernameBox.revalidate();
+        validate();
+    }
+    
+    public void usernameIllegalUpdate() {
+        Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
+        TitledBorder loginBorder = BorderFactory.createTitledBorder(
+                emptyBorder, "Username Illegal Characters");
         loginBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         loginBorder.setTitleColor(Color.white);
         loginBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
