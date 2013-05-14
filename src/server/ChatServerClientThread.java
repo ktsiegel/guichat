@@ -6,8 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import user.User;
-
 public class ChatServerClientThread implements Runnable {
     private final Socket socket;
     private final ChatServer server;
@@ -21,7 +19,6 @@ public class ChatServerClientThread implements Runnable {
     public void run() {
         BufferedReader in = null;
         PrintWriter out = null;
-        String username = null;
         try {
             in = new BufferedReader(new InputStreamReader(
                     this.socket.getInputStream()));
@@ -29,32 +26,14 @@ public class ChatServerClientThread implements Runnable {
 
             for (String line = in.readLine(); line != null; line = in
                     .readLine()) {
-                System.out.println("received message: " + line);
+                System.out.println("server received message: " + line);
 
-                if (line.startsWith("login")) {
-                    String[] split = line.split(" ");
-
-                    if (split.length != 2) {
-                        throw new IllegalStateException(
-                                "Invalid login message from client received by server");
-                    }
-
-                    username = split[1];
-
-                    this.server.tryAddingUser(username, socket);
-                } else {
-                    this.server.addMessageToQueue(line);
-                }
+                this.server.addMessageToQueue(line, socket);
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             System.out.println("CLOSING CHAT SERVER CLIENT THREAD");
-
-            // log out
-            if (username != null) {
-                this.server.addMessageToQueue("logout " + username);
-            }
 
             try {
                 out.close();

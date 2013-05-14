@@ -2,8 +2,6 @@ package client;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,12 +22,19 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import server.ChatServer;
+import conversation.ChatHistory;
+
 import user.User;
 
 public class ChatClient extends JFrame {
 
+    /**
+     * Default serial ID.
+     */
+    private static final long serialVersionUID = 1L;
+
     private User user;
+
     private Map<String, JLabel> userLabels;
     private JPanel users;
     private JScrollPane userScroll;
@@ -42,8 +47,8 @@ public class ChatClient extends JFrame {
     private JPanel background;
     GroupLayout layout;
     private JLabel icon;
-
     private final ChatClientModel model;
+    private Map<Integer, ChatHistory> histories;
 
     public ChatClient() {
         this.model = new ChatClientModel(this);
@@ -51,8 +56,8 @@ public class ChatClient extends JFrame {
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-            	model.quitChats();
-            	System.exit(0);
+                model.quitChats();
+                System.exit(0);
             }
         });
         
@@ -120,36 +125,41 @@ public class ChatClient extends JFrame {
         JPanel postLoginBackground = new JPanel(); 
         userPanel = new JPanel();
         
+        this.histories = new HashMap<Integer, ChatHistory>();
+
+
         logoutButton = new JButton();
         logoutButton.setActionCommand("logout");
         logoutButton.addActionListener(model);
 
         userLabels = new HashMap<String, JLabel>();
-        
+
         users = new JPanel();
         users.setLayout(new BoxLayout(users, BoxLayout.PAGE_AXIS));
         userScroll = new JScrollPane(users);
-        
-        
+
         JPanel conversations = new JPanel();
-        conversations.setLayout(new BoxLayout(conversations, BoxLayout.PAGE_AXIS));
+        conversations.setLayout(new BoxLayout(conversations,
+                BoxLayout.PAGE_AXIS));
         JScrollPane conversationScroll = new JScrollPane(conversations);
 
         userNest = new JPanel();
         userNest.add(userScroll);
         userNest.setLayout(new BoxLayout(userNest, BoxLayout.PAGE_AXIS));
         userNest.setOpaque(false);
-        
+
         conversationNest = new JPanel();
         conversationNest.add(conversationScroll);
-        conversationNest.setLayout(new BoxLayout(conversationNest, BoxLayout.PAGE_AXIS));
+        conversationNest.setLayout(new BoxLayout(conversationNest,
+                BoxLayout.PAGE_AXIS));
         conversationNest.setOpaque(false);
-        
+
         userPanel.add(userNest);
         userPanel.add(conversationNest);
         userPanel.setOpaque(true);
 
-        welcome = new JLabel("Log in to start using guichat"); // , " + user.getUsername() + "!");
+        welcome = new JLabel("Log in to start using guichat"); // ,
+                                                               // " + user.getUsername() + "!");
         welcome.setHorizontalAlignment(JLabel.CENTER);
 
         welcomePanel = new JPanel();
@@ -165,34 +175,39 @@ public class ChatClient extends JFrame {
         // Add padding
         Border paddingBorder = BorderFactory.createEmptyBorder(5, 10, 5, 10);
         Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
-        Border lineBorder = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
-        
-        TitledBorder userBorder = BorderFactory.createTitledBorder(emptyBorder, "Friends");
+        Border lineBorder = BorderFactory
+                .createBevelBorder(BevelBorder.LOWERED);
+
+        TitledBorder userBorder = BorderFactory.createTitledBorder(emptyBorder,
+                "Friends");
         userBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         userBorder.setTitleColor(Color.white);
-        userBorder.setTitleFont(userBorder.getTitleFont().deriveFont(Font.BOLD));
-        
+        userBorder
+                .setTitleFont(userBorder.getTitleFont().deriveFont(Font.BOLD));
+
         users.setBorder(paddingBorder);
         userScroll.setBorder(lineBorder);
         userNest.setBorder(userBorder);
-        
+
         
         TitledBorder conversationBorder = BorderFactory.createTitledBorder(emptyBorder, "Group Chats");
         conversationBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         conversationBorder.setTitleColor(Color.white);
-        conversationBorder.setTitleFont(conversationBorder.getTitleFont().deriveFont(Font.BOLD));
-        
+        conversationBorder.setTitleFont(conversationBorder.getTitleFont()
+                .deriveFont(Font.BOLD));
+
         conversations.setBorder(paddingBorder);
         conversationScroll.setBorder(lineBorder);
         conversationNest.setBorder(conversationBorder);
-        
+
         Border outerBorder = BorderFactory.createEmptyBorder(0, 10, 10, 10);
         userPanel.setBorder(outerBorder);
-        
+
         welcome.setBorder(BorderFactory.createCompoundBorder(
                 welcome.getBorder(), paddingBorder));
 
         this.setTitle("GUI CHAT");
+
         
         userPanelLayout();
         welcome.setText("<html><font size=+1><b>Welcome, " + this.user.getUsername() + "!</b></font></html>");
@@ -218,8 +233,6 @@ public class ChatClient extends JFrame {
         
         getContentPane().add(postLoginBackground);
 
-
-
     }
 
     public void addUser(User user) {
@@ -229,27 +242,38 @@ public class ChatClient extends JFrame {
         users.add(userLabel);
         validate();
     }
+    
+    public void addHistory(String label, ChatHistory history, int ID) {
+    	JLabel historyLabel = new JLabel(label);
+    	histories.put(ID, history);
+    	new HistoryListener(historyLabel, model, ID);
+    	validate();
+    }
 
     public void removeUser(String username) {
         users.remove(userLabels.get(username));
         validate();
     }
-    
+
     public void userPanelLayout() {
         GroupLayout layout = new GroupLayout(userPanel);
         userPanel.setLayout(layout);
-        
+
         Group h = layout.createParallelGroup();
-        h.addComponent(userNest, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
-        h.addComponent(conversationNest, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
-        
+        h.addComponent(userNest, GroupLayout.DEFAULT_SIZE,
+                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        h.addComponent(conversationNest, GroupLayout.DEFAULT_SIZE,
+                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+
         Group v = layout.createSequentialGroup();
-        v.addComponent(userNest, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
-        v.addComponent(conversationNest, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, 150);
-        
+        v.addComponent(userNest, GroupLayout.DEFAULT_SIZE,
+                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        v.addComponent(conversationNest, GroupLayout.DEFAULT_SIZE,
+                GroupLayout.DEFAULT_SIZE, 150);
+
         layout.setHorizontalGroup(h);
         layout.setVerticalGroup(v);
-        
+
     }
 
     private void createGroupLayout() {
@@ -279,7 +303,7 @@ public class ChatClient extends JFrame {
         System.out.println(username);
         return username;
     }
-    
+
     public ChatClientModel getModel() {
         return this.model;
     }

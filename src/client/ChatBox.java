@@ -9,11 +9,9 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 import javax.swing.GroupLayout.Group;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -21,6 +19,11 @@ import javax.swing.border.Border;
 import user.User;
 
 public class ChatBox extends JFrame {
+
+    /**
+     * Auto-generated default serial ID.
+     */
+    private static final long serialVersionUID = 1L;
 
     private final JTextArea display;
     private final JTextArea message;
@@ -31,17 +34,16 @@ public class ChatBox extends JFrame {
     private final JPanel gap;
     private Set<User> others;
 
-
     public ChatBox(ChatClientModel chatClientModel, int conversationID,
             String title) {
         this.model = new ChatBoxModel(chatClientModel, this, conversationID);
         this.addWindowListener(new java.awt.event.WindowAdapter() {
-        	@Override
-	        public void windowClosing(WindowEvent e) {
-	        	System.out.println("dispose was called");
-	        	model.quitChatBox();
-	        	dispose();
-	        }
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.out.println("dispose was called");
+                model.quitChatBox();
+                dispose();
+            }
         });
         this.setSize(300, 300);
 
@@ -54,31 +56,32 @@ public class ChatBox extends JFrame {
         message.setLineWrap(true);
         messageScroll = new JScrollPane(message);
         message.addKeyListener(model);
-        
+
         others = new HashSet<User>();
-        
+
         background = new JPanel();
         gap = new JPanel();
         gap.setBackground(new Color(0, 51, 102));
-        
+
         background.setBackground(new Color(0, 51, 102));
-        
+
         Border paddingBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         Border textBorder = BorderFactory.createEmptyBorder(5, 5, 5, 5);
-        Border lineBorder = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
-        
+        Border lineBorder = BorderFactory
+                .createBevelBorder(BevelBorder.LOWERED);
+
         display.setBorder(textBorder);
         displayScroll.setBorder(lineBorder);
         message.setBorder(textBorder);
         messageScroll.setBorder(lineBorder);
         background.setBorder(paddingBorder);
-        
+
         this.add(background);
-        this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
+        this.getContentPane().setLayout(
+                new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
 
         createGroupLayout();
     }
-
 
     private void createGroupLayout() {
         GroupLayout layout = new GroupLayout(background);
@@ -87,8 +90,8 @@ public class ChatBox extends JFrame {
         Group h = layout.createParallelGroup();
         h.addComponent(displayScroll, GroupLayout.DEFAULT_SIZE,
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
-        h.addComponent(gap, GroupLayout.DEFAULT_SIZE,
-                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        h.addComponent(gap, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
+                Short.MAX_VALUE);
         h.addComponent(messageScroll, GroupLayout.DEFAULT_SIZE,
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
 
@@ -108,29 +111,35 @@ public class ChatBox extends JFrame {
         return currentMessage;
     }
 
-    public void appendChatLine(String username, String time, String message) {
+    public void appendChatLine(String username, String message) {
+        if (!this.isVisible()) {
+            this.setVisible(true);
+        }
         display.append(username + ": " + message + "\n");
     }
-    
+
     public void appendMessage(String message) {
-    	display.append(message + "\n");
+        if (!this.isVisible()) {
+            this.setVisible(true);
+        }
+        display.append(message + "\n");
     }
 
     // accessors
     public ChatBoxModel getModel() {
         return model;
     }
-    
+
     public JTextArea getMessage() {
         return this.message;
     }
-    
+
     public JTextArea getDisplay() {
         return this.display;
     }
-    
+
     public Set<User> getOthers() {
-    	return others;
+        return others;
     }
 
 }

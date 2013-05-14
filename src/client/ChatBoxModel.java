@@ -1,13 +1,7 @@
 package client;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
-import java.util.List;
-
-import conversation.Conversation;
 
 public class ChatBoxModel implements KeyListener {
 
@@ -23,7 +17,7 @@ public class ChatBoxModel implements KeyListener {
     }
 
     public void addChatLine(String text) {
-        model.sendChat(conversationID, System.currentTimeMillis(), text);
+        model.sendChat(conversationID, text);
     }
 
     /**
@@ -31,13 +25,11 @@ public class ChatBoxModel implements KeyListener {
      * 
      * @param username
      *            The user from which the message is sent.
-     * @param time
-     *            The time at which this message was sent.
      * @param message
      *            The text of the message that was sent.
      */
-    public void addChatToDisplay(String username, String time, String message) {
-        chatBox.appendChatLine(username, time, message);
+    public void addChatToDisplay(String username, String message) {
+        chatBox.appendChatLine(username, message);
     }
 
     public void addMessageToDisplay(String message) {
