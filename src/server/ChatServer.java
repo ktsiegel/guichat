@@ -169,28 +169,26 @@ public class ChatServer {
 
                 String username = split[1];
 
-                if (!this.clients.containsKey(new User(username))) {
-                    throw new IllegalStateException(
-                            "Invalid logout message received from client by server: invalid username");
-                }
+                if (this.clients.containsKey(new User(username))) {
+                	this.clients.remove(new User(username));
 
-                this.clients.remove(new User(username));
-
-                // leave all conversations
-                for (int chatID : this.conversations.keySet()) {
-                    Conversation chat = this.conversations.get(chatID);
-                    if (chat.getUsers().contains(new User(username))
-                            && chat.isGroupChat()) {
-                        chat.removeUser(new User(username));
-                        // send a leave message
-                        this.sendMessageToUsers("group_chat_leave " + chatID
-                                + " " + username, chat.getUsers());
+                    // leave all conversations
+                    for (int chatID : this.conversations.keySet()) {
+                        Conversation chat = this.conversations.get(chatID);
+                        if (chat.getUsers().contains(new User(username))
+                                && chat.isGroupChat()) {
+                            chat.removeUser(new User(username));
+                            // send a leave message
+                            this.sendMessageToUsers("group_chat_leave " + chatID
+                                    + " " + username, chat.getUsers());
+                        }
                     }
+                    
+                 // notify all clients that a new user has logged in
+                    this.sendMessageToUsers("user_leaves " + username,
+                            this.clients.keySet());
                 }
-
-                // notify all clients that a new user has logged in
-                this.sendMessageToUsers("user_leaves " + username,
-                        this.clients.keySet());
+                
             } else if (split[0].equals("chat_start")) {
                 if (split.length != 3) {
                     throw new IllegalStateException(

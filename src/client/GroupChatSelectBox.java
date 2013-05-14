@@ -39,12 +39,14 @@ public class GroupChatSelectBox extends JFrame{
 		this.selected = new HashSet<JLabel>();
 		createChatButton = new JButton("Start Group Chat!");
 		createChatButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				Set<User> chatters = new HashSet<User>();
 				for (JLabel label: selected) {
 					chatters.add(new User(label.getText()));
 				}
 				clientModel.addGroupChat(chatters);
+				dispose();
 			}
 		});
 		display = new JPanel();
@@ -99,12 +101,12 @@ public class GroupChatSelectBox extends JFrame{
 	}
 	
 	public static void main(String[] args) {
-		ChatClientModel model = new ChatClientModel(new ChatClient());
-		List<User> userList = model.getUsers();
-		userList.add(new User("casey"));
-		userList.add(new User("katie"));
-		userList.add(new User("alex"));
-		GroupChatSelectBox box = new GroupChatSelectBox(model);
-		box.setVisible(true);
+//		ChatClientModel model = new ChatClientModel(new ChatClient());
+//		List<User> userList = model.getUsers();
+//		userList.add(new User("casey"));
+//		userList.add(new User("katie"));
+//		userList.add(new User("alex"));
+//		GroupChatSelectBox box = new GroupChatSelectBox(model);
+//		box.setVisible(true);
 	}
 }
