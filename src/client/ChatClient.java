@@ -18,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -29,15 +30,18 @@ import user.User;
 public class ChatClient extends JFrame {
 
     private User user;
-    private final Map<String, JLabel> userLabels;
-    private final JPanel users;
-    private final JScrollPane userScroll;
-    private final JLabel welcome;
-    private final JPanel welcomePanel;
-    private final JButton logoutButton;
-    private final JPanel userPanel;
-    private final JPanel userNest;
-    private final JPanel conversationNest;
+    private Map<String, JLabel> userLabels;
+    private JPanel users;
+    private JScrollPane userScroll;
+    private JLabel welcome;
+    private JPanel welcomePanel;
+    private JButton logoutButton;
+    private JPanel userPanel;
+    private JPanel userNest;
+    private JPanel conversationNest;
+    private JPanel background;
+    GroupLayout layout;
+    private JLabel icon;
 
     private final ChatClientModel model;
 
@@ -52,8 +56,69 @@ public class ChatClient extends JFrame {
             }
         });
         
+        startLoginWindow();
+        this.setSize(200, 500);
+        this.setVisible(true);
+        
+        this.model.startListening();
+
+        String username = welcomePane("Enter a username:");
+        while (!this.model.tryUsername(username)) {
+            if (username != null && !username.equals("")) {
+            	username = welcomePane("Sorry, that username has already been taken! Enter a username:");
+            }
+            else {
+            	username = welcomePane("Usernames must be >0 characters long.");
+            }
+        }
+        this.user = new User(username);
+        System.out.println("GOT USERNAME");
+        startPostLoginWindow();
+    }
+    
+    public void startLoginWindow() {
+        background = new JPanel();
+        JPanel login = new JPanel();
+        JPanel avatars = new JPanel();
+        
+        ImageIcon imageIcon = new ImageIcon("icons/chat.png");
+        icon = new JLabel(imageIcon);
+        
+        JTextField usernameBox = new JTextField();
+        login.add(usernameBox);
+        JButton loginButton = new JButton("Login");
+        login.add(loginButton);
+
+        login.setAlignmentX(RIGHT_ALIGNMENT);
+        login.setLayout(new BoxLayout(login, BoxLayout.PAGE_AXIS));
+        
+        
+        
+        // Create layout
+        layout = new GroupLayout(background);
+        background.setLayout(layout);
+        
+        Group h = layout.createParallelGroup();
+        h.addComponent(icon, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        h.addComponent(login, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        h.addComponent(avatars, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+
+        Group v = layout.createSequentialGroup();
+        v.addComponent(icon, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        v.addComponent(login, 50, 50, 50);
+        v.addComponent(avatars, 60, 60, 60);
+
+        layout.setHorizontalGroup(h);
+        layout.setVerticalGroup(v);
+        
+        this.add(background);
+        this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
+        
+    }
+    
+    public void startPostLoginWindow() {
+        JPanel postLoginBackground = new JPanel(); 
         userPanel = new JPanel();
-        //userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.PAGE_AXIS));
         
         logoutButton = new JButton();
         logoutButton.setActionCommand("logout");
@@ -112,7 +177,7 @@ public class ChatClient extends JFrame {
         userNest.setBorder(userBorder);
         
         
-        TitledBorder conversationBorder = BorderFactory.createTitledBorder(emptyBorder, "Past Group Chats");
+        TitledBorder conversationBorder = BorderFactory.createTitledBorder(emptyBorder, "Group Chats");
         conversationBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         conversationBorder.setTitleColor(Color.white);
         conversationBorder.setTitleFont(conversationBorder.getTitleFont().deriveFont(Font.BOLD));
@@ -127,63 +192,34 @@ public class ChatClient extends JFrame {
         welcome.setBorder(BorderFactory.createCompoundBorder(
                 welcome.getBorder(), paddingBorder));
 
-        createGroupLayout();
         this.setTitle("GUI CHAT");
         
-        this.model.startListening();
-
-        String username = welcomePane("Enter a username:");
-        while (!this.model.tryUsername(username)) {
-            if (username != null && !username.equals("")) {
-            	username = welcomePane("Sorry, that username has already been taken! Enter a username:");
-            }
-            else {
-            	username = welcomePane("Usernames must be >0 characters long.");
-            }
-        }
-        this.user = new User(username);
-        System.out.println("GOT USERNAME");
-        
-        /* For GUI Testing, will delete later
-        addUser(new User("Friend A"));
-        addUser(new User("Friend B"));
-        addUser(new User("Friend C"));
-        addUser(new User("Friend D"));
-        addUser(new User("Friend E"));
-        addUser(new User("Friend F"));
-        addUser(new User("Friend G"));
-        addUser(new User("Friend H"));
-        addUser(new User("Friend I"));
-        addUser(new User("Friend J"));
-        addUser(new User("Friend K"));
-        addUser(new User("Friend L"));
-        addUser(new User("Friend M"));
-        addUser(new User("Friend N"));
-        addUser(new User("Friend O"));
-        addUser(new User("Friend P"));
-        addUser(new User("Friend Q"));
-        addUser(new User("Friend R"));
-        addUser(new User("Friend S"));
-        addUser(new User("Friend T"));
-        addUser(new User("Friend U"));
-        addUser(new User("Friend V"));
-        addUser(new User("Friend W"));
-        addUser(new User("Friend X"));
-        addUser(new User("Friend Y"));
-        addUser(new User("Friend Z"));
-
-        conversations.add(new JLabel("tester1"));
-        conversations.add(new JLabel("tester2"));
-        conversations.add(new JLabel("tester3"));
-        conversations.add(new JLabel("tester4"));
-        conversations.add(new JLabel("tester5"));
-        conversations.add(new JLabel("tester6"));
-        conversations.add(new JLabel("tester7"));
-        conversations.add(new JLabel("tester8"));*/
         userPanelLayout();
-        this.setSize(200, 500);
         welcome.setText("<html><font size=+1><b>Welcome, " + this.user.getUsername() + "!</b></font></html>");
-        this.setVisible(true);
+        
+        getContentPane().removeAll();
+        
+        GroupLayout layout = new GroupLayout(postLoginBackground);
+        postLoginBackground.setLayout(layout);
+
+        Group h = layout.createParallelGroup();
+        h.addComponent(welcomePanel, GroupLayout.DEFAULT_SIZE,
+                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        h.addComponent(userPanel, GroupLayout.DEFAULT_SIZE,
+                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+
+        Group v = layout.createSequentialGroup();
+        v.addComponent(welcomePanel, 40, 40, 40);
+        v.addComponent(userPanel, GroupLayout.DEFAULT_SIZE,
+                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+
+        layout.setHorizontalGroup(h);
+        layout.setVerticalGroup(v);
+        
+        getContentPane().add(postLoginBackground);
+
+
+
     }
 
     public void addUser(User user) {
@@ -217,8 +253,8 @@ public class ChatClient extends JFrame {
     }
 
     private void createGroupLayout() {
-        GroupLayout layout = new GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
+        GroupLayout layout = new GroupLayout(background);
+        background.setLayout(layout);
 
         Group h = layout.createParallelGroup();
         h.addComponent(welcomePanel, GroupLayout.DEFAULT_SIZE,
