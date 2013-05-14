@@ -110,7 +110,7 @@ public class ChatClientModel implements ActionListener{
     }
     
     public void addGroupChat(Set<User> others) {
-    	String command = "start " + this.user.getUsername() + " ";
+    	String command = "chat_start " + this.user.getUsername() + " ";
     	for (User other: others) {
     		command += other.getUsername() + " ";
     	}
@@ -131,7 +131,7 @@ public class ChatClientModel implements ActionListener{
     }
     
     public void exitChat(int ID) {
-    	submitCommand("leave " + Integer.toString(ID) + " " + user.getUsername());
+    	submitCommand("chat_leave " + Integer.toString(ID) + " " + user.getUsername());
     	removeChat(ID);
     }
 
