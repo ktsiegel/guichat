@@ -76,7 +76,7 @@ public class ChatClientModel implements ActionListener {
      */
     public boolean tryUsername(String username, int avatar) {
         if (username != null && !username.equals("")) {
-            this.submitCommand("login_attempt " + username);
+            this.submitCommand("login_attempt " + username + " " + avatar);
             try {
                 String result = this.messages.take();
                 if (result.equals("login_success")) {
@@ -228,7 +228,7 @@ public class ChatClientModel implements ActionListener {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        } else if (output.matches("user_joins [A-Za-z0-9]+")) {
+        } else if (output.matches("user_joins [A-Za-z0-9]+ \\d+")) {
             outTokenizer.nextToken();
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
