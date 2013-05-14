@@ -453,6 +453,10 @@ public class ChatClientModel implements ActionListener {
     public ChatClient getClient() {
         return this.client;
     }
+    
+    public List<User> getUsers() {
+    	return users;
+    }
 
     @Override
     public void actionPerformed(ActionEvent event) {
