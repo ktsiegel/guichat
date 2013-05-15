@@ -296,7 +296,7 @@ public class ChatBox extends JFrame {
             return res + " " + verb1;
         } else if (users.size() == 2) {
             Iterator<String> iterator = users.iterator();
-            res += iterator.next() + " " + iterator.next();
+            res += iterator.next() + " and " + iterator.next();
             return res + " " + verb2;
         } else {
             Iterator<String> iterator = users.iterator();
