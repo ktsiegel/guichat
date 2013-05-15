@@ -404,9 +404,9 @@ public class ChatClientModel implements ActionListener {
         final String username2 = outTokenizer.nextToken();
         if (!chats.containsKey(ID)) { //create an entirely new chat
         	if (username1.equals(this.user.getUsername())) { 
-                newChatCreation(username2, ID);
+                newChatCreation(username2, ID, true);
             } else if (username2.equals(this.user.getUsername())) {
-                newChatCreation(username1, ID);
+                newChatCreation(username1, ID, false);
             }
         } else { //this chat should use history from a previous chat
         	if (username1.equals(this.user.getUsername())) {
@@ -422,8 +422,9 @@ public class ChatClientModel implements ActionListener {
      * 
      * @param username The other user in the chat.
      * @param ID The ID corresponding to the new chat.
+     * @param popup True if the chat window should be open by default and false otherwise.
      */
-    public void newChatCreation(final String username, final int ID) {
+    public void newChatCreation(final String username, final int ID, final boolean popup) {
     	final ChatClientModel temp = this;
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -433,7 +434,7 @@ public class ChatClientModel implements ActionListener {
                 ChatBox box = new ChatBox(temp, ID,
                         user.getUsername() + ": chat with "
                                 + username, false);
-                box.setVisible(true);
+                box.setVisible(popup);
                 chats.put(ID, box.getModel());
             }
         });
