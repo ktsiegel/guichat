@@ -197,10 +197,9 @@ public class ChatBox extends JFrame {
                     System.out.println("FOUND AN EMOTICON");
                     break;
                 }
-                
             }
             int dollarIndex = message.indexOf("\\$");
-            if (dollarIndex > 0) {
+            if (dollarIndex == 0 && !found) {
             	int endIndex = message.indexOf("$",dollarIndex+2);
             	if (endIndex > -1) {
             		try {
@@ -237,16 +236,14 @@ public class ChatBox extends JFrame {
             			} catch (BadLocationException e) {
             				e.printStackTrace();
             			}
+                        
+                        message = message.substring(endIndex + 1);
+                        found = true;
+                        System.out.println("FOUND A LATEX!");
             		}
             		catch (org.scilab.forge.jlatexmath.ParseException e) {
             			System.out.println("oops! bad latex!");
             		}
-                    
-                    message = message.substring(endIndex + 1);
-                    found = true;
-                    System.out.println("FOUND A LATEX!");
-                    break;   
-
             	}
             }
             
@@ -259,6 +256,7 @@ public class ChatBox extends JFrame {
                 }
             }
         }
+        System.out.println("remaining message: " + message);
         
         try {
             doc.insertString(doc.getLength(), "\n", null);
