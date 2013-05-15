@@ -59,13 +59,16 @@ public class ChatClientModel implements ActionListener {
         this.users = new HashSet<User>();
     }
 
+    /**
+     * Creates a separate thread for listening for output from the server to the client.
+     */
     public void startListening() {
         ClientListeningThread listener = new ClientListeningThread(this);
         listener.start();
     }
 
     /**
-     * Quit all of the open chats.
+     * Quit all of the open chats and submit a logout command to the server.
      */
     public void quitChats() {
         for (Integer ID : chats.keySet()) {
@@ -76,10 +79,17 @@ public class ChatClientModel implements ActionListener {
     }
 
     /**
-     * Must be run from the event thread to avoid concurrency issues.
+     * Attempt to set a client's username and avatar by submitting a login command to the server
+     * and seeing if the server reports that the login was successful.
      * 
-     * @param username
-     * @return
+     * @throws RuntimeException if an unusual message is sent from the server after the
+     * 			login command is submitted.
+     * 
+     * @precondition Must be run from the event thread to avoid concurrency issues.
+     * 
+     * @param username The username that the user has inputted.
+     * @param avatar The integer ID of the username that the user chose.
+     * @return whether the login was successful (i.e. the username was valid and not taken)
      */
     public boolean tryUsername(String username, int avatar) {
         if (username != null && !username.equals("")) {
