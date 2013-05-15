@@ -27,7 +27,9 @@ import user.User;
 
 /**
  * The ChatClientModel is the implementation of the model portion of the
- * model-view-controller design pattern of our Chat Client.
+ * model-view-controller design pattern of our Chat Client. It contains
+ * the information needed for each user to use the chat client and
+ * for the chat client to communicate with the server.
  */
 
 public class ChatClientModel implements ActionListener {
