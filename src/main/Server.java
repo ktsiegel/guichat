@@ -11,7 +11,7 @@ public class Server {
 
     /**
      * Start a chat server.
-     * @throws IOException
+     * @throws IOException If the server malfunctions.
      */
     public static void main(String[] args) throws IOException {
         ChatServer server = new ChatServer(4567);
