@@ -19,12 +19,12 @@ public class ClientListeningThread extends Thread {
 		try {
 	        model.listenForResponse(); //The method in the ChatClientModel that registers messages from the server.
         } catch (IOException e1) {
-	        System.out.println("Error listening for server response.");
+        	e1.printStackTrace();
         }
 		try {
 	        this.join();
         } catch (InterruptedException e) {
-	        System.out.println("Error with joining ClientListeningThread.");
+        	e.printStackTrace();
         }
 	}
 }
