@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -63,7 +64,7 @@ public class ChatClientModel implements ActionListener {
         this.messages = new LinkedBlockingQueue<String>();
         this.history = new ConcurrentHashMap<Integer, ChatHistory>();
         this.conversationIDMap = new ConcurrentHashMap<String, Integer>();
-        this.users = new HashSet<User>();
+        this.users = new TreeSet<User>();
     }
 
     /**
