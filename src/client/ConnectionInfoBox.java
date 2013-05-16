@@ -38,7 +38,7 @@ public class ConnectionInfoBox extends JFrame{
 		IPLabel.setForeground(Color.WHITE);
 		IPField = new JTextField();
 		IPField.setBorder(lineBorder);
-		IPField.setText("localhost");
+		IPField.setText("192.30.35.221");
 		//IPField.setSize(150, 30);
 		
 		portLabel = new JLabel("Inport port number.");
