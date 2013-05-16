@@ -25,9 +25,9 @@ import user.User;
 
 /**
  * The ChatClientModel is the implementation of the model portion of the
- * model-view-controller design pattern of our Chat Client. It contains
- * the information needed for each user to use the chat client and
- * for the chat client to communicate with the server.
+ * model-view-controller design pattern of our Chat Client. It contains the
+ * information needed for each user to use the chat client and for the chat
+ * client to communicate with the server.
  */
 
 public class ChatClientModel implements ActionListener {
@@ -196,11 +196,8 @@ public class ChatClientModel implements ActionListener {
             ChatBox box = boxModel.getChatBox();
             String message = box.getDisplay().getText();
 
-            Set<User> historyOthers = new HashSet<User>(); // the set that will
-                                                           // contain
-                                                           // all of the people
-                                                           // who were ever
-                                                           // in the group chat
+            // the set that will contain all of the people who were ever in the group chat
+            Set<User> historyOthers = new HashSet<User>();
             Set<User> others = box.getOthers();
             for (User user : others) {
                 historyOthers.add(user);
