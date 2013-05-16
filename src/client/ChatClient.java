@@ -3,8 +3,10 @@ package client;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -93,7 +95,10 @@ public class ChatClient extends JFrame {
         final JPanel login = new JPanel();
         login.setLayout(new BoxLayout(login, BoxLayout.PAGE_AXIS));
 
-        ImageIcon imageIcon = new ImageIcon("icons/chat.png");
+        ClassLoader cl = getClass().getClassLoader();
+        URL url = cl.getResource("icons/chat.png");
+        ImageIcon imageIcon = new ImageIcon(Toolkit.getDefaultToolkit()
+                .createImage(url));
         JLabel icon = new JLabel(imageIcon);
 
         final JTextField usernameBox = new JTextField();
@@ -248,8 +253,11 @@ public class ChatClient extends JFrame {
         JPanel[] avatarRows = { new JPanel(), new JPanel(), new JPanel() };
         JLabel[] avatarLabels = new JLabel[12];
         for (int i = 1; i <= 12; i++) {
-            avatarLabels[i - 1] = new JLabel(new ImageIcon("icons/avatar" + i
-                    + ".png"));
+            ClassLoader cl = getClass().getClassLoader();
+            URL url = cl.getResource("icons/avatar" + i + ".png");
+            ImageIcon imageIcon = new ImageIcon(Toolkit.getDefaultToolkit()
+                    .createImage(url));
+            avatarLabels[i - 1] = new JLabel(imageIcon);
         }
         for (JLabel label : avatarLabels) {
             label.setOpaque(true);
@@ -394,8 +402,10 @@ public class ChatClient extends JFrame {
         JLabel welcome = new JLabel();
         welcome.setHorizontalAlignment(JLabel.CENTER);
 
-        ImageIcon avatar = new ImageIcon("icons/avatar" + user.getAvatar()
-                + ".png");
+        ClassLoader cl = getClass().getClassLoader();
+        URL url = cl.getResource("icons/avatar" + user.getAvatar() + ".png");
+        ImageIcon avatar = new ImageIcon(Toolkit.getDefaultToolkit()
+                .createImage(url));
         JLabel avatarIcon = new JLabel(avatar);
 
         JPanel welcomePanel = new JPanel();
@@ -502,8 +512,8 @@ public class ChatClient extends JFrame {
         conversationBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         conversationBorder.setTitleColor(Color.white);
         try {
-        conversationBorder.setTitleFont(conversationBorder.getTitleFont()
-         .deriveFont(Font.BOLD));
+            conversationBorder.setTitleFont(conversationBorder.getTitleFont()
+                    .deriveFont(Font.BOLD));
         } catch (NullPointerException e) {
         }
 
@@ -597,8 +607,11 @@ public class ChatClient extends JFrame {
                                 + nextUser.getUsername());
 
                         // Load avatar
-                        ImageIcon avatar = new ImageIcon("icons/avatar"
+                        ClassLoader cl = getClass().getClassLoader();
+                        URL url = cl.getResource("icons/avatar"
                                 + nextUser.getAvatar() + ".png");
+                        ImageIcon avatar = new ImageIcon(Toolkit
+                                .getDefaultToolkit().createImage(url));
                         JLabel avatarIcon = new JLabel(avatar);
 
                         JLabel userLabel = new JLabel(nextUser.getUsername());
