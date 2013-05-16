@@ -63,7 +63,6 @@ public class ChatClientModel implements ActionListener {
         try {
             this.socket = this.connect();
         } catch (IOException e) {
-            System.out.println("Failure with connecting to socket.");
             throw new RuntimeException(
                     "Unexpected IOException in ChatClientModel()");
         }
@@ -151,7 +150,6 @@ public class ChatClientModel implements ActionListener {
         } else {
             String command = "chat_start " + this.user.getUsername() + " "
                     + other.getUsername();
-            System.out.println("client sent " + command);
             submitCommand(command);
         }
     }
@@ -192,10 +190,7 @@ public class ChatClientModel implements ActionListener {
      *            removed.
      */
     public void removeChat(int conversationID) {
-        System.out.println(this.chats.toString()); // debugging code
         if (this.chats.containsKey(conversationID)) {
-            System.out.println("removing conversation "
-                    + Integer.toString(conversationID)); // debugging code
             // Get text associated with this conversation for the purposes of
             // storing history.
             ChatBoxModel boxModel = this.chats.remove(conversationID);
@@ -280,7 +275,7 @@ public class ChatClientModel implements ActionListener {
             out = new PrintWriter(socket.getOutputStream(), true);
             out.println(command);
         } catch (IOException e) {
-            System.out.println("Error with printing output");
+        	e.printStackTrace();
         }
     }
 
@@ -295,15 +290,11 @@ public class ChatClientModel implements ActionListener {
         try {
             for (String line = in.readLine(); line != null; line = in
                     .readLine()) {
-                System.out.println("client received line " + line);
                 handleRequest(line);
             }
-            System.out.println("received null input line, closing now");
         } catch (IOException e) {
-            System.out.println("Error with reading info from server.");
             e.printStackTrace();
         } finally {
-            System.out.println("closing CHAT CLIENT CONNECTION!!");
             in.close();
         }
     }

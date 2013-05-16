@@ -83,7 +83,6 @@ public class ChatBox extends JFrame {
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                System.out.println("dispose was called");
                 model.quitChatBox();
                 dispose();
             }
@@ -203,7 +202,6 @@ public class ChatBox extends JFrame {
             e.printStackTrace();
         }
         processMessage(doc, message); // add message
-        System.out.println("remaining message: " + message);
         try { // insert the rest into the document
             doc.insertString(doc.getLength(), "\n", null);
         } catch (BadLocationException e) {
@@ -234,11 +232,12 @@ public class ChatBox extends JFrame {
                     processEmoticon(doc, substring);
                     message = message.substring(i);
                     found = true;
-                    System.out.println("FOUND AN EMOTICON");
                     break;
                 }
             }
-            int dollarIndex = message.indexOf("\\$"); // test whether there is a
+            
+            //NOTE: Commented out section that handles laTeX. if
+            /*int dollarIndex = message.indexOf("\\$"); // test whether there is a
                                                       // laTeX string in the
                                                       // message
             if (dollarIndex == 0 && !found) {
@@ -251,15 +250,15 @@ public class ChatBox extends JFrame {
                         processLatex(doc, latex);
                         message = message.substring(endIndex + 1);
                         found = true;
-                        System.out.println("FOUND A LATEX!");
                     } catch (org.scilab.forge.jlatexmath.ParseException e) { // handle
                                                                              // ill-formatted
                                                                              // laTeX
                                                                              // commands.
-                        System.out.println("oops! bad latex!");
+                    	e.printStackTrace();
                     }
                 }
-            }
+            }*/
+            
             if (!found) {
                 try {
                     doc.insertString(doc.getLength(), message.substring(0, 1),

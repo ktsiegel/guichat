@@ -603,9 +603,7 @@ public class ChatClient extends JFrame {
                         if (nextUser.equals(this.user)) {
                             continue;
                         }
-                        System.out.println("updating with "
-                                + nextUser.getUsername());
-
+                        
                         // Load avatar
                         ClassLoader cl = getClass().getClassLoader();
                         URL url = cl.getResource("icons/avatar"
