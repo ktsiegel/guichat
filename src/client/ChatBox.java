@@ -58,6 +58,7 @@ public class ChatBox extends JFrame {
     private final JLabel bottomLabel;
     private Set<User> others; // The other users in the chat.
     private Set<User> leftChat; // The users who were in the chat and left.
+    Color DARK_BLUE = new Color(0, 51, 102);
 
     /**
      * Constructs a ChatBox object.
@@ -112,8 +113,8 @@ public class ChatBox extends JFrame {
         display.setEditable(false);
         message.setLineWrap(true);
         message.addKeyListener(model);
-        gap.setBackground(new Color(0, 51, 102));
-        background.setBackground(new Color(0, 51, 102));
+        gap.setBackground(DARK_BLUE);
+        background.setBackground(DARK_BLUE);
         Border paddingBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         Border textBorder = BorderFactory.createEmptyBorder(5, 5, 5, 5);
         Border lineBorder = BorderFactory
@@ -193,7 +194,7 @@ public class ChatBox extends JFrame {
         // formatting
         StyledDocument doc = display.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        StyleConstants.setForeground(keyWord, Color.BLUE);
+        StyleConstants.setForeground(keyWord, DARK_BLUE);
         StyleConstants.setBold(keyWord, true);
 
         try { // insert into document
