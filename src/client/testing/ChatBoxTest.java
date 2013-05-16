@@ -27,7 +27,16 @@ package client.testing;
  *     - The height of message does not change as the size of the window increases
  *     - All other dimensions increase proportionately with size of window
  *     - Initial window size is 300 x 300
- *     - Both message and display have black foreground and white background
+ *     - message has black foreground
+ *     - message has white background
+ *     - message has a bevel border
+ *     - message is padded with a DARK_BLUE border (10 on top, left, right)
+ *     - message has larger border on bottom for "user is typing..."
+ *     - When another user is typing in the window, "user is typing..." message appears
+ *     - display has a white background
+ *     - display is padded with a DARK_BLUE border (10 on all sides)
+ *     - In display text is black for the message that someone said, DARK_BLUE to say
+ *       who said it
  *
  * @category no_didit
  */

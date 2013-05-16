@@ -28,7 +28,7 @@ public class ConnectionInfoBox extends JFrame{
 	private JButton submitButton;
 	
 	public ConnectionInfoBox() {
-		this.setSize(300, 300);
+		this.setSize(300, 150);
 		
 		//Borders used in the ConnectionInfoBox GUI
 		Border lineBorder = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
