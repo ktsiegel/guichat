@@ -93,8 +93,45 @@ public class ChatServer {
     }
 
     /**
+     * Adds a message (associated with the given Socket) to the server's
+     * blocking queue for future processing.
+     * 
+     * @param message
+     *            The message to add.
+     * @param socket
+     *            The Socket associated with the message.
+     */
+    public void addMessageToQueue(String message, Socket socket) {
+        try {
+            this.queue.put(new CommunicationsData(message, socket));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new RuntimeException(
+                    "Unexpected InterruptedException in addMessageToQueue()");
+        }
+    }
+
+    /**
+     * Used to notify the server that a certain socket connection has ended. In
+     * the case that the user did not formally log out and instead forced the
+     * connection to close (perhaps by quitting the program), this method tells
+     * the server to disconnect the User associated with the Socket, if such a
+     * User exists.
+     * 
+     * @param socket
+     *            The socket whose connection has ended.
+     */
+    public void forceLogout(Socket socket) {
+        for (User user : this.clients.keySet()) {
+            if (this.clients.get(user).equals(socket)) {
+                this.addMessageToQueue("logout " + user.getUsername(), socket);
+            }
+        }
+    }
+
+    /**
      * Returns a new conversation ID to use for a new conversation. This
-     * conversation ID is guaranteed to be unique among all active
+     * conversation ID is guaranteed to be unique among all existing
      * conversations. Will throw an error if there does not exist a valid
      * conversation ID in the range [1, Integer.MAX_VALUE).
      * 
@@ -111,8 +148,8 @@ public class ChatServer {
     }
 
     /**
-     * Adds a new message from the given client Socket to the blocking queue for
-     * future processing.
+     * Writes a message to the given socket. This method on its own is not
+     * thread-safe.
      * 
      * @param message
      *            The String message to be processed.
@@ -131,16 +168,16 @@ public class ChatServer {
     }
 
     /**
-     * 
+     * Uses writeMessageToSocket() to send a message to a specific user.
      * 
      * @param message
+     *            The message to send to a user.
      * @param user
+     *            Any User (username must be specified, but the avatar can be
+     *            anything) that is currently online and in this.clients.
      */
     private void sendMessageToUser(String message, User user) {
         if (this.clients.containsKey(user)) {
-            System.out.println("sending \"" + message + "\" to "
-                    + user.getUsername());
-
             writeMessageToSocket(message, this.clients.get(user));
         } else {
             throw new IllegalArgumentException(
@@ -148,12 +185,29 @@ public class ChatServer {
         }
     }
 
+    /**
+     * Sends a message to every User in a given list (in an arbitrary order).
+     * 
+     * @param message
+     *            The message to send.
+     * @param targets
+     *            A list of Users who will receive the message. Only username
+     *            must be specified for each User. Each User must be currently
+     *            online and in this.clients.
+     */
     private void sendMessageToUsers(String message, Iterable<User> targets) {
         for (User user : targets) {
             this.sendMessageToUser(message, user);
         }
     }
 
+    /**
+     * A method that reads messages from the blocking queue, waiting for new
+     * messages when there are none.
+     * 
+     * Each message is processed accordingly and messages are sent back to the
+     * sockets that they came from.
+     */
     private void work() {
         while (true) {
             String message;
@@ -171,289 +225,406 @@ public class ChatServer {
 
             String[] split = message.split(" ");
 
-            if (split[0].equals("login_attempt")) {
-                if (split.length != 3) {
-                    throw new IllegalStateException(
-                            "Invalid login_attempt message received from client by server");
-                }
-
-                String username = split[1];
-                int avatar = Integer.parseInt(split[2]);
-                User user = new User(username, avatar);
-
-                if (clients.containsKey(user)) {
-                    this.writeMessageToSocket("login_invalid", socket);
+            try {
+                if (split[0].equals("login_attempt")) {
+                    this.processLoginAttemptCommand(message, socket);
+                } else if (split[0].equals("logout")) {
+                    this.processLogoutCommand(message);
+                } else if (split[0].equals("chat_start")) {
+                    this.processChatStartCommand(message);
+                } else if (split[0].equals("group_chat_start")) {
+                    this.processGroupChatStartCommand(message);
+                } else if (split[0].equals("group_chat_invite")) {
+                    this.processGroupChatInviteCommand(message);
+                } else if (split[0].equals("group_chat_leave")) {
+                    this.processGroupChatLeaveCommand(message);
+                } else if (split[0].equals("say")) {
+                    this.processSayCommand(message);
+                } else if (split[0].equals("typing")) {
+                    this.processTypingCommand(message);
+                } else if (split[0].equals("cleared")) {
+                    this.processClearedCommand(message);
                 } else {
-                    this.writeMessageToSocket("login_success", socket);
-
-                    // notify all current users that a new user has joined
-                    this.sendMessageToUsers("user_joins " + username + " "
-                            + Integer.toString(avatar), this.clients.keySet());
-
-                    // add new user to list
-                    this.clients.put(user, socket);
-
-                    // notify new user of logged-in users
-                    for (User onlineUser : this.clients.keySet()) {
-                        this.sendMessageToUser(
-                                "user_joins " + onlineUser.getUsername() + " "
-                                        + onlineUser.getAvatar(), user);
-                    }
-
-                    // have the user rejoin all private conversations
-                    for (int ID : this.conversations.keySet()) {
-                        Conversation conversation = this.conversations.get(ID);
-                        if (!conversation.isGroupChat()) {
-                            Iterator<User> iterator = conversation.getUsers()
-                                    .iterator();
-                            User a = iterator.next();
-                            User b = iterator.next();
-                            if (!a.equals(user)) {
-                                this.sendMessageToUser(
-                                        "chat_start " + conversation.getID()
-                                                + " " + a.getUsername() + " "
-                                                + b.getUsername(), user);
-                            } else {
-                                this.sendMessageToUser(
-                                        "chat_start " + conversation.getID()
-                                                + " " + b.getUsername() + " "
-                                                + a.getUsername(), user);
-                            }
-                        }
-                    }
-                }
-            } else if (split[0].equals("logout")) {
-                if (split.length != 2) {
                     throw new IllegalStateException(
-                            "Invalid logout message received from client by server");
+                            "Unexpected command received from client by server: "
+                                    + message);
                 }
-
-                String username = split[1];
-
-                if (this.clients.containsKey(new User(username))) {
-                    this.clients.remove(new User(username));
-
-                    // leave all conversations
-                    for (int chatID : this.conversations.keySet()) {
-                        Conversation chat = this.conversations.get(chatID);
-                        if (chat.getUsers().contains(new User(username))
-                                && chat.isGroupChat()) {
-                            chat.removeUser(new User(username));
-                            // send a leave message
-                            this.sendMessageToUsers("group_chat_leave "
-                                    + chatID + " " + username, chat.getUsers());
-                        }
-                    }
-
-                    // notify all clients that a new user has logged in
-                    this.sendMessageToUsers("user_leaves " + username,
-                            this.clients.keySet());
-                }
-
-            } else if (split[0].equals("chat_start")) {
-                if (split.length != 3) {
-                    throw new IllegalStateException(
-                            "Invalid chat_start message received from client by server");
-                }
-
-                String username1 = split[1];
-                User user1 = new User(username1);
-                if (!this.clients.containsKey(user1)) {
-                    throw new IllegalStateException(
-                            "Invalid chat_start message received from client by server: unknown user");
-                }
-
-                String username2 = split[2];
-                User user2 = new User(username2);
-                if (!this.clients.containsKey(user2)) {
-                    throw new IllegalStateException(
-                            "Invalid chat_start message received from client by server: unknown user");
-                }
-
-                Conversation chat = new Conversation(user1, user2,
-                        this.nextConversationID());
-                conversations.put(chat.getID(), chat);
-
-                this.sendMessageToUser("chat_start " + chat.getID() + " "
-                        + username1 + " " + username2, user1);
-                this.sendMessageToUser("chat_start " + chat.getID() + " "
-                        + username1 + " " + username2, user2);
-            } else if (split[0].equals("group_chat_start")) {
-                if (split.length == 1) {
-                    throw new IllegalStateException(
-                            "Invalid group_chat_start message received from client by server");
-                }
-
-                Set<User> users = new HashSet<User>();
-                for (int i = 1; i < split.length; i++) {
-                    String username = split[i];
-                    users.add(new User(username));
-                }
-
-                for (User user : users) {
-                    if (!this.clients.containsKey(user)) {
-                        throw new IllegalStateException(
-                                "Invalid group_chat_start message received from client by server: unknown user");
-                    }
-                }
-
-                Conversation chat = new Conversation(users,
-                        this.nextConversationID());
-                conversations.put(chat.getID(), chat);
-
-                for (User user : users) {
-                    // first send a message to the user that is joining
-                    Set<User> targetUserSet = new HashSet<User>();
-                    targetUserSet.add(user);
-                    this.sendMessageToUsers("group_chat_start " + chat.getID(),
-                            targetUserSet);
-
-                    // then notify the user that all the other users are joining
-                    for (User otherUser : users) {
-                        if (!otherUser.equals(user)) {
-                            this.sendMessageToUsers(
-                                    "group_chat_join " + chat.getID() + " "
-                                            + otherUser.getUsername(),
-                                    targetUserSet);
-                        }
-                    }
-                }
-            } else if (split[0].equals("group_chat_invite")) {
-                if (split.length != 3) {
-                    throw new IllegalStateException(
-                            "Invalid group_chat_invite message received from client by server");
-                }
-                int ID = Integer.parseInt(split[1]);
-                String username = split[2];
-
-                if (this.clients.containsKey(new User(username))) {
-                    // only proceed if the username is valid
-
-                    Conversation chat = this.conversations.get(ID);
-                    chat.addUser(new User(username));
-
-                    this.sendMessageToUsers("group_chat_join " + ID + " "
-                            + username, chat.getUsers());
-
-                    // notify the new user of all the users that were already in
-                    // the
-                    // conversation
-                    ArrayList<User> targetUser = new ArrayList<User>();
-                    targetUser.add(new User(username));
-                    for (User user : chat.getUsers()) {
-                        if (!user.equals(new User(username))) {
-                            this.sendMessageToUsers("group_chat_join " + ID
-                                    + " " + user.getUsername(), targetUser);
-                        }
-                    }
-                }
-            } else if (split[0].equals("group_chat_leave")) {
-                if (split.length != 3) {
-                    throw new IllegalStateException(
-                            "Invalid group_chat_leave message received from client by server");
-                }
-                int ID = Integer.parseInt(split[1]);
-                String username = split[2];
-
-                if (!this.clients.containsKey(new User(username))) {
-                    throw new IllegalStateException(
-                            "Invalid group_chat_leave message received from client by server: unknown user");
-                }
-
-                Conversation chat = this.conversations.get(ID);
-                chat.removeUser(new User(username));
-
-                this.sendMessageToUsers("group_chat_leave " + ID + " "
-                        + username, chat.getUsers());
-            } else if (split[0].equals("say")) {
-                if (split.length < 3) {
-                    throw new IllegalStateException(
-                            "Invalid say message received from client by server");
-                }
-                int ID = Integer.parseInt(split[1]);
-                String username = split[2];
-
-                if (!this.clients.containsKey(new User(username))) {
-                    throw new IllegalStateException(
-                            "Invalid start message received from client by server: unknown user");
-                }
-
-                String text = message;
-                for (int i = 0; i < 3; i++) {
-                    text = text.substring(text.indexOf(" ") + 1);
-                }
-
-                Conversation chat = this.conversations.get(ID);
-                for (User user : chat.getUsers()) {
-                    if (this.clients.containsKey(user)) {
-                        this.sendMessageToUser("say " + ID + " " + username
-                                + " " + text, user);
-                    }
-                }
-            } else if (split[0].equals("typing")) {
-                if (split.length != 3) {
-                    throw new IllegalStateException(
-                            "Invalid typing message received from client by server");
-                }
-                int ID = Integer.parseInt(split[1]);
-                String username = split[2];
-
-                if (!this.clients.containsKey(new User(username))) {
-                    throw new IllegalStateException(
-                            "Invalid typing message received from client by server: unknown user");
-                }
-
-                Conversation chat = this.conversations.get(ID);
-                for (User user : chat.getUsers()) {
-                    if (!user.equals(new User(username))
-                            && this.clients.containsKey(user)) {
-                        this.sendMessageToUser("typing " + ID + " " + username,
-                                user);
-                    }
-                }
-            } else if (split[0].equals("cleared")) {
-                if (split.length != 3) {
-                    throw new IllegalStateException(
-                            "Invalid cleared message received from client by server");
-                }
-                int ID = Integer.parseInt(split[1]);
-                String username = split[2];
-
-                if (!this.clients.containsKey(new User(username))) {
-                    throw new IllegalStateException(
-                            "Invalid cleared message received from client by server: unknown user");
-                }
-
-                Conversation chat = this.conversations.get(ID);
-                for (User user : chat.getUsers()) {
-                    if (!user.equals(new User(username))
-                            && this.clients.containsKey(user)) {
-                        this.sendMessageToUser(
-                                "cleared " + ID + " " + username, user);
-                    }
-                }
-            } else {
-                throw new IllegalStateException(
-                        "Unexpected command received from client by server: "
-                                + message);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
 
-    public void addMessageToQueue(String message, Socket socket) {
-        try {
-            this.queue.put(new CommunicationsData(message, socket));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            throw new RuntimeException(
-                    "Unexpected InterruptedException in addMessageToQueue()");
+    /**
+     * Processes a message that logs in a user from given socket with a given
+     * requested username. If the new username is valid (not taken), then this
+     * username is added to the list of online clients. The "login_success"
+     * message is returned through the socket. Then, all currently online
+     * clients are notified that this new user has logged in and the new user is
+     * notified of all the clients that are already logged in. Finally, the new
+     * user rejoins all private conversations that he or she was previously
+     * involved in. If the username is not valid, then "login_invalid" is sent
+     * back to the user through the socket.
+     * 
+     * @param message
+     *            The message from the client. Must be in the form
+     *            "login_attempt SPACE username SPACE avatar".
+     * @param socket
+     *            The socket from which the message was received.
+     */
+    private void processLoginAttemptCommand(String message, Socket socket) {
+        String[] split = message.split(" ");
+
+        if (split.length != 3) {
+            throw new IllegalStateException(
+                    "Invalid login_attempt message received from client by server");
+        }
+
+        String username = split[1];
+        int avatar = Integer.parseInt(split[2]);
+        User user = new User(username, avatar);
+
+        if (clients.containsKey(user)) {
+            this.writeMessageToSocket("login_invalid", socket);
+        } else {
+            this.writeMessageToSocket("login_success", socket);
+
+            // notify all current users that a new user has joined
+            this.sendMessageToUsers(
+                    "user_joins " + username + " " + Integer.toString(avatar),
+                    this.clients.keySet());
+
+            // add new user to list
+            this.clients.put(user, socket);
+
+            // notify new user of logged-in users
+            for (User onlineUser : this.clients.keySet()) {
+                this.sendMessageToUser("user_joins " + onlineUser.getUsername()
+                        + " " + onlineUser.getAvatar(), user);
+            }
+
+            // have the user rejoin all private conversations
+            for (int ID : this.conversations.keySet()) {
+                Conversation conversation = this.conversations.get(ID);
+                if (!conversation.isGroupChat()) {
+                    Iterator<User> iterator = conversation.getUsers()
+                            .iterator();
+                    User a = iterator.next();
+                    User b = iterator.next();
+                    if (!a.equals(user)) {
+                        this.sendMessageToUser(
+                                "chat_start " + conversation.getID() + " "
+                                        + a.getUsername() + " "
+                                        + b.getUsername(), user);
+                    } else {
+                        this.sendMessageToUser(
+                                "chat_start " + conversation.getID() + " "
+                                        + b.getUsername() + " "
+                                        + a.getUsername(), user);
+                    }
+                }
+            }
         }
     }
 
-    public void forceLogout(Socket socket) {
-        for (User user : this.clients.keySet()) {
-            if (this.clients.get(user).equals(socket)) {
-                this.addMessageToQueue("logout " + user.getUsername(), socket);
+    /**
+     * Logs a user out of the server if the user is not already logged out.
+     * Notifies all connected clients that the user has logged out. All group
+     * chats that the user was a part of are notified that this user has left.
+     * 
+     * @param message
+     *            The message from the client. Must be in the form
+     *            "logout SPACE username".
+     */
+    private void processLogoutCommand(String message) {
+        String[] split = message.split(" ");
+
+        if (split.length != 2) {
+            throw new IllegalStateException(
+                    "Invalid logout message received from client by server");
+        }
+
+        String username = split[1];
+
+        if (this.clients.containsKey(new User(username))) {
+            this.clients.remove(new User(username));
+
+            // leave all conversations
+            for (int chatID : this.conversations.keySet()) {
+                Conversation chat = this.conversations.get(chatID);
+                if (chat.getUsers().contains(new User(username))
+                        && chat.isGroupChat()) {
+                    chat.removeUser(new User(username));
+                    // send a leave message
+                    this.sendMessageToUsers("group_chat_leave " + chatID + " "
+                            + username, chat.getUsers());
+                }
+            }
+
+            // notify all clients that a new user has logged in
+            this.sendMessageToUsers("user_leaves " + username,
+                    this.clients.keySet());
+        }
+    }
+
+    /**
+     * Notifies the server that a new private conversation between two users has
+     * begun.
+     * 
+     * @param message
+     *            The message from the client. Must be in the form
+     *            "chat_start SPACE username SPACE username". The first username
+     *            is the user that started the conversation. The second username
+     *            is the user that was invited to the conversation.
+     */
+    private void processChatStartCommand(String message) {
+        String[] split = message.split(" ");
+        if (split.length != 3) {
+            throw new IllegalStateException(
+                    "Invalid chat_start message received from client by server");
+        }
+
+        String username1 = split[1];
+        User user1 = new User(username1);
+        if (!this.clients.containsKey(user1)) {
+            throw new IllegalStateException(
+                    "Invalid chat_start message received from client by server: unknown user");
+        }
+
+        String username2 = split[2];
+        User user2 = new User(username2);
+        if (!this.clients.containsKey(user2)) {
+            throw new IllegalStateException(
+                    "Invalid chat_start message received from client by server: unknown user");
+        }
+
+        Conversation chat = new Conversation(user1, user2,
+                this.nextConversationID());
+        conversations.put(chat.getID(), chat);
+
+        this.sendMessageToUser("chat_start " + chat.getID() + " " + username1
+                + " " + username2, user1);
+        this.sendMessageToUser("chat_start " + chat.getID() + " " + username1
+                + " " + username2, user2);
+    }
+
+    /**
+     * Starts a group chat among a list of users. Everyone involved will be
+     * notified of the new conversation and the users involved.
+     * 
+     * @param message
+     *            The message from the client. Must be in the form
+     *            "group_chat_start (SPACE username)+".
+     */
+    private void processGroupChatStartCommand(String message) {
+        String[] split = message.split(" ");
+
+        if (split.length == 1) {
+            throw new IllegalStateException(
+                    "Invalid group_chat_start message received from client by server");
+        }
+
+        Set<User> users = new HashSet<User>();
+        for (int i = 1; i < split.length; i++) {
+            String username = split[i];
+            users.add(new User(username));
+        }
+
+        for (User user : users) {
+            if (!this.clients.containsKey(user)) {
+                throw new IllegalStateException(
+                        "Invalid group_chat_start message received from client by server: unknown user");
+            }
+        }
+
+        Conversation chat = new Conversation(users, this.nextConversationID());
+        conversations.put(chat.getID(), chat);
+
+        for (User user : users) {
+            // first send a message to the user that is joining
+            Set<User> targetUserSet = new HashSet<User>();
+            targetUserSet.add(user);
+            this.sendMessageToUsers("group_chat_start " + chat.getID(),
+                    targetUserSet);
+
+            // then notify the user that all the other users are joining
+            for (User otherUser : users) {
+                if (!otherUser.equals(user)) {
+                    this.sendMessageToUsers("group_chat_join " + chat.getID()
+                            + " " + otherUser.getUsername(), targetUserSet);
+                }
+            }
+        }
+    }
+
+    /**
+     * Invites a new user to a group conversation.
+     * 
+     * @param message
+     *            The message from the client. Must be in the form
+     *            "group_chat_invite SPACE id SPACE username".
+     */
+    private void processGroupChatInviteCommand(String message) {
+        String[] split = message.split(" ");
+
+        if (split.length != 3) {
+            throw new IllegalStateException(
+                    "Invalid group_chat_invite message received from client by server");
+        }
+        int ID = Integer.parseInt(split[1]);
+        String username = split[2];
+
+        if (this.clients.containsKey(new User(username))) {
+            // only proceed if the username is valid
+
+            Conversation chat = this.conversations.get(ID);
+            chat.addUser(new User(username));
+
+            this.sendMessageToUsers("group_chat_join " + ID + " " + username,
+                    chat.getUsers());
+
+            // notify the new user of all the users that were already in
+            // the conversation
+            ArrayList<User> targetUser = new ArrayList<User>();
+            targetUser.add(new User(username));
+            for (User user : chat.getUsers()) {
+                if (!user.equals(new User(username))) {
+                    this.sendMessageToUsers("group_chat_join " + ID + " "
+                            + user.getUsername(), targetUser);
+                }
+            }
+        }
+    }
+
+    /**
+     * Notifies the server that a user has left a group conversation. This will
+     * also notify all the users still in the group conversation that someone
+     * has left.
+     * 
+     * @param message
+     *            The message from the client. Must be in the form
+     *            "group_chat_leave SPACE id SPACE username".
+     */
+    private void processGroupChatLeaveCommand(String message) {
+        String[] split = message.split(" ");
+
+        if (split.length != 3) {
+            throw new IllegalStateException(
+                    "Invalid group_chat_leave message received from client by server");
+        }
+        int ID = Integer.parseInt(split[1]);
+        String username = split[2];
+
+        if (!this.clients.containsKey(new User(username))) {
+            throw new IllegalStateException(
+                    "Invalid group_chat_leave message received from client by server: unknown user");
+        }
+
+        Conversation chat = this.conversations.get(ID);
+        chat.removeUser(new User(username));
+
+        this.sendMessageToUsers("group_chat_leave " + ID + " " + username,
+                chat.getUsers());
+    }
+
+    /**
+     * Notifies the server that a new message has been said in a conversation.
+     * The server notifies all clients to add this message to the conversation.
+     * 
+     * @param message
+     *            The message from the client. Must be in the form
+     *            "say SPACE id SPACE username SPACE text".
+     */
+    private void processSayCommand(String message) {
+        String[] split = message.split(" ");
+
+        if (split.length < 3) {
+            throw new IllegalStateException(
+                    "Invalid say message received from client by server");
+        }
+        int ID = Integer.parseInt(split[1]);
+        String username = split[2];
+
+        if (!this.clients.containsKey(new User(username))) {
+            throw new IllegalStateException(
+                    "Invalid start message received from client by server: unknown user");
+        }
+
+        String text = message;
+        for (int i = 0; i < 3; i++) {
+            text = text.substring(text.indexOf(" ") + 1);
+        }
+
+        Conversation chat = this.conversations.get(ID);
+        for (User user : chat.getUsers()) {
+            if (this.clients.containsKey(user)) {
+                this.sendMessageToUser("say " + ID + " " + username + " "
+                        + text, user);
+            }
+        }
+    }
+
+    /**
+     * Notifies the server that someone is typing in a conversation. The server
+     * then notifies all the users in the conversation.
+     * 
+     * @param message
+     *            The message from the client. Must be in the form
+     *            "typing SPACE id SPACE username".
+     */
+    private void processTypingCommand(String message) {
+        String[] split = message.split(" ");
+
+        if (split.length != 3) {
+            throw new IllegalStateException(
+                    "Invalid typing message received from client by server");
+        }
+        int ID = Integer.parseInt(split[1]);
+        String username = split[2];
+
+        if (!this.clients.containsKey(new User(username))) {
+            throw new IllegalStateException(
+                    "Invalid typing message received from client by server: unknown user");
+        }
+
+        Conversation chat = this.conversations.get(ID);
+        for (User user : chat.getUsers()) {
+            if (!user.equals(new User(username))
+                    && this.clients.containsKey(user)) {
+                this.sendMessageToUser("typing " + ID + " " + username, user);
+            }
+        }
+    }
+
+    /**
+     * Notifies the server that someone was typing but then cleared all his or
+     * her text in a conversation. The server then notifies all the users in the
+     * conversation.
+     * 
+     * @param message
+     *            The message from the client. Must be in the form
+     *            "cleared SPACE id SPACE username".
+     */
+    private void processClearedCommand(String message) {
+        String[] split = message.split(" ");
+
+        if (split.length != 3) {
+            throw new IllegalStateException(
+                    "Invalid cleared message received from client by server");
+        }
+        int ID = Integer.parseInt(split[1]);
+        String username = split[2];
+
+        if (!this.clients.containsKey(new User(username))) {
+            throw new IllegalStateException(
+                    "Invalid cleared message received from client by server: unknown user");
+        }
+
+        Conversation chat = this.conversations.get(ID);
+        for (User user : chat.getUsers()) {
+            if (!user.equals(new User(username))
+                    && this.clients.containsKey(user)) {
+                this.sendMessageToUser("cleared " + ID + " " + username, user);
             }
         }
     }
