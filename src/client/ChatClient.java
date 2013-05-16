@@ -496,11 +496,14 @@ public class ChatClient extends JFrame {
     }
 
     public void addHistory(ChatHistory history, int ID) {
-        String label = "Chat with ";
-        for (User user : history.getParticipants()) {
-            label += user.getUsername() + ", ";
+    	String label = "Empty group chat";
+    	if (history.getParticipants().size() > 0) {
+        	label = "Chat with ";
+            for (User user : history.getParticipants()) {
+                label += user.getUsername() + ", ";
+            }
+            label = label.substring(0, label.length() - 2);
         }
-        label = label.substring(0, label.length() - 2);
         JLabel historyLabel = new JLabel(label);
         new HistoryListener(historyLabel, model, ID);
         conversations.add(historyLabel);
