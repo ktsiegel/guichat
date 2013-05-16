@@ -3,10 +3,13 @@ package client;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -17,7 +20,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -35,34 +37,41 @@ public class ChatClient extends JFrame {
      * Default serial ID.
      */
     private static final long serialVersionUID = 1L;
-    
-    private User user;
 
+    private User user;
     private Map<String, JLabel> userLabels;
     private JPanel users;
     private JPanel conversations;
-    private JScrollPane userScroll;
-    private JLabel welcome;
-    private JPanel welcomePanel;
-    private JButton logoutButton;
-    private JPanel userPanel;
-    private JPanel userNest;
-    private JPanel conversationNest;
-    private JPanel background;
-    GroupLayout layout;
-    private JLabel icon;
     private final ChatClientModel model;
-    private JPanel login;
-    private JTextField usernameBox;
-    private JLabel[] avatarLabels;
-    private JPanel avatars;
-    
+
     Color DARK_BLUE = new Color(0, 51, 102);
     Color LIGHT_BLUE = new Color(102, 178, 255);
     Border EMPTY_BORDER = BorderFactory.createEmptyBorder(0, 0, 0, 0);
+    Border PADDING_BORDER = BorderFactory.createEmptyBorder(5, 10, 5, 10);
+    Border LINE_BORDER = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
 
+    /**
+     * Create a new ChatClient, which will prompt the user for a username and
+     * avatar. After verifying, the user can then use ChatClient to manage
+     * Conversations.
+     * 
+     * @param IP
+     *            String corresponding to IP address of server
+     * @param port
+     *            String corresponding to port number of server
+     */
     public ChatClient(String IP, String port) {
         this.model = new ChatClientModel(this, IP, port);
+        this.model.startListening();
+        quitChatOnClose();
+        startLoginWindow();
+    }
+
+    /**
+     * Define this to dispose of the window if the user closes the window, and
+     * close all chats and logout.
+     */
+    private void quitChatOnClose() {
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -74,21 +83,34 @@ public class ChatClient extends JFrame {
             }
         });
 
-        startLoginWindow();
-        this.setSize(200, 500);
-        this.setVisible(true);
-
-        this.model.startListening();
     }
 
-    public void startLoginWindow() {
-        background = new JPanel();
-        background.setBackground(DARK_BLUE);
-        login = new JPanel();
-        
-        ImageIcon imageIcon = new ImageIcon("icons/chat.jpg");
-        icon = new JLabel(imageIcon);
+    /**
+     * Start the initial Login Window. This will allow the user to choose a
+     * username and avatar.
+     */
+    private void startLoginWindow() {
+        JPanel background = new JPanel();
 
+        final JPanel login = new JPanel();
+        login.setLayout(new BoxLayout(login, BoxLayout.PAGE_AXIS));
+
+        ClassLoader cl = getClass().getClassLoader();
+        URL url = cl.getResource("icons/chat.png");
+        ImageIcon imageIcon = new ImageIcon(Toolkit.getDefaultToolkit()
+                .createImage(url));
+        JLabel icon = new JLabel(imageIcon);
+
+        final JTextField usernameBox = new JTextField();
+        login.add(usernameBox);
+        JButton loginButton = new JButton("Login");
+
+        JPanel avatars = new JPanel();
+
+        // Load the avatars
+        final JLabel[] avatarLabels = getAvatars(avatars);
+
+        // Create Login Listener
         ActionListener listener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
@@ -101,126 +123,96 @@ public class ChatClient extends JFrame {
                     }
                 }
                 if (!username.matches("[A-Za-z0-9]+")) {
-                    usernameIllegalUpdate();
+                    usernameIllegalUpdate(login, usernameBox);
                 } else if (model.tryUsername(username, a)) {
                     user = new User(username, a);
                     startPostLoginWindow();
                 } else {
                     if (username != null && !username.equals("")) {
-                        usernameTakenUpdate();
+                        usernameTakenUpdate(login, usernameBox);
                     }
                 }
 
             }
         };
-        
-        usernameBox = new JTextField();
-        login.add(usernameBox);
-        JButton loginButton = new JButton("Login");
+
+        // Allow user to login in by clicking button or hitting enter
         loginButton.addActionListener(listener);
         usernameBox.addActionListener(listener);
 
+        // Set up the login window
+        makeLoginWindowPretty(background, login, avatars);
+        createBackgroundLayout(background, icon, login, avatars, loginButton);
 
-        login.setLayout(new BoxLayout(login, BoxLayout.PAGE_AXIS));
-        login.setOpaque(false);
-        
-        getAvatars();
+        // Tell this to display the login window
+        this.add(background);
+        this.getContentPane().setLayout(
+                new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
+        this.setSize(200, 500);
+        this.setVisible(true);
 
-        /*JPanel avatarsRow1 = new JPanel();
-        JPanel avatarsRow2 = new JPanel();
-        JPanel avatarsRow3 = new JPanel();
+    }
 
-        JLabel avatar1 = new JLabel(new ImageIcon("icons/avatar1.png"));
-        JLabel avatar2 = new JLabel(new ImageIcon("icons/avatar2.png"));
-        JLabel avatar3 = new JLabel(new ImageIcon("icons/avatar3.png"));
-        JLabel avatar4 = new JLabel(new ImageIcon("icons/avatar4.png"));
-        JLabel avatar5 = new JLabel(new ImageIcon("icons/avatar5.png"));
-        JLabel avatar6 = new JLabel(new ImageIcon("icons/avatar6.png"));
-        JLabel avatar7 = new JLabel(new ImageIcon("icons/avatar7.png"));
-        JLabel avatar8 = new JLabel(new ImageIcon("icons/avatar8.png"));
-        JLabel avatar9 = new JLabel(new ImageIcon("icons/avatar9.png"));
-        JLabel avatar10 = new JLabel(new ImageIcon("icons/avatar10.png"));
-        JLabel avatar11 = new JLabel(new ImageIcon("icons/avatar11.png"));
-        JLabel avatar12 = new JLabel(new ImageIcon("icons/avatar12.png"));
-
-        avatarLabels = new ArrayList<JLabel>();
-        avatarLabels.add(avatar1);
-        avatarLabels.add(avatar2);
-        avatarLabels.add(avatar3);
-        avatarLabels.add(avatar4);
-        avatarLabels.add(avatar5);
-        avatarLabels.add(avatar6);
-        avatarLabels.add(avatar7);
-        avatarLabels.add(avatar8);
-        avatarLabels.add(avatar9);
-        avatarLabels.add(avatar10);
-        avatarLabels.add(avatar11);
-        avatarLabels.add(avatar12);
-
-        for (JLabel label : avatarLabels) {
-            label.setOpaque(true);
-            label.setBorder(EMPTY_BORDER);
-            label.setBackground(DARK_BLUE);
-            label.addMouseListener(new AvatarListener(avatarLabels, label));
-        }
-        
-        switch ((int) (Math.random() * 12) + 1) {
-        case 1: avatar1.setBackground(Color.white); break;
-        case 2: avatar2.setBackground(Color.white); break;
-        case 3: avatar3.setBackground(Color.white); break;
-        case 4: avatar4.setBackground(Color.white); break;
-        case 5: avatar5.setBackground(Color.white); break;
-        case 6: avatar6.setBackground(Color.white); break;
-        case 7: avatar7.setBackground(Color.white); break;
-        case 8: avatar8.setBackground(Color.white); break;
-        case 9: avatar9.setBackground(Color.white); break;
-        case 10: avatar10.setBackground(Color.white); break;
-        case 11: avatar11.setBackground(Color.white); break;
-        case 12: avatar12.setBackground(Color.white); break;
-        }
-
-        avatarsRow1.add(avatar1);
-        avatarsRow1.add(avatar2);
-        avatarsRow1.add(avatar3);
-        avatarsRow1.add(avatar4);
-        avatarsRow2.add(avatar5);
-        avatarsRow2.add(avatar6);
-        avatarsRow2.add(avatar7);
-        avatarsRow2.add(avatar8);
-        avatarsRow3.add(avatar9);
-        avatarsRow3.add(avatar10);
-        avatarsRow3.add(avatar11);
-        avatarsRow3.add(avatar12);
-
-        avatars.add(avatarsRow1);
-        avatars.add(avatarsRow2);
-        avatars.add(avatarsRow3);
-        avatars.setLayout(new BoxLayout(avatars, BoxLayout.PAGE_AXIS));*/
-        //avatarsRow1.setOpaque(false);
-        //avatarsRow2.setOpaque(false);
-        //avatarsRow3.setOpaque(false);
-        //avatars.setOpaque(false);
-
+    /**
+     * Add borders and color to the panel.
+     * 
+     * @param background
+     *            The JPanel containing all other components (should have
+     *            DARK_BLUE background)
+     * @param login
+     *            A JPanel containing the login field
+     * @param avatars
+     *            A JPanel containing the avatar icons
+     */
+    private void makeLoginWindowPretty(JPanel background, JPanel login,
+            JPanel avatars) {
+        // Add Title to login field
         TitledBorder loginBorder = BorderFactory.createTitledBorder(
                 EMPTY_BORDER, "Enter Username");
         loginBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         loginBorder.setTitleColor(Color.white);
-        loginBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
-                Font.BOLD));
-
+        try {
+            loginBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
+                    Font.BOLD));
+        } catch (NullPointerException e) {
+        }
         login.setBorder(loginBorder);
 
+        // Add title to avatars
         TitledBorder avatarBorder = BorderFactory.createTitledBorder(
                 EMPTY_BORDER, "Choose Avatar");
         avatarBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         avatarBorder.setTitleColor(Color.white);
-        avatarBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
-                Font.BOLD));
-
+        try {
+            avatarBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
+                    Font.BOLD));
+        } catch (NullPointerException e) {
+        }
         avatars.setBorder(avatarBorder);
 
-        // Create layout
-        layout = new GroupLayout(background);
+        // Color the window
+        background.setBackground(DARK_BLUE);
+        login.setOpaque(false);
+    }
+
+    /**
+     * Layout the Components vertically. From top to bottom, there should be the
+     * icon, the login field, the avatar icons, and the login button.
+     * 
+     * @param background
+     *            The JPanel to contain all the Components
+     * @param icon
+     *            A JLabel containing an image (the logo)
+     * @param login
+     *            A JPanel which will prompt the user for a username
+     * @param avatars
+     *            A JPanel which will prompt the user to choose an avatar
+     * @param loginButton
+     *            A button which will log the user in
+     */
+    private void createBackgroundLayout(JPanel background, JLabel icon,
+            JPanel login, JPanel avatars, JButton loginButton) {
+        GroupLayout layout = new GroupLayout(background);
         background.setLayout(layout);
 
         Group buttonH = layout.createSequentialGroup();
@@ -250,19 +242,22 @@ public class ChatClient extends JFrame {
 
         layout.setHorizontalGroup(h);
         layout.setVerticalGroup(v);
-
-        this.add(background);
-        this.getContentPane().setLayout(
-                new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
-
     }
-    
-    public void getAvatars() {
-        avatars = new JPanel();
+
+    /**
+     * Load the 12 avatars and format them to be displayed in a 3x4 grid.
+     * 
+     * @return An array containing the JLabels storing the avatars.
+     */
+    private JLabel[] getAvatars(JPanel avatars) {
         JPanel[] avatarRows = { new JPanel(), new JPanel(), new JPanel() };
-        avatarLabels = new JLabel[12];
+        JLabel[] avatarLabels = new JLabel[12];
         for (int i = 1; i <= 12; i++) {
-            avatarLabels[i - 1] = new JLabel(new ImageIcon("icons/avatar" + i + ".png"));
+            ClassLoader cl = getClass().getClassLoader();
+            URL url = cl.getResource("icons/avatar" + i + ".png");
+            ImageIcon imageIcon = new ImageIcon(Toolkit.getDefaultToolkit()
+                    .createImage(url));
+            avatarLabels[i - 1] = new JLabel(imageIcon);
         }
         for (JLabel label : avatarLabels) {
             label.setOpaque(true);
@@ -271,169 +266,112 @@ public class ChatClient extends JFrame {
             label.addMouseListener(new AvatarListener(avatarLabels, label));
         }
 
+        Random r = new Random();
+        int defaultAvatar = r.nextInt(12);
+        avatarLabels[defaultAvatar].setBackground(Color.white);
+
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 4; col++) {
                 avatarRows[row].add(avatarLabels[4 * row + col]);
                 avatarRows[row].setOpaque(false);
             }
         }
-        
+
         for (JPanel row : avatarRows) {
             avatars.add(row);
         }
-        
+
         avatars.setOpaque(false);
         avatars.setLayout(new BoxLayout(avatars, BoxLayout.PAGE_AXIS));
+
+        return avatarLabels;
     }
 
-    
-
-
-    public void usernameTakenUpdate() {
+    /**
+     * Erase the username in the login field and report that the username was
+     * taken.
+     * 
+     * @param login
+     *            A JPanel containing the login field
+     * @param usernameBox
+     *            A JTextField to be cleared
+     */
+    private void usernameTakenUpdate(JPanel login, JTextField usernameBox) {
         TitledBorder loginBorder = BorderFactory.createTitledBorder(
                 EMPTY_BORDER, "Username taken");
         loginBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         loginBorder.setTitleColor(Color.white);
-        loginBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
-                Font.BOLD));
+        try {
+            loginBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
+                    Font.BOLD));
+        } catch (NullPointerException e) {
+        }
 
         login.setBorder(loginBorder);
-        // login.revalidate();
         usernameBox.setText("");
-        // usernameBox.revalidate();
         validate();
     }
-    
-    public void usernameIllegalUpdate() {
+
+    /**
+     * Erase the username in the login field and report that the username was
+     * invalid.
+     * 
+     * @param login
+     *            A JPanel containing the login field
+     * @param usernameBox
+     *            A JTextField to be cleared
+     */
+    private void usernameIllegalUpdate(JPanel login, JTextField usernameBox) {
         TitledBorder loginBorder = BorderFactory.createTitledBorder(
                 EMPTY_BORDER, "Username has illegal characters");
         loginBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         loginBorder.setTitleColor(Color.white);
-        loginBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
-                Font.BOLD));
+        try {
+            loginBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
+                    Font.BOLD));
+        } catch (NullPointerException e) {
+        }
 
         login.setBorder(loginBorder);
-        // login.revalidate();
         usernameBox.setText("");
-        // usernameBox.revalidate();
         validate();
     }
 
-    public void startPostLoginWindow() {
+    /**
+     * After the user has logged in, start the post-login window. This is the
+     * interface the user will user to maintain all conversations.
+     */
+    private void startPostLoginWindow() {
         JPanel postLoginBackground = new JPanel();
-        userPanel = new JPanel();
-
-        logoutButton = new JButton("Logout");
-        logoutButton.setActionCommand("logout");
-        logoutButton.addActionListener(model);
 
         userLabels = new HashMap<String, JLabel>();
 
-        users = new JPanel();
-        users.setLayout(new BoxLayout(users, BoxLayout.PAGE_AXIS));
-        userScroll = new JScrollPane(users);
-
-        conversations = new JPanel();
-        conversations.setLayout(new BoxLayout(conversations,
-                BoxLayout.PAGE_AXIS));
-        JScrollPane conversationScroll = new JScrollPane(conversations);
-
-        userNest = new JPanel();
-        userNest.add(userScroll);
-        userNest.setLayout(new BoxLayout(userNest, BoxLayout.PAGE_AXIS));
-        userNest.setOpaque(false);
-
-        conversationNest = new JPanel();
-        conversationNest.add(conversationScroll);
-        conversationNest.setLayout(new BoxLayout(conversationNest,
-                BoxLayout.PAGE_AXIS));
-        conversationNest.setOpaque(false);
-
-        userPanel.add(userNest);
-        userPanel.add(conversationNest);
-        userPanel.setOpaque(true);
-
-        welcome = new JLabel();
-        welcome.setHorizontalAlignment(JLabel.CENTER);
-        
-        ImageIcon avatar = new ImageIcon("icons/avatar" + user.getAvatar() + ".png");
-        JLabel avatarIcon = new JLabel(avatar);
-
-        welcomePanel = new JPanel();
-        welcomePanel.add(welcome);
-        welcomePanel.add(avatarIcon);
-        welcomePanel.setLayout(new BoxLayout(welcomePanel, BoxLayout.LINE_AXIS));
-        Border smallBorder = BorderFactory.createEmptyBorder(15, 5, 5, 5);
-        avatarIcon.setBorder(smallBorder);
-
-        // Add color
-        users.setBackground(Color.white);
-        conversations.setBackground(Color.white);
-        userPanel.setBackground(DARK_BLUE);
-        welcomePanel.setBackground(DARK_BLUE);
-        welcome.setForeground(Color.white);
-
-        // Add padding
-        Border paddingBorder = BorderFactory.createEmptyBorder(5, 10, 5, 10);
-        Border lineBorder = BorderFactory
-                .createBevelBorder(BevelBorder.LOWERED);
-
-        TitledBorder userBorder = BorderFactory.createTitledBorder(EMPTY_BORDER,
-                "Friends");
-        userBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
-        userBorder.setTitleColor(Color.white);
-        userBorder
-                .setTitleFont(userBorder.getTitleFont().deriveFont(Font.BOLD));
-
-        users.setBorder(paddingBorder);
-        userScroll.setBorder(lineBorder);
-        userNest.setBorder(userBorder);
-
-        TitledBorder conversationBorder = BorderFactory.createTitledBorder(
-                EMPTY_BORDER, "Group Chats");
-        conversationBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
-        conversationBorder.setTitleColor(Color.white);
-        conversationBorder.setTitleFont(conversationBorder.getTitleFont()
-                .deriveFont(Font.BOLD));
-
-        conversations.setBorder(paddingBorder);
-        conversationScroll.setBorder(lineBorder);
-        conversationNest.setBorder(conversationBorder);
-
-        Border outerBorder = BorderFactory.createEmptyBorder(0, 10, 10, 10);
-        userPanel.setBorder(outerBorder);
-
-        welcome.setBorder(BorderFactory.createCompoundBorder(
-                welcome.getBorder(), paddingBorder));
-
-        this.setTitle("GUI CHAT");
-
-        userPanelLayout();
-        welcome.setText("<html><b>Welcome, "
-                + this.user.getUsername() + "!</b></html>");
-        welcome.setFont(new Font(welcome.getFont().getName(), Font.PLAIN, 16));
-        
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(logoutButton);
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
-        buttonPanel.setOpaque(true);
-        buttonPanel.setBackground(DARK_BLUE);
-        
-        buttonPanel.setBorder(EMPTY_BORDER);
-        
-        JButton startChatButton = new JButton("Group Chat");
-        startChatButton.addActionListener(new ActionListener() {
-			@Override
-            public void actionPerformed(ActionEvent arg0) {
-	            GroupChatSelectBox box = new GroupChatSelectBox(model);
-	            box.setVisible(true);
-            }
-        });
-
-        buttonPanel.add(startChatButton);
+        JPanel welcomePanel = createWelcomePanel();
+        JPanel userPanel = createUserPanel();
+        JPanel buttonPanel = createButtonPanel();
 
         getContentPane().removeAll();
+        createPostLoginBackgroundLayout(postLoginBackground, welcomePanel,
+                userPanel, buttonPanel);
+        getContentPane().add(postLoginBackground);
 
+    }
+
+    /**
+     * Create the layout for the ChatClient post-login. Will layout vertically
+     * (from top to bottom): welcomePanel, userPanel, buttonPanel
+     * 
+     * @param postLoginBackground
+     *            The JPanel to contain all the Components
+     * @param welcomePanel
+     *            A JPanel containing the welcome message
+     * @param userPanel
+     *            A JPanel containing the buddy list and chat history list
+     * @param buttonPanel
+     *            A JPanel containing a logout button and group chat button
+     */
+    private void createPostLoginBackgroundLayout(JPanel postLoginBackground,
+            JPanel welcomePanel, JPanel userPanel, JPanel buttonPanel) {
         GroupLayout layout = new GroupLayout(postLoginBackground);
         postLoginBackground.setLayout(layout);
 
@@ -445,7 +383,6 @@ public class ChatClient extends JFrame {
         h.addComponent(buttonPanel, GroupLayout.DEFAULT_SIZE,
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
 
-
         Group v = layout.createSequentialGroup();
         v.addComponent(welcomePanel, 50, 50, 50);
         v.addComponent(userPanel, GroupLayout.DEFAULT_SIZE,
@@ -454,64 +391,177 @@ public class ChatClient extends JFrame {
 
         layout.setHorizontalGroup(h);
         layout.setVerticalGroup(v);
+    }
 
-        getContentPane().add(postLoginBackground);
+    /**
+     * Create a JPanel containing a welcome message and the user's avatar
+     * 
+     * @return JPanel corresponding to finished welcomePanel
+     */
+    private JPanel createWelcomePanel() {
+        JLabel welcome = new JLabel();
+        welcome.setHorizontalAlignment(JLabel.CENTER);
+
+        ClassLoader cl = getClass().getClassLoader();
+        URL url = cl.getResource("icons/avatar" + user.getAvatar() + ".png");
+        ImageIcon avatar = new ImageIcon(Toolkit.getDefaultToolkit()
+                .createImage(url));
+        JLabel avatarIcon = new JLabel(avatar);
+
+        JPanel welcomePanel = new JPanel();
+        welcomePanel.add(welcome);
+        welcomePanel.add(avatarIcon);
+        welcomePanel
+                .setLayout(new BoxLayout(welcomePanel, BoxLayout.LINE_AXIS));
+
+        welcome.setText("<html><b>Welcome, " + this.user.getUsername()
+                + "!</b></html>");
+
+        avatarIcon.setBorder(BorderFactory.createEmptyBorder(15, 5, 5, 5));
+        welcomePanel.setBackground(DARK_BLUE);
+        welcome.setForeground(Color.white);
+        welcome.setBorder(BorderFactory.createCompoundBorder(
+                welcome.getBorder(), PADDING_BORDER));
+        welcome.setFont(new Font(welcome.getFont().getName(), Font.PLAIN, 16));
+
+        return welcomePanel;
 
     }
 
-    public void setUserList(Set<User> userList) {
-        synchronized(userList) {
-        	synchronized(users) {
-        		synchronized(userLabels) {
-        			users.removeAll();
-                    for (String label: userLabels.keySet()) {
-                    	userLabels.get(label).setVisible(false);
-                    }
-                    userLabels.clear();
+    /**
+     * Create a JPanel containing the userWindow and conversationWindow, aligned
+     * vertically
+     * 
+     * @return JPanel corresponding to finished userPanel
+     */
+    private JPanel createUserPanel() {
+        JPanel userWindow = createUserWindow();
+        JPanel conversationWindow = createConversationWindow();
 
-                    for (User nextUser : userList) {
-                        if (nextUser.equals(this.user)) {
-                            continue;
-                        }
-                        System.out.println("updating with " + nextUser.getUsername());
-                        JLabel userLabel = new JLabel(nextUser.getUsername());
-                        JPanel userPanel = new JPanel();
-                        ImageIcon avatar = new ImageIcon("icons/avatar" + nextUser.getAvatar() + ".png");
-                        JLabel avatarIcon = new JLabel(avatar);
-                        userPanel.add(avatarIcon);
-                        userPanel.add(userLabel);
-                        userPanel.setOpaque(false);
-                        userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.LINE_AXIS));
-                        userPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-                        userLabels.put(nextUser.getUsername(), userLabel);
-                        new UserListener(userLabel, model, nextUser);
-                        users.add(userPanel);
-                        validate();
-                    }
-                    this.getContentPane().validate();
-                    this.getContentPane().repaint();
-        		}
-        	}
+        JPanel userPanel = new JPanel();
+        userPanel.add(userWindow);
+        userPanel.add(conversationWindow);
+        userPanel.setOpaque(true);
+        userPanel.setBackground(DARK_BLUE);
+        userPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+
+        userPanelLayout(userPanel, userWindow, conversationWindow);
+
+        return userPanel;
+    }
+
+    /**
+     * Create a JPanel containing a scroll window which will contain the list of
+     * all users which are currently online
+     * 
+     * @return JPanel corresponding to the finished userWindow
+     */
+    private JPanel createUserWindow() {
+
+        users = new JPanel();
+        users.setLayout(new BoxLayout(users, BoxLayout.PAGE_AXIS));
+        JScrollPane userScroll = new JScrollPane(users);
+
+        JPanel userNest = new JPanel();
+        userNest.add(userScroll);
+        userNest.setLayout(new BoxLayout(userNest, BoxLayout.PAGE_AXIS));
+
+        userNest.setOpaque(false);
+        users.setBackground(Color.white);
+
+        TitledBorder userBorder = BorderFactory.createTitledBorder(
+                EMPTY_BORDER, "Friends");
+        userBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
+        userBorder.setTitleColor(Color.white);
+        try {
+            userBorder.setTitleFont(userBorder.getTitleFont().deriveFont(
+                    Font.BOLD));
+        } catch (NullPointerException e) {
         }
+
+        users.setBorder(PADDING_BORDER);
+        userScroll.setBorder(LINE_BORDER);
+        userNest.setBorder(userBorder);
+
+        return userNest;
+
     }
 
-    public void addHistory(ChatHistory history, int ID) {
-    	String label = "Empty group chat";
-    	if (history.getParticipants().size() > 0) {
-        	label = "Chat with ";
-            for (User user : history.getParticipants()) {
-                label += user.getUsername() + ", ";
+    /**
+     * Create a JPanel containing a scroll window which will contain the list of
+     * all past group chats so users can view history.
+     * 
+     * @return JPanel corresponding to finished conversationWindow
+     */
+    private JPanel createConversationWindow() {
+        conversations = new JPanel();
+        conversations.setLayout(new BoxLayout(conversations,
+                BoxLayout.PAGE_AXIS));
+        JScrollPane conversationScroll = new JScrollPane(conversations);
+
+        JPanel conversationNest = new JPanel();
+        conversationNest.add(conversationScroll);
+        conversationNest.setLayout(new BoxLayout(conversationNest,
+                BoxLayout.PAGE_AXIS));
+
+        conversationNest.setOpaque(false);
+        conversations.setBackground(Color.white);
+
+        TitledBorder conversationBorder = BorderFactory.createTitledBorder(
+                EMPTY_BORDER, "Group Chats");
+        conversationBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
+        conversationBorder.setTitleColor(Color.white);
+        try {
+            conversationBorder.setTitleFont(conversationBorder.getTitleFont()
+                    .deriveFont(Font.BOLD));
+        } catch (NullPointerException e) {
+        }
+
+        conversations.setBorder(PADDING_BORDER);
+        conversationScroll.setBorder(LINE_BORDER);
+        conversationNest.setBorder(conversationBorder);
+
+        return conversationNest;
+
+    }
+
+    /**
+     * Create a JPanel containing a button which will log the user out when
+     * pressed and a button which will launch a new group chat when pressed.
+     * 
+     * @return JPanel corresponding to finished buttonPanel
+     */
+    private JPanel createButtonPanel() {
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.setActionCommand("logout");
+        logoutButton.addActionListener(model);
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(logoutButton);
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+        buttonPanel.setOpaque(true);
+        buttonPanel.setBackground(DARK_BLUE);
+
+        buttonPanel.setBorder(EMPTY_BORDER);
+
+        JButton startChatButton = new JButton("Group Chat");
+        startChatButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                GroupChatSelectBox box = new GroupChatSelectBox(model);
+                box.setVisible(true);
             }
-            label = label.substring(0, label.length() - 2);
-        }
-        JLabel historyLabel = new JLabel(label);
-        new HistoryListener(historyLabel, model, ID);
-        conversations.add(historyLabel);
-        conversations.revalidate();
-        validate();
+        });
+
+        buttonPanel.add(startChatButton);
+        return buttonPanel;
     }
 
-    public void userPanelLayout() {
+    /**
+     * Create layout for the userPanel, which contains the buddy list as well as
+     * the list of previous group chats (aligned vertically).
+     */
+    private void userPanelLayout(JPanel userPanel, JPanel userNest,
+            JPanel conversationNest) {
         GroupLayout layout = new GroupLayout(userPanel);
         userPanel.setLayout(layout);
 
@@ -529,35 +579,90 @@ public class ChatClient extends JFrame {
 
         layout.setHorizontalGroup(h);
         layout.setVerticalGroup(v);
-
     }
 
-//    private void createGroupLayout() {
-//        GroupLayout layout = new GroupLayout(background);
-//        background.setLayout(layout);
-//
-//        Group h = layout.createParallelGroup();
-//        h.addComponent(welcomePanel, GroupLayout.DEFAULT_SIZE,
-//                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
-//        h.addComponent(userPanel, GroupLayout.DEFAULT_SIZE,
-//                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
-//
-//        Group v = layout.createSequentialGroup();
-//        v.addComponent(welcomePanel, 40, 40, 40);
-//        v.addComponent(userPanel, GroupLayout.DEFAULT_SIZE,
-//                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
-//
-//        layout.setHorizontalGroup(h);
-//        layout.setVerticalGroup(v);
-//
-//    }
+    /**
+     * Update the list of users visible to the user. This method is used to both
+     * remove and add users to the buddy list.
+     * 
+     * @param userList
+     *            A Set of Users which should be on your buddy list
+     */
+    public void setUserList(Set<User> userList) {
+        synchronized (userList) {
+            synchronized (users) {
+                synchronized (userLabels) {
+                    users.removeAll();
+                    for (String label : userLabels.keySet()) {
+                        userLabels.get(label).setVisible(false);
+                    }
+                    userLabels.clear();
 
-    public String welcomePane(String message) {
-        ImageIcon icon = new ImageIcon("icons/chat.png");
-        String username = (String) JOptionPane.showInputDialog(null, message,
-                "Welcome!", JOptionPane.CLOSED_OPTION, icon, null, null);
-        System.out.println(username);
-        return username;
+                    for (User nextUser : userList) {
+                        // Do not add yourself to your own buddy list
+                        if (nextUser.equals(this.user)) {
+                            continue;
+                        }
+                        System.out.println("updating with "
+                                + nextUser.getUsername());
+
+                        // Load avatar
+                        ClassLoader cl = getClass().getClassLoader();
+                        URL url = cl.getResource("icons/avatar"
+                                + nextUser.getAvatar() + ".png");
+                        ImageIcon avatar = new ImageIcon(Toolkit
+                                .getDefaultToolkit().createImage(url));
+                        JLabel avatarIcon = new JLabel(avatar);
+
+                        JLabel userLabel = new JLabel(nextUser.getUsername());
+
+                        // Create panel with <avatar> <username>
+                        JPanel userPanel = new JPanel();
+                        userPanel.add(avatarIcon);
+                        userPanel.add(userLabel);
+                        userPanel.setOpaque(false);
+                        userPanel.setLayout(new BoxLayout(userPanel,
+                                BoxLayout.LINE_AXIS));
+                        userPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                        // Add panel to buddy list
+                        users.add(userPanel);
+
+                        userLabels.put(nextUser.getUsername(), userLabel);
+                        new UserListener(userLabel, model, nextUser);
+
+                        validate();
+                    }
+                    this.getContentPane().validate();
+                    this.getContentPane().repaint();
+                }
+            }
+        }
+    }
+
+    /**
+     * Add a new ChatHistory corresponding to Conversation with ID to the list
+     * of ChatHistories.
+     * 
+     * @param history
+     *            A ChatHistory containing the history to be added
+     * @param ID
+     *            An int representing the ID of the Conversation to which the
+     *            ChatHistory pertains
+     */
+    public void addHistory(ChatHistory history, int ID) {
+    	String label = "Empty group chat";
+    	if (history.getParticipants().size() > 0) {
+        	label = "Chat with ";
+            for (User user : history.getParticipants()) {
+                label += user.getUsername() + ", ";
+            }
+            label = label.substring(0, label.length() - 2);
+        }
+        JLabel historyLabel = new JLabel(label);
+        new HistoryListener(historyLabel, model, ID);
+        conversations.add(historyLabel);
+        conversations.revalidate();
+        validate();
     }
 
     public ChatClientModel getModel() {

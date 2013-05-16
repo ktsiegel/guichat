@@ -62,13 +62,13 @@ public class AvatarListener implements MouseListener {
 
     @Override
     public void mousePressed(MouseEvent arg0) {
-        // TODO Auto-generated method stub
+        // Do nothing
         
     }
 
     @Override
     public void mouseReleased(MouseEvent arg0) {
-        // TODO Auto-generated method stub
+        // Do nothing
         
     }
 }
