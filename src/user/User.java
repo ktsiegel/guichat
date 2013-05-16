@@ -1,31 +1,44 @@
 package user;
 
 /**
- * Corresponds to a single User of the Chat. Each User will choose a
- * unique username upon login.
- *
+ * Corresponds to a single User of the Chat. Each User will choose a unique
+ * username upon login.
+ * 
+ * Two Users are identical if and only if they have the same username.
  */
 public class User implements Comparable<User> {
-    
-    private final String username; //The username of the user.
-    private int avatar; //The integer ID of the avatar that corresponds to the user.
-    
+
+    private final String username; // The username of the user.
+    private int avatar; // The integer ID of the avatar that corresponds to the
+                        // user.
+
+    /**
+     * Creates a new User. Each user has a String username which is used to
+     * identify them. Sets the avatar to -1 to signify that there is no avatar.
+     * 
+     * @param username
+     *            The username given to the user.
+     */
     public User(String username) {
         this.username = username;
         this.avatar = -1;
     }
-    
+
     /**
-     * Create a new User. Each user has a String username which is
-     * used to identify them.
+     * Create a new User. Each user has a String username which is used to
+     * identify them.
      * 
      * @param username
+     *            The username given to the user.
+     * @param avatar
+     *            The avatar ID given to the user, which must be a positive
+     *            integer.
      */
     public User(String username, int avatar) {
         this.username = username;
         this.avatar = avatar;
     }
-    
+
     /**
      * Compares this user to another user using the username of each user.
      */
@@ -50,7 +63,8 @@ public class User implements Comparable<User> {
     /**
      * Determines whether this user is equal to something.
      * 
-     * @param obj The object to which this user may or may not be equal.
+     * @param obj
+     *            The object to which this user may or may not be equal.
      * @return true if this user is equal to obj; false otherwise.
      */
     @Override
@@ -69,8 +83,13 @@ public class User implements Comparable<User> {
             return false;
         return true;
     }
-    
-    //ACCESSORS
-    public String getUsername() {return this.username;}
-    public int getAvatar() {return this.avatar;}
+
+    // ACCESSORS
+    public String getUsername() {
+        return this.username;
+    }
+
+    public int getAvatar() {
+        return this.avatar;
+    }
 }
