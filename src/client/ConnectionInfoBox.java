@@ -31,23 +31,20 @@ public class ConnectionInfoBox extends JFrame{
 		this.setSize(300, 150);
 		
 		//Borders used in the ConnectionInfoBox GUI
-		Border lineBorder = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
 		Border paddingBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
 		
 		IPLabel = new JLabel("Input IP Address of server host.");
 		IPLabel.setForeground(Color.WHITE);
 		IPField = new JTextField();
-		IPField.setBorder(lineBorder);
 		IPField.setText("192.30.35.221");
-		//IPField.setSize(150, 30);
-		
-		portLabel = new JLabel("Inport port number.");
+				
+		portLabel = new JLabel("Input port number.");
 		portLabel.setForeground(Color.WHITE);
 		portField = new JTextField();
-		portField.setBorder(lineBorder);
 		portField.setText("4567");
-		//portField.setSize(150, 30);
 		
+		this.setResizable(false);
+				
 		submitButton = new JButton("Start Chat Client!");
 		submitButton.addActionListener(new ActionListener() {
 			@Override
