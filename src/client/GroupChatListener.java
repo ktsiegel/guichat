@@ -19,6 +19,9 @@ public class GroupChatListener implements MouseListener {
     private final GroupChatSelectBox box;
     private boolean selected;
     
+    Color DARK_BLUE = new Color(0, 51, 102);
+    Color LIGHT_BLUE = new Color(102, 178, 255);
+    
     public GroupChatListener(JLabel userLabel, GroupChatSelectBox box) {
         this.userLabel = userLabel;
         this.box = box;
@@ -36,12 +39,12 @@ public class GroupChatListener implements MouseListener {
     @Override
     public void mouseClicked(MouseEvent arg0) {
         if (!box.containsSelected(this.userLabel)) {
-        	userLabel.setForeground(new Color(102, 178, 255)); //light blue
+        	userLabel.setForeground(LIGHT_BLUE);
         	box.addSelected(this.userLabel);
         	selected = true;
         }
         else {
-        	userLabel.setForeground(new Color(0,0,0)); //black
+        	userLabel.setForeground(Color.black); //black
         	box.removeSelected(this.userLabel);
         	selected = false;
         }
@@ -54,7 +57,7 @@ public class GroupChatListener implements MouseListener {
     @Override
     public void mouseEntered(MouseEvent arg0) {
         if (!selected) {
-        	userLabel.setForeground(new Color(102, 178, 255)); //light blue
+        	userLabel.setForeground(LIGHT_BLUE); //light blue
         }
     }
 
