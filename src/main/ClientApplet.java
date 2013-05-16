@@ -3,7 +3,7 @@ package main;
 import javax.swing.JApplet;
 import javax.swing.SwingUtilities;
 
-import client.ChatClient;
+import client.ConnectionInfoBox;
 
 public class ClientApplet extends JApplet {
 
@@ -15,7 +15,7 @@ public class ClientApplet extends JApplet {
 	public void init() {
 		SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new ChatClient("192.30.35.221","4567");
+            	new ConnectionInfoBox();
             }
         });
 	}
