@@ -15,7 +15,7 @@ public class ClientApplet extends JApplet {
 	public void init() {
 		SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new ChatClient();
+                new ChatClient("192.30.35.221","4567");
             }
         });
 	}
