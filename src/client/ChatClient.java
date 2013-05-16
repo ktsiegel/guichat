@@ -56,10 +56,12 @@ public class ChatClient extends JFrame {
     private final ChatClientModel model;
     private JPanel login;
     private JTextField usernameBox;
-    private List<JLabel> avatarLabels;
+    private JLabel[] avatarLabels;
+    private JPanel avatars;
+    
     Color DARK_BLUE = new Color(0, 51, 102);
     Color LIGHT_BLUE = new Color(102, 178, 255);
-    Color MEDIUM_BLUE = new Color(0, 102, 204);
+    Border EMPTY_BORDER = BorderFactory.createEmptyBorder(0, 0, 0, 0);
 
     public ChatClient() {
         this.model = new ChatClientModel(this);
@@ -79,14 +81,12 @@ public class ChatClient extends JFrame {
         this.setVisible(true);
 
         this.model.startListening();
-
     }
 
     public void startLoginWindow() {
         background = new JPanel();
-        background.setBackground(new Color(0, 51, 102));
+        background.setBackground(DARK_BLUE);
         login = new JPanel();
-        JPanel avatars = new JPanel();
         
         ImageIcon imageIcon = new ImageIcon("icons/chat.jpg");
         icon = new JLabel(imageIcon);
@@ -97,7 +97,7 @@ public class ChatClient extends JFrame {
                 String username = usernameBox.getText();
                 int a = 1;
                 for (int i = 1; i <= 12; i++) {
-                    JLabel label = avatarLabels.get(i - 1);
+                    JLabel label = avatarLabels[i - 1];
                     if (label.getBackground().equals(Color.white)) {
                         a = i;
                     }
@@ -122,12 +122,13 @@ public class ChatClient extends JFrame {
         loginButton.addActionListener(listener);
         usernameBox.addActionListener(listener);
 
-        Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
 
         login.setLayout(new BoxLayout(login, BoxLayout.PAGE_AXIS));
         login.setOpaque(false);
+        
+        getAvatars();
 
-        JPanel avatarsRow1 = new JPanel();
+        /*JPanel avatarsRow1 = new JPanel();
         JPanel avatarsRow2 = new JPanel();
         JPanel avatarsRow3 = new JPanel();
 
@@ -160,7 +161,7 @@ public class ChatClient extends JFrame {
 
         for (JLabel label : avatarLabels) {
             label.setOpaque(true);
-            label.setBorder(emptyBorder);
+            label.setBorder(EMPTY_BORDER);
             label.setBackground(DARK_BLUE);
             label.addMouseListener(new AvatarListener(avatarLabels, label));
         }
@@ -196,14 +197,14 @@ public class ChatClient extends JFrame {
         avatars.add(avatarsRow1);
         avatars.add(avatarsRow2);
         avatars.add(avatarsRow3);
-        avatars.setLayout(new BoxLayout(avatars, BoxLayout.PAGE_AXIS));
-        avatarsRow1.setOpaque(false);
-        avatarsRow2.setOpaque(false);
-        avatarsRow3.setOpaque(false);
-        avatars.setOpaque(false);
+        avatars.setLayout(new BoxLayout(avatars, BoxLayout.PAGE_AXIS));*/
+        //avatarsRow1.setOpaque(false);
+        //avatarsRow2.setOpaque(false);
+        //avatarsRow3.setOpaque(false);
+        //avatars.setOpaque(false);
 
         TitledBorder loginBorder = BorderFactory.createTitledBorder(
-                emptyBorder, "Enter Username");
+                EMPTY_BORDER, "Enter Username");
         loginBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         loginBorder.setTitleColor(Color.white);
         loginBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
@@ -212,7 +213,7 @@ public class ChatClient extends JFrame {
         login.setBorder(loginBorder);
 
         TitledBorder avatarBorder = BorderFactory.createTitledBorder(
-                emptyBorder, "Choose Avatar");
+                EMPTY_BORDER, "Choose Avatar");
         avatarBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         avatarBorder.setTitleColor(Color.white);
         avatarBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
@@ -257,11 +258,42 @@ public class ChatClient extends JFrame {
                 new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
 
     }
+    
+    public void getAvatars() {
+        avatars = new JPanel();
+        JPanel[] avatarRows = { new JPanel(), new JPanel(), new JPanel() };
+        avatarLabels = new JLabel[12];
+        for (int i = 1; i <= 12; i++) {
+            avatarLabels[i - 1] = new JLabel(new ImageIcon("icons/avatar" + i + ".png"));
+        }
+        for (JLabel label : avatarLabels) {
+            label.setOpaque(true);
+            label.setBorder(EMPTY_BORDER);
+            label.setBackground(DARK_BLUE);
+            label.addMouseListener(new AvatarListener(avatarLabels, label));
+        }
+
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 4; col++) {
+                avatarRows[row].add(avatarLabels[4 * row + col]);
+                avatarRows[row].setOpaque(false);
+            }
+        }
+        
+        for (JPanel row : avatarRows) {
+            avatars.add(row);
+        }
+        
+        avatars.setOpaque(false);
+        avatars.setLayout(new BoxLayout(avatars, BoxLayout.PAGE_AXIS));
+    }
+
+    
+
 
     public void usernameTakenUpdate() {
-        Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
         TitledBorder loginBorder = BorderFactory.createTitledBorder(
-                emptyBorder, "Username taken");
+                EMPTY_BORDER, "Username taken");
         loginBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         loginBorder.setTitleColor(Color.white);
         loginBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
@@ -275,9 +307,8 @@ public class ChatClient extends JFrame {
     }
     
     public void usernameIllegalUpdate() {
-        Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
         TitledBorder loginBorder = BorderFactory.createTitledBorder(
-                emptyBorder, "Username has illegal characters");
+                EMPTY_BORDER, "Username has illegal characters");
         loginBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         loginBorder.setTitleColor(Color.white);
         loginBorder.setTitleFont(loginBorder.getTitleFont().deriveFont(
@@ -340,17 +371,16 @@ public class ChatClient extends JFrame {
         // Add color
         users.setBackground(Color.white);
         conversations.setBackground(Color.white);
-        userPanel.setBackground(new Color(0, 51, 102));
-        welcomePanel.setBackground(new Color(0, 51, 102));
+        userPanel.setBackground(DARK_BLUE);
+        welcomePanel.setBackground(DARK_BLUE);
         welcome.setForeground(Color.white);
 
         // Add padding
         Border paddingBorder = BorderFactory.createEmptyBorder(5, 10, 5, 10);
-        Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
         Border lineBorder = BorderFactory
                 .createBevelBorder(BevelBorder.LOWERED);
 
-        TitledBorder userBorder = BorderFactory.createTitledBorder(emptyBorder,
+        TitledBorder userBorder = BorderFactory.createTitledBorder(EMPTY_BORDER,
                 "Friends");
         userBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         userBorder.setTitleColor(Color.white);
@@ -362,7 +392,7 @@ public class ChatClient extends JFrame {
         userNest.setBorder(userBorder);
 
         TitledBorder conversationBorder = BorderFactory.createTitledBorder(
-                emptyBorder, "Group Chats");
+                EMPTY_BORDER, "Group Chats");
         conversationBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         conversationBorder.setTitleColor(Color.white);
         conversationBorder.setTitleFont(conversationBorder.getTitleFont()
@@ -391,7 +421,7 @@ public class ChatClient extends JFrame {
         buttonPanel.setOpaque(true);
         buttonPanel.setBackground(DARK_BLUE);
         
-        buttonPanel.setBorder(emptyBorder);
+        buttonPanel.setBorder(EMPTY_BORDER);
         
         JButton startChatButton = new JButton("Group Chat");
         startChatButton.addActionListener(new ActionListener() {

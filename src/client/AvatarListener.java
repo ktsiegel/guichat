@@ -8,13 +8,13 @@ import java.util.List;
 import javax.swing.JLabel;
 
 public class AvatarListener implements MouseListener {
-    List<JLabel> avatarLabels;
+    JLabel[] avatarLabels;
     JLabel avatarLabel;
     Color DARK_BLUE = new Color(0, 51, 102);
     Color LIGHT_BLUE = new Color(102, 178, 255);
     Color MEDIUM_BLUE = new Color(0, 102, 204);
 
-    public AvatarListener(List<JLabel> avatarLabels, JLabel avatarLabel) {
+    public AvatarListener(JLabel[] avatarLabels, JLabel avatarLabel) {
         this.avatarLabels = avatarLabels;
         this.avatarLabel = avatarLabel;
     }
