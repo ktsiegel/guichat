@@ -149,6 +149,7 @@ public class ChatClient extends JFrame {
         this.getContentPane().setLayout(
                 new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
         this.setSize(200, 500);
+        this.setResizable(false);
         this.setVisible(true);
 
     }
@@ -323,7 +324,7 @@ public class ChatClient extends JFrame {
      */
     private void usernameIllegalUpdate(JPanel login, JTextField usernameBox) {
         TitledBorder loginBorder = BorderFactory.createTitledBorder(
-                EMPTY_BORDER, "Username has illegal characters");
+                EMPTY_BORDER, "Invalid Username");
         loginBorder.setTitlePosition(TitledBorder.ABOVE_TOP);
         loginBorder.setTitleColor(Color.white);
         try {
@@ -354,6 +355,7 @@ public class ChatClient extends JFrame {
         createPostLoginBackgroundLayout(postLoginBackground, welcomePanel,
                 userPanel, buttonPanel);
         getContentPane().add(postLoginBackground);
+        this.setResizable(true);
 
     }
 
