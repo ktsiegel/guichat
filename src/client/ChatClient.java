@@ -500,25 +500,25 @@ public class ChatClient extends JFrame {
 
     }
 
-    private void createGroupLayout() {
-        GroupLayout layout = new GroupLayout(background);
-        background.setLayout(layout);
-
-        Group h = layout.createParallelGroup();
-        h.addComponent(welcomePanel, GroupLayout.DEFAULT_SIZE,
-                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
-        h.addComponent(userPanel, GroupLayout.DEFAULT_SIZE,
-                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
-
-        Group v = layout.createSequentialGroup();
-        v.addComponent(welcomePanel, 40, 40, 40);
-        v.addComponent(userPanel, GroupLayout.DEFAULT_SIZE,
-                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
-
-        layout.setHorizontalGroup(h);
-        layout.setVerticalGroup(v);
-
-    }
+//    private void createGroupLayout() {
+//        GroupLayout layout = new GroupLayout(background);
+//        background.setLayout(layout);
+//
+//        Group h = layout.createParallelGroup();
+//        h.addComponent(welcomePanel, GroupLayout.DEFAULT_SIZE,
+//                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+//        h.addComponent(userPanel, GroupLayout.DEFAULT_SIZE,
+//                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+//
+//        Group v = layout.createSequentialGroup();
+//        v.addComponent(welcomePanel, 40, 40, 40);
+//        v.addComponent(userPanel, GroupLayout.DEFAULT_SIZE,
+//                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+//
+//        layout.setHorizontalGroup(h);
+//        layout.setVerticalGroup(v);
+//
+//    }
 
     public String welcomePane(String message) {
         ImageIcon icon = new ImageIcon("icons/chat.png");

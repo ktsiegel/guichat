@@ -6,19 +6,22 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JLabel;
 
-import user.User;
+/**
+ * A GroupChatListener detects mouse inputs from the user on JLabels
+ * that represent users with which the user can have a group chat.
+ * This listener then modifies the GUI accordingly and/or alerts the model 
+ * that these mouse inputs occurred.
+ */
 
 public class GroupChatListener implements MouseListener {
 
     private final JLabel userLabel;
     private final GroupChatSelectBox box;
-    private final User friend;
     private boolean selected;
     
-    public GroupChatListener(JLabel userLabel, GroupChatSelectBox box, User friend) {
+    public GroupChatListener(JLabel userLabel, GroupChatSelectBox box) {
         this.userLabel = userLabel;
         this.box = box;
-        this.friend = friend;
         userLabel.addMouseListener(this);
         selected = false;
     }

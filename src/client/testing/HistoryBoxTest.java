@@ -3,8 +3,6 @@ package client.testing;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Test;
-
 import client.HistoryBox;
 import user.User;
 import conversation.ChatHistory;

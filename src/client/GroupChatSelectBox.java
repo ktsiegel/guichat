@@ -62,7 +62,7 @@ public class GroupChatSelectBox extends JFrame{
 		for (User user: clientModel.getUsers()) {
 			if (!user.equals(clientModel.getUser())) {
 				JLabel label = new JLabel(user.getUsername());
-				new GroupChatListener(label, this, user);
+				new GroupChatListener(label, this);
 				display.add(label);
 			}
 		}
