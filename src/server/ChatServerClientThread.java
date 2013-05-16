@@ -47,8 +47,6 @@ public class ChatServerClientThread implements Runnable {
 
             for (String line = in.readLine(); line != null; line = in
                     .readLine()) {
-                System.out.println("server received message: " + line);
-
                 this.server.addMessageToQueue(line, socket);
             }
         } catch (IOException e) {
@@ -56,7 +54,6 @@ public class ChatServerClientThread implements Runnable {
         } finally {
             // Log the user out if the user did not log out on his or her own.
             this.server.forceLogout(socket);
-            System.out.println("CLOSING CHAT SERVER CLIENT THREAD");
 
             try {
                 out.close();
