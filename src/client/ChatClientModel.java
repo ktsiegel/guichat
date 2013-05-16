@@ -8,12 +8,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -25,15 +23,32 @@ import conversation.ChatHistory;
 
 import user.User;
 
+/**
+ * The ChatClientModel is the implementation of the model portion of the
+ * model-view-controller design pattern of our Chat Client. It contains
+ * the information needed for each user to use the chat client and
+ * for the chat client to communicate with the server.
+ */
+
 public class ChatClientModel implements ActionListener {
-    private User user;
-    private final Socket socket;
-    private final ChatClient client;
-    private final ConcurrentMap<Integer, ChatBoxModel> chats;
-    private final BlockingQueue<String> messages;
-    private ConcurrentMap<Integer, ChatHistory> history;
-    private ConcurrentMap<String, Integer> conversationIDMap;
-    private Set<User> users;
+    private User user; // The user represented by this ChatClientModel object
+    private final Socket socket; // The socket through which the client connects
+                                 // to the server
+    private final ChatClient client; // The chat client GUI
+    private final ConcurrentMap<Integer, ChatBoxModel> chats; // The list of all
+                                                              // current open
+                                                              // chats
+    private final BlockingQueue<String> messages; // The queue of messages from
+                                                  // the server that the
+                                                  // ChatClientModel must
+                                                  // process
+    private ConcurrentMap<Integer, ChatHistory> history; // The chat history
+    private ConcurrentMap<String, Integer> conversationIDMap; // For use in
+                                                              // private chats;
+                                                              // connects
+                                                              // usernames with
+                                                              // past chat IDs
+    private Set<User> users; // The set of users who are currently online
 
     public ChatClientModel(ChatClient client) {
         this.client = client;
@@ -49,16 +64,20 @@ public class ChatClientModel implements ActionListener {
         this.messages = new LinkedBlockingQueue<String>();
         this.history = new ConcurrentHashMap<Integer, ChatHistory>();
         this.conversationIDMap = new ConcurrentHashMap<String, Integer>();
-        this.users = new HashSet<User>();
+        this.users = new TreeSet<User>();
     }
 
+    /**
+     * Creates a separate thread for listening for output from the server to the
+     * client.
+     */
     public void startListening() {
         ClientListeningThread listener = new ClientListeningThread(this);
         listener.start();
     }
 
     /**
-     * Quit all of the open chats.
+     * Quit all of the open chats and submit a logout command to the server.
      */
     public void quitChats() {
         for (Integer ID : chats.keySet()) {
@@ -69,10 +88,23 @@ public class ChatClientModel implements ActionListener {
     }
 
     /**
-     * Must be run from the event thread to avoid concurrency issues.
+     * Attempt to set a client's username and avatar by submitting a login
+     * command to the server and seeing if the server reports that the login was
+     * successful.
+     * 
+     * @throws RuntimeException
+     *             if an unusual message is sent from the server after the login
+     *             command is submitted.
+     * 
+     * @precondition Must be run from the event thread to avoid concurrency
+     *               issues.
      * 
      * @param username
-     * @return
+     *            The username that the user has inputted.
+     * @param avatar
+     *            The integer ID of the username that the user chose.
+     * @return whether the login was successful (i.e. the username was valid and
+     *         not taken)
      */
     public boolean tryUsername(String username, int avatar) {
         if (username != null && !username.equals("")) {
@@ -100,7 +132,8 @@ public class ChatClientModel implements ActionListener {
     }
 
     /**
-     * Submit a start command to the server
+     * If the chat already exists, but is hidden, make the associated chat box
+     * visible. Otherwise, submit a chat start command to the server.
      * 
      * @param other
      *            The User with which the client wants to chat
@@ -117,6 +150,12 @@ public class ChatClientModel implements ActionListener {
         }
     }
 
+    /**
+     * Create a group chat by sending a group_chat_start command to all of the
+     * users invited to the group chat.
+     * 
+     * @param others
+     */
     public void addGroupChat(Set<User> others) {
         String command = "group_chat_start " + this.user.getUsername() + " ";
         for (User other : others) {
@@ -125,42 +164,79 @@ public class ChatClientModel implements ActionListener {
         submitCommand(command.substring(0, command.length() - 1));
     }
 
-    public void removeChat(int conversationID) {
-        System.out.println(this.chats.toString());
-        if (this.chats.containsKey(conversationID)) {
-            System.out.println("removing conversation "
-                    + Integer.toString(conversationID));
-            ChatBoxModel boxModel = this.chats.remove(conversationID);
-            ChatBox box = boxModel.getChatBox();
-            String message = box.getDisplay().getText();
-            Set<User> historyOthers = new HashSet<User>();
-            Set<User> others = box.getOthers();
-            for (User user: others) {
-            	historyOthers.add(user);
-            }
-            Set<User> oldOthers = box.getLeftChat();
-            for (User user: oldOthers) {
-            	historyOthers.add(user);
-            }
-            ChatHistory currentHistory = new ChatHistory(historyOthers, message);
-            history.put(conversationID, currentHistory);
-            client.addHistory(currentHistory, conversationID);
-            boxModel.quit();
-        }
-    }
-
-    public void showChatHistory(int ID) {
-        ChatHistory currentHistory = history.get(ID);
-        HistoryBox box = new HistoryBox(currentHistory);
-        box.setVisible(true);
-    }
-
+    /**
+     * Alert the server that a user is leaving a chat, then remove the actual
+     * chat.
+     * 
+     * @param ID
+     *            The ID of the chat that the user is leaving.
+     */
     public void exitChat(int ID) {
         submitCommand("group_chat_leave " + Integer.toString(ID) + " "
                 + user.getUsername());
         removeChat(ID);
     }
 
+    /**
+     * Remove this user from a particular chat, storing the chat history in the
+     * process.
+     * 
+     * @param conversationID
+     *            The ID of the chat conversation from which the user should be
+     *            removed.
+     */
+    public void removeChat(int conversationID) {
+        System.out.println(this.chats.toString()); // debugging code
+        if (this.chats.containsKey(conversationID)) {
+            System.out.println("removing conversation "
+                    + Integer.toString(conversationID)); // debugging code
+            // Get text associated with this conversation for the purposes of
+            // storing history.
+            ChatBoxModel boxModel = this.chats.remove(conversationID);
+            ChatBox box = boxModel.getChatBox();
+            String message = box.getDisplay().getText();
+
+            Set<User> historyOthers = new HashSet<User>(); // the set that will
+                                                           // contain
+                                                           // all of the people
+                                                           // who were ever
+                                                           // in the group chat
+            Set<User> others = box.getOthers();
+            for (User user : others) {
+                historyOthers.add(user);
+            }
+            Set<User> oldOthers = box.getLeftChat();
+            for (User user : oldOthers) {
+                historyOthers.add(user);
+            }
+            ChatHistory currentHistory = new ChatHistory(historyOthers, message);
+            history.put(conversationID, currentHistory); // Store chat history
+            client.addHistory(currentHistory, conversationID);
+            boxModel.quit();
+        }
+    }
+
+    /**
+     * Display the chat history of the chat associated with ID in a new
+     * HistoryBox.
+     * 
+     * @param ID
+     *            The ID of the chat for which we want to view the history
+     */
+    public void showChatHistory(int ID) {
+        ChatHistory currentHistory = history.get(ID);
+        HistoryBox box = new HistoryBox(currentHistory);
+        box.setVisible(true);
+    }
+
+    /**
+     * Sends a message using say commands to the server, where it will be sent
+     * to the appropriate recipients.
+     * 
+     * @param ID
+     *            The ID corresponding to the chat
+     * @param text
+     */
     public void sendChat(int ID, String text) {
         // divide text into multiple lines
         StringTokenizer lineBreaker = new StringTokenizer(text, "\n");
@@ -170,6 +246,13 @@ public class ChatClientModel implements ActionListener {
         }
     }
 
+    /**
+     * Alerts the server that this user is typing.
+     * 
+     * @param ID
+     *            The ID corresponding to the chat box in which this user is
+     *            typing.
+     */
     public void sendTyping(int ID) {
         submitCommand("typing " + Integer.toString(ID) + " "
                 + user.getUsername());
@@ -231,216 +314,337 @@ public class ChatClientModel implements ActionListener {
      *            The output from the server.
      */
     public void handleRequest(String output) {
-        final StringTokenizer outTokenizer = new StringTokenizer(output);
         if (output.matches("login_success")) {
-            try {
-                this.messages.put(output);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            processLoginSuccessCommand(output);
         } else if (output.matches("login_invalid")) {
-            try {
-                this.messages.put(output);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            processLoginInvalidCommand(output);
         } else if (output.matches("user_joins [A-Za-z0-9]+ \\d+")) {
-            outTokenizer.nextToken();
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    String username = outTokenizer.nextToken();
-                    int avatar = Integer.parseInt(outTokenizer.nextToken());
-                    users.add(new User(username, avatar));
-                    client.setUserList(users);
-
-                    // find private conversation with user
-                    if (conversationIDMap.containsKey(username)) {
-                        ChatBoxModel temp = chats.get(conversationIDMap
-                                .get(username));
-                        temp.addMessageToDisplay(username
-                                + " has logged back in.");
-                    }
-                }
-            });
+            processUserJoinsCommand(output);
         } else if (output.matches("user_leaves [A-Za-z0-9]+")) {
-            outTokenizer.nextToken();
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    String username = outTokenizer.nextToken();
-                    users.remove(new User(username));
-                    client.setUserList(users);
-
-                    // find private conversation with user
-                    if (conversationIDMap.containsKey(username)) {
-                        ChatBoxModel temp = chats.get(conversationIDMap
-                                .get(username));
-                        temp.addMessageToDisplay(username
-                                + " has logged off and can no longer receive messages.");
-                    }
-                }
-            });
+            processUserLeavesCommand(output);
         } else if (output.matches("chat_start \\d+ [A-Za-z0-9]+ [A-Za-z0-9]+")) {
-            outTokenizer.nextToken();
-            final int ID = Integer.parseInt(outTokenizer.nextToken());
-            final String username1 = outTokenizer.nextToken();
-            final String username2 = outTokenizer.nextToken();
-            if (!chats.containsKey(ID)) {
-                if (username1.equals(this.user.getUsername())) {
-                    final ChatClientModel temp = this;
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            if (!conversationIDMap.containsKey(username2)) {
-                                conversationIDMap.put(username2, ID);
-                            }
-                            ChatBox box = new ChatBox(temp, ID,
-                                    user.getUsername() + ": chat with "
-                                            + username2, false);
-                            box.setVisible(true);
-                            chats.put(ID, box.getModel());
-                        }
-                    });
-                } else if (username2.equals(this.user.getUsername())) {
-                    final ChatClientModel temp = this;
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            if (!conversationIDMap.containsKey(username1)) {
-                                conversationIDMap.put(username1, ID);
-                            }
-                            ChatBox box = new ChatBox(temp, ID,
-                                    user.getUsername() + ": chat with "
-                                            + username1, false);
-                            chats.put(ID, box.getModel());
-                        }
-                    });
-                } else {
-                    // pass
-                }
-            } else {
-                if (username1.equals(this.user.getUsername())) {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            chats.get(ID)
-                                    .addMessageToDisplay(
-                                            username2
-                                                    + " has joined the conversation.");
-                            if (history.containsKey(ID)) {
-                                chats.get(ID)
-                                        .getChatBox()
-                                        .appendMessage(
-                                                history.get(ID).getHistory());
-                            }
-                        }
-                    });
-                } else if (username2.equals(this.user.getUsername())) {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            chats.get(ID)
-                                    .addMessageToDisplay(
-                                            username1
-                                                    + " has joined the conversation.");
-                            if (history.containsKey(ID)) {
-                                chats.get(ID)
-                                        .getChatBox()
-                                        .appendMessage(
-                                                history.get(ID).getHistory());
-                            }
-                        }
-                    });
-                } else {
-                    // pass
-                }
-            }
+            processChatStartCommand(output);
         } else if (output.matches("group_chat_start \\d+")) {
-            outTokenizer.nextToken();
-            final int ID = Integer.parseInt(outTokenizer.nextToken());
-            if (!chats.containsKey(ID)) {
-                final ChatClientModel temp = this;
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        ChatBox box = new ChatBox(temp, ID, "Chat of "
-                                + user.getUsername(), true);
-                        chats.put(ID, box.getModel());
-                        box.setVisible(true);
-                    }
-                });
-            } else {
-                // this shouldn't happen
-            }
+            processGroupChatStartCommand(output);
         } else if (output.matches("group_chat_join \\d+ [A-Za-z0-9 ]+")) {
-            outTokenizer.nextToken();
-            final int ID = Integer.parseInt(outTokenizer.nextToken());
-            if (!chats.containsKey(ID)) {
-                final String username = outTokenizer.nextToken();
-                if (username.equals(this.user.getUsername())) {
-                    // pass: this shouldn't happen
-                } else {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            chats.get(ID).addMessageToDisplay(
-                                    username + " has joined the conversation.");
-                            // if (!conversationIDMap.containsKey(username)) {
-                            // conversationIDMap.put(username, ID);
-                            // }
-                            chats.get(ID).getChatBox()
-                                    .addOther(new User(username));
-                            if (history.containsKey(ID)) {
-                                chats.get(ID)
-                                        .getChatBox()
-                                        .appendMessage(
-                                                history.get(ID).getHistory());
-                            }
-                        }
-                    });
-                }
-            }
+            processGroupChatJoinCommand(output);
         } else if (output.matches("group_chat_leave \\d+ [A-Za-z0-9]+")) {
-            outTokenizer.nextToken();
-            final int ID = Integer.parseInt(outTokenizer.nextToken());
-            final String username = outTokenizer.nextToken();
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    chats.get(ID).addMessageToDisplay(
-                            username + " has left the conversation.");
-                    chats.get(ID).getChatBox().removeOther(new User(username));
-                }
-            });
+            processGroupChatLeaveCommand(output);
         } else if (output.matches("say \\d+ [A-Za-z0-9]+ .*")) {
-            outTokenizer.nextToken();
-            final ChatBoxModel currentChatModel = chats.get(Integer
-                    .parseInt(outTokenizer.nextToken()));
-            String message = output;
-            for (int i = 0; i < 3; i++) {
-                message = message.substring(message.indexOf(" ") + 1);
-            }
-
-            final String chatMessage = message;
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    currentChatModel.addChatToDisplay(outTokenizer.nextToken(),
-                            chatMessage);
-                }
-            });
+            processSayCommand(output);
         } else if (output.matches("typing \\d+ [A-Za-z0-9]+")) {
-            outTokenizer.nextToken();
-            final ChatBoxModel currentChatModel = chats.get(Integer
-                    .parseInt(outTokenizer.nextToken()));
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    currentChatModel.markTyping(outTokenizer.nextToken());
-                }
-            });
+            processTypingCommand(output);
         } else if (output.matches("cleared \\d+ [A-Za-z0-9]+")) {
-            outTokenizer.nextToken();
-            final ChatBoxModel currentChatModel = chats.get(Integer
-                    .parseInt(outTokenizer.nextToken()));
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    currentChatModel.markCleared(outTokenizer.nextToken());
-                }
-            });
+            processClearedCommand(output);
         } else {
             throw new RuntimeException("Illegal message from server: " + output);
         }
+    }
+
+    // HELPER METHODS FOR HANDLEREQUEST METHOD
+
+    /**
+     * Alerts the user that the login attempt was a success.
+     * 
+     * @param output
+     *            The message from the server indicating the login success.
+     */
+    public void processLoginSuccessCommand(String output) {
+        try {
+            this.messages.put(output);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Alerts the user that the login attempt was a failure.
+     * 
+     * @param output
+     *            The message from the server indicating the login attempt was a
+     *            failure.
+     */
+    public void processLoginInvalidCommand(String output) {
+        try {
+            this.messages.put(output);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Alerts the user that some user has logged in.
+     * 
+     * @param output
+     *            The message from the server indicating that a user has logged
+     *            in.
+     */
+    public void processUserJoinsCommand(String output) {
+        final StringTokenizer outTokenizer = new StringTokenizer(output);
+        outTokenizer.nextToken();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                String username = outTokenizer.nextToken();
+                int avatar = Integer.parseInt(outTokenizer.nextToken());
+                users.add(new User(username, avatar));
+                client.setUserList(users);
+
+                // find private conversation with user
+                if (conversationIDMap.containsKey(username)) {
+                    ChatBoxModel temp = chats.get(conversationIDMap
+                            .get(username));
+                    temp.addMessageToDisplay(username + " has logged back in.");
+                }
+            }
+        });
+    }
+
+    /**
+     * Alerts the user that some user has logged out.
+     * 
+     * @param output
+     *            The message from the server indicating that a user has logged
+     *            out.
+     */
+    public void processUserLeavesCommand(String output) {
+        final StringTokenizer outTokenizer = new StringTokenizer(output);
+        outTokenizer.nextToken();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                String username = outTokenizer.nextToken();
+                users.remove(new User(username));
+                client.setUserList(users);
+
+                // find private conversation with user
+                if (conversationIDMap.containsKey(username)) {
+                    ChatBoxModel temp = chats.get(conversationIDMap
+                            .get(username));
+                    temp.addMessageToDisplay(username
+                            + " has logged off and can no longer receive messages.");
+                }
+            }
+        });
+    }
+
+    /**
+     * Processes a command from the server indicating that the client has
+     * started a chat with another user, and that the GUI should adjust as such.
+     * 
+     * @param output
+     *            The message from the server indicating that the client has
+     *            started a chat with another user.
+     */
+    public void processChatStartCommand(String output) {
+        final StringTokenizer outTokenizer = new StringTokenizer(output);
+        outTokenizer.nextToken();
+        final int ID = Integer.parseInt(outTokenizer.nextToken());
+        final String username1 = outTokenizer.nextToken();
+        final String username2 = outTokenizer.nextToken();
+        if (!chats.containsKey(ID)) { // create an entirely new chat
+            if (username1.equals(this.user.getUsername())) {
+                newChatCreation(username2, ID, true);
+            } else if (username2.equals(this.user.getUsername())) {
+                newChatCreation(username1, ID, false);
+            }
+        } else { // this chat should use history from a previous chat
+            if (username1.equals(this.user.getUsername())) {
+                oldChatRevival(username2, ID);
+            } else if (username2.equals(this.user.getUsername())) {
+                oldChatRevival(username1, ID);
+            }
+        }
+    }
+
+    /**
+     * Create an entirely new chat between this user and another user.
+     * 
+     * @param username
+     *            The other user in the chat.
+     * @param ID
+     *            The ID corresponding to the new chat.
+     * @param popup
+     *            True if the chat window should be open by default and false
+     *            otherwise.
+     */
+    public void newChatCreation(final String username, final int ID,
+            final boolean popup) {
+        final ChatClientModel temp = this;
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                if (!conversationIDMap.containsKey(username)) {
+                    conversationIDMap.put(username, ID);
+                }
+                ChatBox box = new ChatBox(temp, ID, user.getUsername()
+                        + ": chat with " + username, false);
+                box.setVisible(popup);
+                chats.put(ID, box.getModel());
+            }
+        });
+    }
+
+    /**
+     * Revive an old chat between this user and another user.
+     * 
+     * @param username
+     *            The other user in the chat.
+     * @param ID
+     *            The ID corresponding to the new chat.
+     */
+    public void oldChatRevival(final String username, final int ID) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                chats.get(ID).addMessageToDisplay(
+                        username + " has joined the conversation.");
+                if (history.containsKey(ID)) {
+                    chats.get(ID).getChatBox()
+                            .appendMessage(history.get(ID).getHistory());
+                }
+            }
+        });
+    }
+
+    /**
+     * Processes a command from the server indicating that the user has bee
+     * placed into a group chat with other users, and that the GUI should adjust
+     * as such.
+     * 
+     * @param output
+     *            The message from the server indicating that the new group chat
+     *            has been started.
+     */
+    public void processGroupChatStartCommand(String output) {
+        final StringTokenizer outTokenizer = new StringTokenizer(output);
+        outTokenizer.nextToken();
+        final int ID = Integer.parseInt(outTokenizer.nextToken());
+        if (!chats.containsKey(ID)) {
+            final ChatClientModel temp = this;
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    ChatBox box = new ChatBox(temp, ID, "Chat of "
+                            + user.getUsername(), true);
+                    chats.put(ID, box.getModel());
+                    box.setVisible(true);
+                }
+            });
+        }
+    }
+
+    /**
+     * Processes a command from the server indicating that some other user has
+     * joined a group chat that the user is in.
+     * 
+     * @param output
+     *            The message from the server indicating that the user has
+     *            joined the group chat.
+     */
+    public void processGroupChatJoinCommand(String output) {
+        final StringTokenizer outTokenizer = new StringTokenizer(output);
+        outTokenizer.nextToken();
+        final int ID = Integer.parseInt(outTokenizer.nextToken());
+
+        final String username = outTokenizer.nextToken();
+        if (!username.equals(this.user.getUsername())) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    if (chats.containsKey(ID)) {
+                        chats.get(ID).addMessageToDisplay(
+                                username + " has joined the conversation.");
+                        chats.get(ID).getChatBox().addOther(new User(username));
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Processes a command from the server indicating that some other user has
+     * left a group chat that the user is in.
+     * 
+     * @param output
+     *            The message from the server indicating that the user has left
+     *            the group chat.
+     */
+    public void processGroupChatLeaveCommand(String output) {
+        final StringTokenizer outTokenizer = new StringTokenizer(output);
+        outTokenizer.nextToken();
+        final int ID = Integer.parseInt(outTokenizer.nextToken());
+        final String username = outTokenizer.nextToken();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                chats.get(ID).addMessageToDisplay(
+                        username + " has left the conversation.");
+                chats.get(ID).getChatBox().removeOther(new User(username));
+            }
+        });
+    }
+
+    /**
+     * Processes a command from the server indicating that someone has said
+     * something in a particular chat that the user is in.
+     * 
+     * @param output
+     *            The message from the server indicating that a user has said
+     *            something in a particular chat.
+     */
+    public void processSayCommand(String output) {
+        final StringTokenizer outTokenizer = new StringTokenizer(output);
+        outTokenizer.nextToken();
+        final ChatBoxModel currentChatModel = chats.get(Integer
+                .parseInt(outTokenizer.nextToken()));
+        String message = output;
+        for (int i = 0; i < 3; i++) { // The message is the text after the third
+                                      // space in the output
+            message = message.substring(message.indexOf(" ") + 1);
+        }
+
+        final String chatMessage = message;
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                currentChatModel.addChatToDisplay(outTokenizer.nextToken(),
+                        chatMessage);
+            }
+        });
+    }
+
+    /**
+     * Processes a command from the server indicating that someone is currently
+     * typing.
+     * 
+     * @param output
+     *            The message from the server indicating that a user is
+     *            currently typing.
+     */
+    public void processTypingCommand(String output) {
+        final StringTokenizer outTokenizer = new StringTokenizer(output);
+        outTokenizer.nextToken();
+        final ChatBoxModel currentChatModel = chats.get(Integer
+                .parseInt(outTokenizer.nextToken()));
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                currentChatModel.markTyping(outTokenizer.nextToken());
+            }
+        });
+    }
+
+    /**
+     * Processes a command from the server indicating that someone is no longer
+     * typing and/or has no longer entered text in a chat box editable text
+     * field.
+     * 
+     * @param output
+     *            The message from the server indicating that a user is no
+     *            longer typing/has no more unsubmitted text in a chat box.
+     */
+    public void processClearedCommand(String output) {
+        final StringTokenizer outTokenizer = new StringTokenizer(output);
+        outTokenizer.nextToken();
+        final ChatBoxModel currentChatModel = chats.get(Integer
+                .parseInt(outTokenizer.nextToken()));
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                currentChatModel.markCleared(outTokenizer.nextToken());
+            }
+        });
     }
 
     /**
@@ -458,7 +662,7 @@ public class ChatClientModel implements ActionListener {
         int attempts = 0;
         do {
             try {
-                //ret = new Socket("18.189.54.215", port);
+                // ret = new Socket("128.31.35.165", port);
                 ret = new Socket("localhost", port);
             } catch (ConnectException ce) {
                 try {
@@ -474,6 +678,7 @@ public class ChatClientModel implements ActionListener {
         return ret;
     }
 
+    // ACCESSORS
     public ChatClient getClient() {
         return this.client;
     }
@@ -486,6 +691,15 @@ public class ChatClientModel implements ActionListener {
         return user;
     }
 
+    /**
+     * Senses when the user closes the ChatClient window or presses the logout
+     * button in the ChatClient window. Quits all of the chats that the user is
+     * in, alerts the server that the user is logging out, and quits the
+     * ChatClient.
+     * 
+     * @param event
+     *            An ActionEvent performed on the ChatClient.
+     */
     @Override
     public void actionPerformed(ActionEvent event) {
         if (event.getActionCommand().equals("logout")) {

@@ -7,6 +7,11 @@ import java.util.List;
 
 import javax.swing.JLabel;
 
+/**
+ * An AvatarListener listens for mouse input for an avatar image on the welcome screen of
+ * the chat GUI, and changes the background of the avatar image accordingly.
+ */
+
 public class AvatarListener implements MouseListener {
     JLabel[] avatarLabels;
     JLabel avatarLabel;
@@ -19,27 +24,39 @@ public class AvatarListener implements MouseListener {
         this.avatarLabel = avatarLabel;
     }
     
+    /**
+     * Registers when the user clicks the avatar image in the chat client GUI that this
+     * AvatarListener is listening to, and adjusts the avatar highlighting accordingly.
+     */
     @Override
     public void mouseClicked(MouseEvent arg0) {
         for (JLabel label: avatarLabels) {
-            label.setBackground(DARK_BLUE);
+            label.setBackground(DARK_BLUE); //erase the highlights from any selected avatar
         }
-        avatarLabel.setBackground(Color.white);
+        avatarLabel.setBackground(Color.white); //highlight this avatar with a white background
         
     }
 
+    /**
+     * Registers when the user mouses over the avatar image in the chat client GUI that this
+     * AvatarListener is listening to, and adjusts the avatar highlighting accordingly.
+     */
     @Override
     public void mouseEntered(MouseEvent arg0) {
         if (avatarLabel.getBackground() != Color.white) {
-            avatarLabel.setBackground(LIGHT_BLUE);
+            avatarLabel.setBackground(LIGHT_BLUE); //highlight with light blue when moused over
         }
         
     }
 
+    /**
+     * Registers when the user finishes mousing over the avatar image in the chat client GUI
+     * that this AvatarListener is listening to, and adjusts the avatar highlighting accordingly.
+     */
     @Override
     public void mouseExited(MouseEvent arg0) {
         if (avatarLabel.getBackground() != Color.white) {
-            avatarLabel.setBackground(DARK_BLUE);
+            avatarLabel.setBackground(DARK_BLUE); //remove highlights
         }
         
     }
@@ -55,7 +72,4 @@ public class AvatarListener implements MouseListener {
         // TODO Auto-generated method stub
         
     }
-    
-    
-
 }

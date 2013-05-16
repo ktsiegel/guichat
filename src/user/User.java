@@ -7,14 +7,12 @@ package user;
  */
 public class User implements Comparable<User> {
     
-    private final String username;
-    private boolean isActive;
-    private int avatar;
+    private final String username; //The username of the user.
+    private int avatar; //The integer ID of the avatar that corresponds to the user.
     
     public User(String username) {
         this.username = username;
         this.avatar = -1;
-        this.isActive = true;
     }
     
     /**
@@ -26,13 +24,20 @@ public class User implements Comparable<User> {
     public User(String username, int avatar) {
         this.username = username;
         this.avatar = avatar;
-        this.isActive = true;
     }
     
+    /**
+     * Compares this user to another user using the username of each user.
+     */
     public int compareTo(User other) {
         return this.username.compareTo(other.getUsername());
     }
 
+    /**
+     * Computes a hash that represents this user.
+     * 
+     * @return The numeric hash that represents this user.
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -42,6 +47,12 @@ public class User implements Comparable<User> {
         return result;
     }
 
+    /**
+     * Determines whether this user is equal to something.
+     * 
+     * @param obj The object to which this user may or may not be equal.
+     * @return true if this user is equal to obj; false otherwise.
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -59,11 +70,7 @@ public class User implements Comparable<User> {
         return true;
     }
     
-    public String getUsername() {
-        return this.username;
-    }
-    
-    public int getAvatar() {
-        return this.avatar;
-    }
+    //ACCESSORS
+    public String getUsername() {return this.username;}
+    public int getAvatar() {return this.avatar;}
 }
