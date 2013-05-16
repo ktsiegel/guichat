@@ -441,21 +441,22 @@ public class ChatClient extends JFrame {
                     }
                     userLabels.clear();
 
-                    for (User user : userList) {
-                        if (user.equals(this.user)) {
+                    for (User nextUser : userList) {
+                        if (nextUser.equals(this.user)) {
                             continue;
                         }
-                        JLabel userLabel = new JLabel(user.getUsername());
+                        System.out.println("updating with " + nextUser.getUsername());
+                        JLabel userLabel = new JLabel(nextUser.getUsername());
                         JPanel userPanel = new JPanel();
-                        ImageIcon avatar = new ImageIcon("icons/avatar" + user.getAvatar() + ".png");
+                        ImageIcon avatar = new ImageIcon("icons/avatar" + nextUser.getAvatar() + ".png");
                         JLabel avatarIcon = new JLabel(avatar);
                         userPanel.add(avatarIcon);
                         userPanel.add(userLabel);
                         userPanel.setOpaque(false);
                         userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.LINE_AXIS));
                         userPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-                        userLabels.put(user.getUsername(), userLabel);
-                        new UserListener(userLabel, model, user);
+                        userLabels.put(nextUser.getUsername(), userLabel);
+                        new UserListener(userLabel, model, nextUser);
                         users.add(userPanel);
                         validate();
                     }
