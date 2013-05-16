@@ -5,9 +5,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -95,7 +93,7 @@ public class ChatClient extends JFrame {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 String username = usernameBox.getText();
-                int a = 1;
+                int a = (int) (Math.random() * 12) + 1;
                 for (int i = 1; i <= 12; i++) {
                     JLabel label = avatarLabels[i - 1];
                     if (label.getBackground().equals(Color.white)) {

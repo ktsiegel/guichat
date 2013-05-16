@@ -17,12 +17,36 @@ import conversation.Conversation;
 
 import user.User;
 
+/**
+ * A class to run a ChatServer through which clients can connect and interact
+ * with other connected clients. Basic functionality includes logging in with a
+ * username, being notified of other logged in users, starting private
+ * conversations, starting group conversations, and sending messages to other
+ * users in conversations.
+ */
 public class ChatServer {
-    private final ServerSocket serverSocket;
-    private final Map<User, Socket> clients;
-    private final Map<Integer, Conversation> conversations;
-    private final BlockingQueue<CommunicationsData> queue;
+    private final ServerSocket serverSocket; // The ServerSocket used for
+                                             // communications.
+    private final Map<User, Socket> clients; // Holds the Socket associated with
+                                             // each connected User.
+    private final Map<Integer, Conversation> conversations; // Holds the
+                                                            // Conversation
+                                                            // associated with
+                                                            // each (unique)
+                                                            // conversation ID.
+    private final BlockingQueue<CommunicationsData> queue; // Holds a list of
+                                                           // messages from
+                                                           // clients to be
+                                                           // processed.
 
+    /**
+     * Creates a ChatServer with the given port. Does not start listening for
+     * messages until the serve() method is called.
+     * 
+     * @param port
+     *            An integer port to use for the connection. An error will be
+     *            thrown if this port is invalid.
+     */
     public ChatServer(int port) {
         try {
             serverSocket = new ServerSocket(port);
@@ -37,7 +61,13 @@ public class ChatServer {
         queue = new LinkedBlockingQueue<CommunicationsData>();
     }
 
-    public void serve() throws IOException {
+    /**
+     * First, this method creates a thread to start processing messages from the
+     * ChatServer's blocking queue. Next, this method starts an infinite loop
+     * that waits for new clients to connect and spawns a new
+     * ChatServerClientThread to read messages from these clients.
+     */
+    public void serve() {
         // start a new thread to work
         Thread worker = new Thread(new Runnable() {
             @Override
@@ -49,14 +79,28 @@ public class ChatServer {
 
         while (true) {
             // block until a client connects
-            Socket socket = this.serverSocket.accept();
+            try {
+                Socket socket = this.serverSocket.accept();
 
-            // create a new thread for this socket
-            Thread thread = new Thread(new ChatServerClientThread(socket, this));
-            thread.start();
+                // create a new thread for this socket
+                Thread thread = new Thread(new ChatServerClientThread(socket,
+                        this));
+                thread.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
+    /**
+     * Returns a new conversation ID to use for a new conversation. This
+     * conversation ID is guaranteed to be unique among all active
+     * conversations. Will throw an error if there does not exist a valid
+     * conversation ID in the range [1, Integer.MAX_VALUE).
+     * 
+     * @return a new conversation ID to use for a new conversation, guaranteed
+     *         to be unique among all active conversations.
+     */
     private int nextConversationID() {
         for (int i = 1; i < Integer.MAX_VALUE; i++) {
             if (!conversations.containsKey(i)) {
@@ -66,6 +110,15 @@ public class ChatServer {
         throw new RuntimeException("Ran out of valid conversation IDs");
     }
 
+    /**
+     * Adds a new message from the given client Socket to the blocking queue for
+     * future processing.
+     * 
+     * @param message
+     *            The String message to be processed.
+     * @param socket
+     *            The Socket in which the message was received from.
+     */
     private void writeMessageToSocket(String message, Socket socket) {
         try {
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -77,6 +130,12 @@ public class ChatServer {
         }
     }
 
+    /**
+     * 
+     * 
+     * @param message
+     * @param user
+     */
     private void sendMessageToUser(String message, User user) {
         if (this.clients.containsKey(user)) {
             System.out.println("sending \"" + message + "\" to "
@@ -128,16 +187,17 @@ public class ChatServer {
                     this.writeMessageToSocket("login_success", socket);
 
                     // notify all current users that a new user has joined
-                    this.sendMessageToUsers("user_joins " + username + " " + Integer.toString(avatar),
-                            this.clients.keySet());
+                    this.sendMessageToUsers("user_joins " + username + " "
+                            + Integer.toString(avatar), this.clients.keySet());
 
                     // add new user to list
                     this.clients.put(user, socket);
 
                     // notify new user of logged-in users
                     for (User onlineUser : this.clients.keySet()) {
-                    	this.sendMessageToUser(
-                                "user_joins " + onlineUser.getUsername() + " " + onlineUser.getAvatar(), user);
+                        this.sendMessageToUser(
+                                "user_joins " + onlineUser.getUsername() + " "
+                                        + onlineUser.getAvatar(), user);
                     }
 
                     // have the user rejoin all private conversations
@@ -171,7 +231,7 @@ public class ChatServer {
                 String username = split[1];
 
                 if (this.clients.containsKey(new User(username))) {
-                	this.clients.remove(new User(username));
+                    this.clients.remove(new User(username));
 
                     // leave all conversations
                     for (int chatID : this.conversations.keySet()) {
@@ -180,16 +240,16 @@ public class ChatServer {
                                 && chat.isGroupChat()) {
                             chat.removeUser(new User(username));
                             // send a leave message
-                            this.sendMessageToUsers("group_chat_leave " + chatID
-                                    + " " + username, chat.getUsers());
+                            this.sendMessageToUsers("group_chat_leave "
+                                    + chatID + " " + username, chat.getUsers());
                         }
                     }
-                    
-                 // notify all clients that a new user has logged in
+
+                    // notify all clients that a new user has logged in
                     this.sendMessageToUsers("user_leaves " + username,
                             this.clients.keySet());
                 }
-                
+
             } else if (split[0].equals("chat_start")) {
                 if (split.length != 3) {
                     throw new IllegalStateException(
@@ -326,7 +386,8 @@ public class ChatServer {
                 Conversation chat = this.conversations.get(ID);
                 for (User user : chat.getUsers()) {
                     if (this.clients.containsKey(user)) {
-                        this.sendMessageToUser("say " + ID + " " + username + " " + text, user);
+                        this.sendMessageToUser("say " + ID + " " + username
+                                + " " + text, user);
                     }
                 }
             } else if (split[0].equals("typing")) {
@@ -344,8 +405,10 @@ public class ChatServer {
 
                 Conversation chat = this.conversations.get(ID);
                 for (User user : chat.getUsers()) {
-                    if (!user.equals(new User(username)) && this.clients.containsKey(user)) {
-                        this.sendMessageToUser("typing " + ID + " " + username, user);
+                    if (!user.equals(new User(username))
+                            && this.clients.containsKey(user)) {
+                        this.sendMessageToUser("typing " + ID + " " + username,
+                                user);
                     }
                 }
             } else if (split[0].equals("cleared")) {
@@ -363,8 +426,10 @@ public class ChatServer {
 
                 Conversation chat = this.conversations.get(ID);
                 for (User user : chat.getUsers()) {
-                    if (!user.equals(new User(username)) && this.clients.containsKey(user)) {
-                        this.sendMessageToUser("cleared " + ID + " " + username, user);
+                    if (!user.equals(new User(username))
+                            && this.clients.containsKey(user)) {
+                        this.sendMessageToUser(
+                                "cleared " + ID + " " + username, user);
                     }
                 }
             } else {
