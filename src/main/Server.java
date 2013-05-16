@@ -10,8 +10,10 @@ import server.ChatServer;
 public class Server {
 
     /**
-     * Start a chat server.
-     * @throws IOException If the server malfunctions.
+     * Start a chat server on port 4567.
+     * 
+     * @throws IOException
+     *             If the server malfunctions.
      */
     public static void main(String[] args) throws IOException {
         ChatServer server = new ChatServer(4567);
