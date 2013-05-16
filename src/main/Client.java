@@ -2,7 +2,7 @@ package main;
 
 import javax.swing.SwingUtilities;
 
-import client.ChatClient;
+import client.ConnectionInfoBox;
 
 /**
  * GUI chat client runner.
@@ -14,7 +14,7 @@ public class Client {
     public static void main(String[] args) {
     	SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new ChatClient();
+                new ConnectionInfoBox();
             }
         });
     }

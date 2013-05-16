@@ -9,6 +9,10 @@ import client.ChatClient;
 import client.ChatClientModel;
 import client.GroupChatSelectBox;
 
+/**
+ * @category no_didit
+ */
+
 public class GroupChatSelectBoxTest {
 	/**
 	 * Manually test the group chat select feature by clicking "group chat" on the main
@@ -16,7 +20,7 @@ public class GroupChatSelectBoxTest {
 	 */
 	@Test
 	public void basicTest() {
-		ChatClientModel model = new ChatClientModel(new ChatClient());
+		ChatClientModel model = new ChatClientModel(new ChatClient("localhost","4567"), "localhost", "4567");
 		Set<User> userList = model.getUsers();
 		userList.add(new User("casey"));
 		userList.add(new User("katie"));

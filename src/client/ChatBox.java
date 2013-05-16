@@ -57,10 +57,22 @@ public class ChatBox extends JFrame {
     private Set<User> others; //The other users in the chat.
     private Set<User> leftChat; //The users who were in the chat and left.
 
+    /**
+     * Constructs a ChatBox object.
+     * 
+     * @param chatClientModel The model corresponding to the user using the ChatBox
+     * @param conversationID The ID corresponding to the conversation in this chat.
+     * @param title The title that should go in the title bar of this chat.
+     * @param isGroupChat Whether or not the chat in this ChatBox is a group chat.
+     */
     public ChatBox(ChatClientModel chatClientModel, int conversationID,
             String title, boolean isGroupChat) {
         this.model = new ChatBoxModel(chatClientModel, this, conversationID,
                 isGroupChat);
+        others = new HashSet<User>();
+        leftChat = new HashSet<User>();
+        
+        //Listener detects when the ChatBox window is closed and properly quits the chat.
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -69,53 +81,54 @@ public class ChatBox extends JFrame {
                 dispose();
             }
         });
+        
         this.setSize(300, 300);
         this.setTitle(title);
-
+        
+        //Construct GUI components
         display = new JTextPane();
-        display.setEditable(false);
         displayScroll = new JScrollPane(display);
-
         message = new JTextArea();
-        message.setLineWrap(true);
         messageScroll = new JScrollPane(message);
-        message.addKeyListener(model);
-
-        others = new HashSet<User>();
-        leftChat = new HashSet<User>();
-
-        background = new JPanel();
         gap = new JPanel();
+        background = new JPanel();
+        bottomLabel = new JLabel("");
+        
+        configureGUIElements();
+        createGroupLayout();
+    }
+    
+    /**
+     * Configures the properties of the various GUI elements.
+     */
+    public void configureGUIElements() {
+    	display.setEditable(false);
+    	message.setLineWrap(true);
+    	message.addKeyListener(model);
         gap.setBackground(new Color(0, 51, 102));
-
         background.setBackground(new Color(0, 51, 102));
-
         Border paddingBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         Border textBorder = BorderFactory.createEmptyBorder(5, 5, 5, 5);
-        Border lineBorder = BorderFactory
-                .createBevelBorder(BevelBorder.LOWERED);
-
+        Border lineBorder = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
         display.setBorder(textBorder);
         displayScroll.setBorder(lineBorder);
         message.setBorder(textBorder);
         messageScroll.setBorder(lineBorder);
         background.setBorder(paddingBorder);
-
-        bottomLabel = new JLabel("");
         bottomLabel.setForeground(Color.WHITE);
-
         this.add(background);
         this.getContentPane().setLayout(
                 new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
-
-        createGroupLayout();
     }
 
+    /**
+	 * Create the layout of the ChatBox.
+	 */
     private void createGroupLayout() {
         GroupLayout layout = new GroupLayout(background);
         background.setLayout(layout);
 
-        Group h = layout.createParallelGroup();
+        Group h = layout.createParallelGroup(); //horizontal group
         h.addComponent(displayScroll, GroupLayout.DEFAULT_SIZE,
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
         h.addComponent(gap, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
@@ -127,7 +140,7 @@ public class ChatBox extends JFrame {
         h.addComponent(bottomLabel, GroupLayout.DEFAULT_SIZE,
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
 
-        Group v = layout.createSequentialGroup();
+        Group v = layout.createSequentialGroup(); //vertical group
         v.addComponent(displayScroll, GroupLayout.DEFAULT_SIZE,
                 GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
         v.addComponent(gap, 10, 10, 10);
@@ -139,23 +152,39 @@ public class ChatBox extends JFrame {
         layout.setVerticalGroup(v);
     }
 
+    /**
+     * Get the chat message stored in the editable text field in the ChatBox GUI.
+     * 
+     * @return The chat message as a string.
+     */
     public String sendMessage() {
         String currentMessage = message.getText().trim();
         message.setText("");
         return currentMessage;
     }
 
+    /**
+     * Record a sent chat line in the ChatBox GUI.
+     * 
+     * @param username The username of the user that sent the chat line.
+     * @param message The text of the message that the user sent.
+     */
     public void appendChatLine(String username, String message) {
-        if (!this.isVisible()) {
+        if (!this.isVisible()) { //Make the chat box visible if it was not already
             this.setVisible(true);
         }
+        
+        //configure the text of what will be inserted into the display.
         String timestamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
         String text = username + " [" + timestamp + "]:";
+        
+        //formatting
         StyledDocument doc = display.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
         StyleConstants.setForeground(keyWord, Color.BLUE);
         StyleConstants.setBold(keyWord, true);
-        try {
+        
+        try { //insert into document
             doc.insertString(doc.getLength(), text, keyWord);
             doc.insertString(doc.getLength(), " ", null);
         } catch (BadLocationException e) {
@@ -163,20 +192,26 @@ public class ChatBox extends JFrame {
         }
         processMessage(doc, message); //add message
         System.out.println("remaining message: " + message);
-        try {
+        try { //insert the rest into the document
             doc.insertString(doc.getLength(), "\n", null);
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
     }
     
+    /**
+     * Determine whether a message contains any emoticons or laTeX commands, and properly insert
+     * them into the document along with the rest of the message.
+     * 
+     * @param doc The document into which the message will be inserted.
+     * @param message The message that will eventually be inserted into the chat.
+     */
     public void processMessage(StyledDocument doc, String message) {
     	while (message.length() > 0) {
-            // see if we have any smileys
             boolean found = false;
-            for (int i = 1; i <= message.length(); i++) {
+            for (int i = 1; i <= message.length(); i++) {//test whether there are any emoticons in the message
                 String substring = message.substring(0, i);
-                if (Emoticon.isValid(substring)) {
+                if (Emoticon.isValid(substring)) { //if there is an emoticon, insert it accordingly into the doc
                     processEmoticon(doc, substring);
                     message = message.substring(i);
                     found = true;
@@ -184,18 +219,18 @@ public class ChatBox extends JFrame {
                     break;
                 }
             }
-            int dollarIndex = message.indexOf("\\$");
+            int dollarIndex = message.indexOf("\\$"); //test whether there is a laTeX string in the message
             if (dollarIndex == 0 && !found) {
             	int endIndex = message.indexOf("$",dollarIndex+2);
             	if (endIndex > -1) {
-            		try {
+            		try { //process the laTeX command by inserting it accordingly into the doc
             			String latex = message.substring(dollarIndex+2,endIndex);
             			processLatex(doc, latex);
                         message = message.substring(endIndex + 1);
                         found = true;
                         System.out.println("FOUND A LATEX!");
             		}
-            		catch (org.scilab.forge.jlatexmath.ParseException e) {
+            		catch (org.scilab.forge.jlatexmath.ParseException e) { //handle ill-formatted laTeX commands.
             			System.out.println("oops! bad latex!");
             		}
             	}
@@ -211,13 +246,22 @@ public class ChatBox extends JFrame {
         }
     }
     
+    /**
+     * Creates the emoticon graphic from a string that represents an emoticon.
+     * 
+     * @param doc The StyledDocument into which the emoticon should be inserted.
+     * @param substring The string that represents the emoticon.
+     */
     public void processEmoticon(StyledDocument doc, String substring) {
+    	//create image
     	Emoticon emoticon = new Emoticon(substring);
     	ImageIcon icon = new ImageIcon("icons/" + emoticon.getURL());
         StyleContext context = new StyleContext();
         Style labelStyle = context.getStyle(StyleContext.DEFAULT_STYLE);
         JLabel label = new JLabel(icon);
         StyleConstants.setComponent(labelStyle, label);
+        
+        //insert into document
         try {
             doc.insertString(doc.getLength(), substring, labelStyle);
         } catch (BadLocationException e) {
@@ -225,8 +269,14 @@ public class ChatBox extends JFrame {
         }
     }
     
+    /**
+     * Creates the laTeX graphic from a string that represents laTeX code.
+     * 
+     * @param doc The StyledDocument into which the laTeX graphic should be inserted.
+     * @param latex The string that represents laTeX code.
+     */
     public void processLatex(StyledDocument doc, String latex) {
-    	System.out.println(latex);
+    	//synthesize image
 		TeXFormula formula = new TeXFormula(latex);
 		TeXIcon icon = formula.new TeXIconBuilder().setStyle(TeXConstants.STYLE_DISPLAY).setSize(20).build();
 		icon.setInsets(new Insets(5, 5, 5, 5));
@@ -242,6 +292,8 @@ public class ChatBox extends JFrame {
 		Style labelStyle = context.getStyle(StyleContext.DEFAULT_STYLE);
 		JLabel label = new JLabel(icon1);
 		StyleConstants.setComponent(labelStyle, label);
+		
+		//insert into document
 		try {
 			doc.insertString(doc.getLength(), latex, labelStyle);
 		} catch (BadLocationException e) {

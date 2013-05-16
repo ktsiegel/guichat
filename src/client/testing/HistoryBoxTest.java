@@ -17,7 +17,7 @@ public class HistoryBoxTest {
 	/*
 	 * This class should create and show new HistoryBoxes with various displays.
 	 */
-	public static void main(String[]args) {//void basicTest() {
+	public static void basicTest() {
 		Set<User> users = new HashSet<User>();
 		users.add(new User("casey"));
 		

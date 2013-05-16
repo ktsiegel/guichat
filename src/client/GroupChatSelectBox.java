@@ -81,7 +81,7 @@ public class GroupChatSelectBox extends JFrame{
 	}
 	
 	/**
-	 * Create the layout of the HistoryBox.
+	 * Create the layout of the GroupChatSelectBox.
 	 */
 	private void createGroupLayout() {
         GroupLayout layout = new GroupLayout(background);
