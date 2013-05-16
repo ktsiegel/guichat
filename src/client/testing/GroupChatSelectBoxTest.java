@@ -9,6 +9,10 @@ import client.ChatClient;
 import client.ChatClientModel;
 import client.GroupChatSelectBox;
 
+/**
+ * @category no_didit
+ */
+
 public class GroupChatSelectBoxTest {
 	/**
 	 * Manually test the group chat select feature by clicking "group chat" on the main
