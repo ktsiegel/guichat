@@ -35,7 +35,7 @@ public class ChatClient extends JFrame {
      * Default serial ID.
      */
     private static final long serialVersionUID = 1L;
-
+    
     private User user;
 
     private Map<String, JLabel> userLabels;
@@ -61,8 +61,8 @@ public class ChatClient extends JFrame {
     Color LIGHT_BLUE = new Color(102, 178, 255);
     Border EMPTY_BORDER = BorderFactory.createEmptyBorder(0, 0, 0, 0);
 
-    public ChatClient() {
-        this.model = new ChatClientModel(this);
+    public ChatClient(String IP, String port) {
+        this.model = new ChatClientModel(this, IP, port);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override

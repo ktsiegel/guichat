@@ -31,7 +31,10 @@ import user.User;
  */
 
 public class ChatClientModel implements ActionListener {
-    private User user; // The user represented by this ChatClientModel object
+    private final String IPAddress;
+    private final int port;
+	
+	private User user; // The user represented by this ChatClientModel object
     private final Socket socket; // The socket through which the client connects
                                  // to the server
     private final ChatClient client; // The chat client GUI
@@ -50,8 +53,11 @@ public class ChatClientModel implements ActionListener {
                                                               // past chat IDs
     private Set<User> users; // The set of users who are currently online
 
-    public ChatClientModel(ChatClient client) {
-        this.client = client;
+    public ChatClientModel(ChatClient client, String IP, String port) {
+        this.IPAddress = IP;
+        this.port = Integer.parseInt(port);
+    	
+    	this.client = client;
         this.user = null;
         chats = new ConcurrentHashMap<Integer, ChatBoxModel>();
         try {
@@ -645,7 +651,7 @@ public class ChatClientModel implements ActionListener {
     }
 
     /**
-     * Attempt to connect to the server via port 4444 (default port).
+     * Attempt to connect to the server via port 4567 (default port).
      * 
      * @return The socket through which the ChatClientModel is connected the
      *         server.
@@ -653,14 +659,13 @@ public class ChatClientModel implements ActionListener {
      *             If there is an error with connecting to the server.
      */
     public Socket connect() throws IOException {
-        int port = 4567;
         Socket ret = null;
         final int MAX_ATTEMPTS = 50;
         int attempts = 0;
         do {
             try {
-                // ret = new Socket("128.31.35.165", port);
-                ret = new Socket("192.30.35.221", port);
+                //ret = new Socket("192.30.35.221", port);
+            	ret = new Socket(IPAddress, port);
             } catch (ConnectException ce) {
                 try {
                     if (++attempts > MAX_ATTEMPTS)
