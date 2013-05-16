@@ -4,11 +4,14 @@ import java.sql.Time;
 
 import user.User;
 
+/**
+ * A ChatMessage represents a message sent by a user in a chat.
+ */
 public class ChatMessage {
 
-    private User origin;
-    private String message;
-    private Time time;
+    private User origin; //The user that the message is from.
+    private String message; //The message text.
+    private Time time; //The time at which the message was sent.
     
     /**
      * Create a new ChatMessage.
@@ -22,16 +25,8 @@ public class ChatMessage {
         this.time = new Time(System.currentTimeMillis());
     }
     
-    public User getOrigin() {
-        return this.origin;
-    }
-    
-    public String getMessage() {
-        return this.message;
-    }
-    
-    public Time getTime() {
-        return new Time(time.getTime());
-    }
-    
+    //ACCESSORS
+    public User getOrigin() {return this.origin;}
+    public String getMessage() {return this.message;}
+    public Time getTime() {return new Time(time.getTime());}
 }
