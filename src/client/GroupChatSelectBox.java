@@ -1,14 +1,18 @@
 package client;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -52,8 +56,10 @@ public class GroupChatSelectBox extends JFrame{
 					chatters.add(new User(label.getText()));
 				}
 				chatters.add(clientModel.getUser()); //add yourself to the group chat as well
-				clientModel.addGroupChat(chatters);
-				dispose();
+				if (chatters.size() > 1) {
+				    clientModel.addGroupChat(chatters);
+				    dispose();
+				}
 			}
 		});
 		display = new JPanel();
@@ -62,14 +68,33 @@ public class GroupChatSelectBox extends JFrame{
 		for (User user: clientModel.getUsers()) {
 			if (!user.equals(clientModel.getUser())) {
 				JLabel label = new JLabel(user.getUsername());
+                
+				ClassLoader cl = getClass().getClassLoader();
+                URL url = cl.getResource("icons/avatar"
+                        + user.getAvatar() + ".png");
+                ImageIcon avatar = new ImageIcon(Toolkit
+                        .getDefaultToolkit().createImage(url));
+                JLabel avatarIcon = new JLabel(avatar);
+				
+                JPanel userPanel = new JPanel();
+                userPanel.add(avatarIcon);
+                userPanel.add(label);
+                userPanel.setOpaque(false);
+                userPanel.setLayout(new BoxLayout(userPanel,
+                        BoxLayout.LINE_AXIS));
+                
+                userPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                
 				new GroupChatListener(label, this);
-				display.add(label);
+				display.add(userPanel);
 			}
 		}
 		displayScroll = new JScrollPane(display);
 		Border lineBorder = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
 		Border paddingBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
-		display.setBorder(lineBorder);
+		Border emptyBorder = BorderFactory.createEmptyBorder(0, 0, 0, 0);
+		display.setBorder(emptyBorder);
+		display.setBackground(Color.white);
 		display.setLayout(new BoxLayout(display, BoxLayout.PAGE_AXIS));
         displayScroll.setBorder(lineBorder);
 		background = new JPanel();
@@ -94,7 +119,8 @@ public class GroupChatSelectBox extends JFrame{
 
         Group v = layout.createSequentialGroup(); //vertical group.
         v.addComponent(displayScroll, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
-        v.addComponent(createChatButton, 0, 20, 20);
+        v.addGap(10, 10, 10);
+        v.addComponent(createChatButton, 0, 25, 25);
 
         layout.setHorizontalGroup(h);
         layout.setVerticalGroup(v);

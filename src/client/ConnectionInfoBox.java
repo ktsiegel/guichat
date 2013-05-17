@@ -28,9 +28,7 @@ public class ConnectionInfoBox extends JFrame {
      */
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Various swing elements that are a part of the GUI.
-     */
+    // Various components for the GUI.
     private JPanel background;
     private JLabel IPLabel;
     private JTextField IPField;
@@ -38,31 +36,23 @@ public class ConnectionInfoBox extends JFrame {
     private JTextField portField;
     private JButton submitButton;
 
-    /**
-     * Creates a basic connection box that will allow users to input hostname
-     * and port values to connect to. Upon an invalid input the connection box
-     * will display a prompt and ask the user to try again.
-     */
     public ConnectionInfoBox() {
-        this.setSize(300, 200);
+        this.setSize(300, 150);
 
         // Borders used in the ConnectionInfoBox GUI
-        Border lineBorder = BorderFactory
-                .createBevelBorder(BevelBorder.LOWERED);
         Border paddingBorder = BorderFactory.createEmptyBorder(10, 10, 10, 10);
 
         IPLabel = new JLabel("Input IP Address of server host.");
         IPLabel.setForeground(Color.WHITE);
         IPField = new JTextField();
-        IPField.setBorder(lineBorder);
-        IPField.setText("192.30.35.221"); // a permanent server is set up on
-                                          // this IP address
+        IPField.setText("192.30.35.221"); // IP of permanent server.
 
-        portLabel = new JLabel("Inport port number.");
+        portLabel = new JLabel("Input port number.");
         portLabel.setForeground(Color.WHITE);
         portField = new JTextField();
-        portField.setBorder(lineBorder);
         portField.setText("4567");
+
+        this.setResizable(false);
 
         submitButton = new JButton("Start Chat Client!");
         submitButton.addActionListener(new ActionListener() {

@@ -22,12 +22,8 @@ import static org.junit.Assert.*;
  *         - If the User is in the Conversation then it should be removed.
  *         - If the User is not in the Conversation then nothing should happen.
  * 
- * Finally both of these methods will be tested for thread safety.
- *     - addUser: If two threads attempt to add a new User to the at the same time,
- *       the User should be added only once.
- *     - removeUser: If two threads attempt to remove a User at the same time, the
- *       User should be removed.
- *
+ * The Conversation class is always thread safe, since it is only used on the client side,
+ * so will only ever be accessed by one client.
  */
 public class ConversationTest {
     
@@ -116,17 +112,4 @@ public class ConversationTest {
         
         assertEquals(expected, users);
     }
-    
-    // Test that addUser is thread-safe
-    @Test
-    public void addUserConcurrencyTest() {
-        
-    }
-    
-    // Test that removeUser is thread-safe
-    @Test
-    public void removeUserConcurrencyTest() {
-        
-    }
-
 }
