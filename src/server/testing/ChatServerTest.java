@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import server.ChatServer;
@@ -33,6 +32,8 @@ import server.ChatServer;
  * of each test and verify that future results are not affected.
  * 
  * At the end, there is an integration test that tests everything combined.
+ * 
+ * @category no_didit
  */
 public class ChatServerTest {
     /**
@@ -51,9 +52,10 @@ public class ChatServerTest {
     }
 
     /**
-     * Starts a server on port 5678.
+     * Starts a server on port 5678. This is run before all the other tests and
+     * makes sure that the server is startable.
      */
-    @Before
+    @Test
     public void startServer() {
         Thread thread = new Thread(new Runnable() {
             public void run() {
@@ -78,7 +80,7 @@ public class ChatServerTest {
      * users that were already logged in and that original users are notified of
      * the logging in of a new user.
      */
-    @Test(timeout = 2000)
+    @Test
     public void loginAttemptCommandTest() {
         // start clients
         DummyClient client1 = new DummyClient("localhost", 5678);
@@ -120,6 +122,7 @@ public class ChatServerTest {
         assertEquals("user_joins Casey 5", client2.read());
         assertEquals("user_joins Casey 5", client1.read());
 
+        wait(100);
         client1.close();
         wait(100);
         client2.close();
@@ -137,12 +140,19 @@ public class ChatServerTest {
      *            The client for Katie.
      * @param client3
      *            The client for Casey.
+     * @param expectPrivateChats
+     *            True if private chats were started among all the clients.
      */
     public void logIn3Users(DummyClient client1, DummyClient client2,
-            DummyClient client3) {
+            DummyClient client3, boolean expectPrivateChats) {
         client1.send("login_attempt Alex 1");
         assertEquals("login_success", client1.read());
         assertEquals("user_joins Alex 1", client1.read());
+        if (expectPrivateChats) {
+            client1.read();
+            client1.read();
+            client1.read();
+        }
 
         client2.send("login_attempt Katie 2");
         assertEquals("login_success", client2.read());
@@ -152,6 +162,11 @@ public class ChatServerTest {
         assertTrue(client2Results.contains("user_joins Alex 1"));
         assertTrue(client2Results.contains("user_joins Katie 2"));
         assertEquals("user_joins Katie 2", client1.read());
+        if (expectPrivateChats) {
+            client2.read();
+            client2.read();
+            client2.read();
+        }
 
         client3.send("login_attempt Casey 5");
         assertEquals("login_success", client3.read());
@@ -164,11 +179,19 @@ public class ChatServerTest {
         assertTrue(client3Results.contains("user_joins Casey 5"));
         assertEquals("user_joins Casey 5", client2.read());
         assertEquals("user_joins Casey 5", client1.read());
+        if (expectPrivateChats) {
+            client3.read();
+            client3.read();
+            client3.read();
+        }
     }
 
     /**
      * Makes sure that we can log a user out and that currently logged in users
      * are notified.
+     * 
+     * This also makes sure that a user can invalidly log out by forcing a
+     * connection closed, and current users are still notified.
      */
     @Test
     public void logoutCommandTest() {
@@ -178,10 +201,81 @@ public class ChatServerTest {
         DummyClient client3 = new DummyClient("localhost", 5678);
 
         // log in 3 users
-        logIn3Users(client1, client2, client3);
-        
-        // log out
+        logIn3Users(client1, client2, client3, false);
 
+        // invalid command
+        client1.send("logout asdf asdf asdf asdf");
+
+        // log out
+        client1.send("logout Alex");
+
+        // make sure other users are notified
+        assertEquals("user_leaves Alex", client2.read());
+        assertEquals("user_leaves Alex", client3.read());
+
+        // forcefully close client 2
+        client2.close();
+        assertEquals("user_leaves Katie", client3.read());
+
+        client3.close();
+    }
+
+    /**
+     * Tests the ability to start a private chat with someone. Both users should
+     * be notified.
+     * 
+     * Note that the chat_start command is ordered. We need to ensure that this
+     * order is established.
+     * 
+     * Finally, if a user logs off while in a private conversation and then logs
+     * back in, the private chat is immediately restarted.
+     */
+    @Test
+    public void chatStartCommandTest() {
+        // start clients
+        DummyClient client1 = new DummyClient("localhost", 5678);
+        DummyClient client2 = new DummyClient("localhost", 5678);
+        DummyClient client3 = new DummyClient("localhost", 5678);
+
+        // log in 3 users
+        logIn3Users(client1, client2, client3, false);
+
+        // start a private chat between all 3 pairs of users
+        client1.send("chat_start Alex Casey");
+        client2.send("chat_start Katie Alex");
+        client3.send("chat_start Casey Katie");
+
+        // invalid command
+        client1.send("chat_start Alex Casey Katie");
+
+        // check responses
+        assertEquals("chat_start 1 Alex Casey", client1.read());
+        assertEquals("chat_start 1 Alex Casey", client3.read());
+        assertEquals("chat_start 2 Katie Alex", client1.read());
+        assertEquals("chat_start 2 Katie Alex", client2.read());
+        assertEquals("chat_start 3 Casey Katie", client2.read());
+        assertEquals("chat_start 3 Casey Katie", client3.read());
+
+        // log a user out
+        client1.send("logout Alex");
+        assertEquals("user_leaves Alex", client2.read());
+        assertEquals("user_leaves Alex", client3.read());
+
+        // log Alex back in
+        client1.send("login_attempt Alex 2");
+        assertEquals("login_success", client1.read());
+        // skip some messages
+        client1.read();
+        client1.read();
+        client1.read();
+        client2.read();
+        client3.read();
+
+        // make sure Alex is alerted of original private conversations
+        assertEquals("chat_start 1 Casey Alex", client1.read());
+        assertEquals("chat_start 2 Katie Alex", client1.read());
+
+        wait(100);
         client1.close();
         wait(100);
         client2.close();
@@ -189,26 +283,124 @@ public class ChatServerTest {
         client3.close();
     }
 
-    @Test
-    public void chatStartCommandTest() {
-
-    }
-
+    /**
+     * Tests to make sure that group chats can be started among any number of
+     * users.
+     * 
+     * Makes sure that when a user leaves a group chat, all users in the group
+     * chat are notified.
+     */
     @Test
     public void groupChatStartCommandTest() {
+        // start clients
+        DummyClient client1 = new DummyClient("localhost", 5678);
+        DummyClient client2 = new DummyClient("localhost", 5678);
+        DummyClient client3 = new DummyClient("localhost", 5678);
 
+        // log in 3 users
+        logIn3Users(client1, client2, client3, true);
+
+        // invalid command
+        client1.send("group_chat_start Alex Casey dinosaur Katie");
+
+        // start a group chat
+        client1.send("group_chat_start Alex Casey Katie");
+
+        // verify results
+        assertEquals("group_chat_start 4", client1.read());
+        Set<String> client1Results = new HashSet<String>();
+        client1Results.add(client1.read());
+        client1Results.add(client1.read());
+        assertTrue(client1Results.contains("group_chat_join 4 Casey"));
+        assertTrue(client1Results.contains("group_chat_join 4 Katie"));
+        assertEquals("group_chat_start 4", client2.read());
+        Set<String> client2Results = new HashSet<String>();
+        client2Results.add(client2.read());
+        client2Results.add(client2.read());
+        assertTrue(client2Results.contains("group_chat_join 4 Casey"));
+        assertTrue(client2Results.contains("group_chat_join 4 Alex"));
+        assertEquals("group_chat_start 4", client3.read());
+        Set<String> client3Results = new HashSet<String>();
+        client3Results.add(client3.read());
+        client3Results.add(client3.read());
+        assertTrue(client3Results.contains("group_chat_join 4 Alex"));
+        assertTrue(client3Results.contains("group_chat_join 4 Katie"));
+
+        // log a user out
+        wait(100);
+        client1.close();
+
+        // check results
+        assertEquals("group_chat_leave 4 Alex", client2.read());
+        assertEquals("group_chat_leave 4 Alex", client3.read());
+
+        wait(100);
+        client2.close();
+        wait(100);
+        client3.close();
     }
 
-    @Test
-    public void groupChatInviteCommandTest() {
-
-    }
-
+    /**
+     * Makes sure the server correctly handles a user leaving a group
+     * conversation.
+     */
     @Test
     public void groupChatLeaveCommandTest() {
+        DummyClient client1 = new DummyClient("localhost", 5678);
+        DummyClient client2 = new DummyClient("localhost", 5678);
+        DummyClient client3 = new DummyClient("localhost", 5678);
 
+        // log in 3 users
+        logIn3Users(client1, client2, client3, true);
+
+        // start a group chat
+        client1.send("group_chat_start Alex Casey Katie");
+
+        // verify results
+        assertEquals("group_chat_start 5", client1.read());
+        Set<String> client1Results = new HashSet<String>();
+        client1Results.add(client1.read());
+        client1Results.add(client1.read());
+        assertTrue(client1Results.contains("group_chat_join 5 Casey"));
+        assertTrue(client1Results.contains("group_chat_join 5 Katie"));
+        assertEquals("group_chat_start 5", client2.read());
+        Set<String> client2Results = new HashSet<String>();
+        client2Results.add(client2.read());
+        client2Results.add(client2.read());
+        assertTrue(client2Results.contains("group_chat_join 5 Casey"));
+        assertTrue(client2Results.contains("group_chat_join 5 Alex"));
+        assertEquals("group_chat_start 5", client3.read());
+        Set<String> client3Results = new HashSet<String>();
+        client3Results.add(client3.read());
+        client3Results.add(client3.read());
+        assertTrue(client3Results.contains("group_chat_join 5 Alex"));
+        assertTrue(client3Results.contains("group_chat_join 5 Katie"));
+
+        // invalid command
+        client1.send("group_chat_leave 123 dinosaur");
+
+        // have a user leave
+        client1.send("group_chat_leave 5 Alex");
+
+        // check results
+        assertEquals("group_chat_leave 5 Alex", client2.read());
+        assertEquals("group_chat_leave 5 Alex", client3.read());
+
+        wait(100);
+        client1.close();
+        wait(100);
+        client2.close();
+        wait(100);
+        client3.close();
     }
 
+    /**
+     * Makes sure the "say" command works in both group and private
+     * conversations.
+     * 
+     * Also makes sure that both empty messages and long messages with weird
+     * characters (no newlines allowed) are good.
+     */
     @Test
     public void sayCommandTest() {
 
