@@ -29,6 +29,8 @@ package client.testing;
  *         - Contains a JButton with label "Start Chat Client!"
  *         - Clicking button closes the window and opens a ChatClient with specified
  *           port number and IP address
+ *           
+ * @category no_didit
  */
 public class ConnectionInfoBoxTest {
 

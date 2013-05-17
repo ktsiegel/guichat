@@ -51,6 +51,7 @@ import client.GroupChatSelectBox;
  *         - Width of button should always equal width of friends
  *         - Height of button should remain a constant 25 as window is resized     
  *    
+ * @category no_didit
  */
 
 public class GroupChatSelectBoxTest {
