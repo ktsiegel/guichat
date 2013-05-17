@@ -22,6 +22,8 @@ import server.CommunicationsData;
  * 
  * Secondly, when a socket is closed forcefully (the client logs out without
  * pressing the log out button), the server must be notified.
+ * 
+ * @category no_didit
  */
 public class ChatServerClientThreadTest {
     /**
