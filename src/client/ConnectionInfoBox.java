@@ -44,7 +44,7 @@ public class ConnectionInfoBox extends JFrame {
         IPLabel = new JLabel("Input IP Address of server host.");
         IPLabel.setForeground(Color.WHITE);
         IPField = new JTextField();
-        IPField.setText("192.30.35.221"); // IP of permanent server.
+        IPField.setText("localhost"); 
 
         portLabel = new JLabel("Input port number.");
         portLabel.setForeground(Color.WHITE);
