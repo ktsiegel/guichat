@@ -16,21 +16,32 @@ import user.User;
 
 public class UserListener implements MouseListener {
 
-    private final JLabel userLabel; //The JLabel to which this UserListener listens
+    private final JLabel userLabel; // The JLabel to which this UserListener
+                                    // listens
     private final ChatClientModel model;
-    private final User friend; //The user represented by userLabel
-    
+    private final User friend; // The user represented by userLabel
+
+    /**
+     * Creates a new UserListener with the given aspects.
+     * 
+     * @param userLabel
+     *            The userLabel corresponding to this UserListener.
+     * @param model
+     *            The model corresponding to this UserListener.
+     * @param friend
+     *            The User listed for this listener.
+     */
     public UserListener(JLabel userLabel, ChatClientModel model, User friend) {
         this.userLabel = userLabel;
         this.model = model;
         this.friend = friend;
         userLabel.addMouseListener(this);
-       
+
     }
-    
+
     /**
-     * Called when the name label is clicked in the friends list. 
-     * Initiates a chat with that user.
+     * Called when the name label is clicked in the friends list. Initiates a
+     * chat with that user.
      */
     @Override
     public void mouseClicked(MouseEvent arg0) {
@@ -38,12 +49,12 @@ public class UserListener implements MouseListener {
     }
 
     /**
-     * Called when the name label is moused over in the friends list.
-     * Highlights this user by changing the text of the label to light blue.
+     * Called when the name label is moused over in the friends list. Highlights
+     * this user by changing the text of the label to light blue.
      */
     @Override
     public void mouseEntered(MouseEvent arg0) {
-        userLabel.setForeground(new Color(102, 178, 255)); //light blue
+        userLabel.setForeground(new Color(102, 178, 255)); // light blue
     }
 
     /**

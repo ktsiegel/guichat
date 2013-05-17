@@ -42,8 +42,9 @@ import user.User;
  */
 
 public class ChatBox extends JFrame {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // default serial ID
 
+    // GUI elements
     private final JTextPane display;
     private final JTextArea message;
     private final JScrollPane displayScroll;

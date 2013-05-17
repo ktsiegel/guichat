@@ -1,16 +1,40 @@
 package emoticons;
 
+/**
+ * This class helps process emoticons.
+ */
 public class Emoticon {
-    public final String text;
 
+    public final String text; // stores the text of the emotion. example: ":)"
+
+    /**
+     * Creates a new emoticon with the given text.
+     * 
+     * @param text
+     *            Text for emotion.
+     */
     public Emoticon(String text) {
         this.text = text;
     }
-    
+
+    /**
+     * Returns whether the text corresponds to a valid emoticon.
+     * 
+     * @param text
+     *            the text to check.
+     * @return whether the text corresponds to a valid emoticon.
+     */
     public static boolean isValid(String text) {
         return (new Emoticon(text)).getURL() != null;
     }
 
+    /**
+     * Returns the URL for the image for an emoticon if the text is valid, and
+     * null otherwise.
+     * 
+     * @return the URL for the image for an emoticon if the text is valid, and
+     *         null otherwise.
+     */
     public String getURL() {
         if (text.equals("(:")) {
             return "emoticon_backwards_smile.gif";

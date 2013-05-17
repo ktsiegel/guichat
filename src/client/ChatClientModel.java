@@ -33,8 +33,8 @@ import user.User;
 public class ChatClientModel implements ActionListener {
     private final String IPAddress;
     private final int port;
-	
-	private User user; // The user represented by this ChatClientModel object
+
+    private User user; // The user represented by this ChatClientModel object
     private final Socket socket; // The socket through which the client connects
                                  // to the server
     private final ChatClient client; // The chat client GUI
@@ -53,11 +53,22 @@ public class ChatClientModel implements ActionListener {
                                                               // past chat IDs
     private Set<User> users; // The set of users who are currently online
 
+    /**
+     * Creates a ChatClientModel with a given IP and port. Throws an error if
+     * the IP and port cannot be connected to.
+     * 
+     * @param client
+     *            The ChatClient that uses this ChatClientModel.
+     * @param IP
+     *            The IP to connect to.
+     * @param port
+     *            The port to connect to.
+     */
     public ChatClientModel(ChatClient client, String IP, String port) {
         this.IPAddress = IP;
         this.port = Integer.parseInt(port);
-    	
-    	this.client = client;
+
+        this.client = client;
         this.user = null;
         chats = new ConcurrentHashMap<Integer, ChatBoxModel>();
         try {
@@ -197,7 +208,8 @@ public class ChatClientModel implements ActionListener {
             ChatBox box = boxModel.getChatBox();
             String message = box.getDisplay().getText();
 
-            // the set that will contain all of the people who were ever in the group chat
+            // the set that will contain all of the people who were ever in the
+            // group chat
             Set<User> historyOthers = new HashSet<User>();
             Set<User> others = box.getOthers();
             for (User user : others) {
@@ -275,7 +287,7 @@ public class ChatClientModel implements ActionListener {
             out = new PrintWriter(socket.getOutputStream(), true);
             out.println(command);
         } catch (IOException e) {
-        	e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
@@ -655,8 +667,8 @@ public class ChatClientModel implements ActionListener {
         int attempts = 0;
         do {
             try {
-                //ret = new Socket("192.30.35.221", port);
-            	ret = new Socket(IPAddress, port);
+                // ret = new Socket("192.30.35.221", port);
+                ret = new Socket(IPAddress, port);
             } catch (ConnectException ce) {
                 try {
                     if (++attempts > MAX_ATTEMPTS)

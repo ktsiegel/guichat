@@ -38,12 +38,18 @@ public class ChatClient extends JFrame {
      */
     private static final long serialVersionUID = 1L;
 
+    /**
+     * UI elements
+     */
     private User user;
     private Map<String, JLabel> userLabels;
     private JPanel users;
     private JPanel conversations;
     private final ChatClientModel model;
 
+    /**
+     * Some variables for convenience reasons.
+     */
     Color DARK_BLUE = new Color(0, 51, 102);
     Color LIGHT_BLUE = new Color(102, 178, 255);
     Border EMPTY_BORDER = BorderFactory.createEmptyBorder(0, 0, 0, 0);

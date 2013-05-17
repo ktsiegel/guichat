@@ -12,12 +12,19 @@ import javax.swing.JLabel;
  */
 
 public class AvatarListener implements MouseListener {
+    // GUI elements and default colors
     JLabel[] avatarLabels;
     JLabel avatarLabel;
     Color DARK_BLUE = new Color(0, 51, 102);
     Color LIGHT_BLUE = new Color(102, 178, 255);
     Color MEDIUM_BLUE = new Color(0, 102, 204);
 
+    /**
+     * Creates a listener for a group of avatar labels.
+     * 
+     * @param avatarLabels A JLabel array for avatars.
+     * @param avatarLabel A label for the overall avatars. 
+     */
     public AvatarListener(JLabel[] avatarLabels, JLabel avatarLabel) {
         this.avatarLabels = avatarLabels;
         this.avatarLabel = avatarLabel;

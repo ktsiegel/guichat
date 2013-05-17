@@ -15,13 +15,22 @@ import javax.swing.JLabel;
 
 public class GroupChatListener implements MouseListener {
 
+    /**
+     * UI elements
+     */
     private final JLabel userLabel;
     private final GroupChatSelectBox box;
-    private boolean selected;
+    private boolean selected; // whether this element is selected
     
-    Color DARK_BLUE = new Color(0, 51, 102);
-    Color LIGHT_BLUE = new Color(102, 178, 255);
+    Color DARK_BLUE = new Color(0, 51, 102); // default colors
+    Color LIGHT_BLUE = new Color(102, 178, 255); // default colors
     
+    /**
+     * Creates a group chat listener associated with a given user label and a group chat select box.
+     * 
+     * @param userLabel the user label to use.
+     * @param box the group chat select box to use.
+     */
     public GroupChatListener(JLabel userLabel, GroupChatSelectBox box) {
         this.userLabel = userLabel;
         this.box = box;

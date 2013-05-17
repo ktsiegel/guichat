@@ -35,6 +35,9 @@ public class ConnectionInfoBox extends JFrame {
     private JTextField portField;
     private JButton submitButton;
 
+    /**
+     * Default constructor.
+     */
     public ConnectionInfoBox() {
         this.setSize(300, 150);
 
