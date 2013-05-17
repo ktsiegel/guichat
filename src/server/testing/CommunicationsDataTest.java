@@ -18,6 +18,8 @@ import server.CommunicationsData;
  * two accessors.
  * 
  * The tests will focus on accuracy.
+ * 
+ * @category no_didit
  */
 public class CommunicationsDataTest {
     /**

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -149,7 +148,8 @@ public class ChatServer {
 
     /**
      * Writes a message to the given socket. This method on its own is not
-     * thread-safe.
+     * thread-safe. If the message fails to send, then nothing happens. This is
+     * to protect sudden socket disconnects from breaking the system.
      * 
      * @param message
      *            The String message to be processed.
@@ -162,8 +162,6 @@ public class ChatServer {
             out.println(message);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException(
-                    "Unexpected IOException when printing message to socket");
         }
     }
 
@@ -234,8 +232,6 @@ public class ChatServer {
                     this.processChatStartCommand(message);
                 } else if (split[0].equals("group_chat_start")) {
                     this.processGroupChatStartCommand(message);
-                } else if (split[0].equals("group_chat_invite")) {
-                    this.processGroupChatInviteCommand(message);
                 } else if (split[0].equals("group_chat_leave")) {
                     this.processGroupChatLeaveCommand(message);
                 } else if (split[0].equals("say")) {
@@ -311,12 +307,12 @@ public class ChatServer {
                             .iterator();
                     User a = iterator.next();
                     User b = iterator.next();
-                    if (!a.equals(user)) {
+                    if (!a.equals(user) && b.equals(user)) {
                         this.sendMessageToUser(
                                 "chat_start " + conversation.getID() + " "
                                         + a.getUsername() + " "
                                         + b.getUsername(), user);
-                    } else {
+                    } else if (a.equals(user) && !b.equals(user)) {
                         this.sendMessageToUser(
                                 "chat_start " + conversation.getID() + " "
                                         + b.getUsername() + " "
@@ -458,45 +454,6 @@ public class ChatServer {
     }
 
     /**
-     * Invites a new user to a group conversation.
-     * 
-     * @param message
-     *            The message from the client. Must be in the form
-     *            "group_chat_invite SPACE id SPACE username".
-     */
-    private void processGroupChatInviteCommand(String message) {
-        String[] split = message.split(" ");
-
-        if (split.length != 3) {
-            throw new IllegalStateException(
-                    "Invalid group_chat_invite message received from client by server");
-        }
-        int ID = Integer.parseInt(split[1]);
-        String username = split[2];
-
-        if (this.clients.containsKey(new User(username))) {
-            // only proceed if the username is valid
-
-            Conversation chat = this.conversations.get(ID);
-            chat.addUser(new User(username));
-
-            this.sendMessageToUsers("group_chat_join " + ID + " " + username,
-                    chat.getUsers());
-
-            // notify the new user of all the users that were already in
-            // the conversation
-            ArrayList<User> targetUser = new ArrayList<User>();
-            targetUser.add(new User(username));
-            for (User user : chat.getUsers()) {
-                if (!user.equals(new User(username))) {
-                    this.sendMessageToUsers("group_chat_join " + ID + " "
-                            + user.getUsername(), targetUser);
-                }
-            }
-        }
-    }
-
-    /**
      * Notifies the server that a user has left a group conversation. This will
      * also notify all the users still in the group conversation that someone
      * has left.
@@ -552,7 +509,11 @@ public class ChatServer {
 
         String text = message;
         for (int i = 0; i < 3; i++) {
-            text = text.substring(text.indexOf(" ") + 1);
+            if (text.indexOf(" ") < 0) {
+                text = "";
+            } else {
+                text = text.substring(text.indexOf(" ") + 1);
+            }
         }
 
         Conversation chat = this.conversations.get(ID);
