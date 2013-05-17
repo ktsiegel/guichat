@@ -36,8 +36,8 @@ public class HistoryBox extends JFrame {
 		JTextArea display = new JTextArea();
 		display.setEditable(false);
 		display.setLineWrap(true);
-		display.setBorder(lineBorder);
 		display.append(history.getHistory());
+		display.setBackground(Color.white);
         
 		//Make the display of the history scrollable.
 		displayScroll = new JScrollPane(display);

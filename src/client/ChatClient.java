@@ -56,9 +56,11 @@ public class ChatClient extends JFrame {
      * Conversations.
      * 
      * @param IP
-     *            String corresponding to IP address of server
+     *            String corresponding to IP address of server. Must be a valid IP address with
+     *            a server running at that IP address.
      * @param port
-     *            String corresponding to port number of server
+     *            String corresponding to port number of server. Must be a valid port to which
+     *            a server is connected.
      */
     public ChatClient(String IP, String port) {
         this.model = new ChatClientModel(this, IP, port);
