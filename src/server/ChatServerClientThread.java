@@ -50,7 +50,7 @@ public class ChatServerClientThread implements Runnable {
                 this.server.addMessageToQueue(line, socket);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } finally {
             // Log the user out if the user did not log out on his or her own.
             this.server.forceLogout(socket);
