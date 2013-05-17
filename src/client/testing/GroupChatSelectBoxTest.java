@@ -1,18 +1,4 @@
 package client.testing;
-import java.util.Set;
-
-import main.Client;
-import main.Server;
-
-import org.junit.Before;
-import org.junit.Test; 
-
-import server.ChatServer;
-import user.User;
-
-import client.ChatClient;
-import client.ChatClientModel;
-import client.GroupChatSelectBox;
 
 /**
  * Manual Testing:

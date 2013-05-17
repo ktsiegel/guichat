@@ -1,11 +1,11 @@
 package client;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Insets;
+//import java.awt.Graphics2D;
+//import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
+//import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,10 +36,6 @@ import javax.swing.text.StyledDocument;
 import emoticons.Emoticon;
 
 import user.User;
-
-import org.scilab.forge.jlatexmath.TeXConstants;
-import org.scilab.forge.jlatexmath.TeXFormula;
-import org.scilab.forge.jlatexmath.TeXIcon;
 
 /**
  * A ChatBox is a GUI for a chat box that a user uses to talk to other users.
@@ -311,6 +307,7 @@ public class ChatBox extends JFrame {
      * @param latex
      *            The string that represents laTeX code.
      */
+    /*
     public void processLatex(StyledDocument doc, String latex) {
         // synthesize image
         TeXFormula formula = new TeXFormula(latex);
@@ -338,6 +335,7 @@ public class ChatBox extends JFrame {
             e.printStackTrace();
         }
     }
+    */
 
     /**
      * Add a message to the ongoing chat and update the GUI.
