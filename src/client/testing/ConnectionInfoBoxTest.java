@@ -32,6 +32,4 @@ package client.testing;
 
  * @category no_didit
  */
-public class ConnectionInfoBoxTest {
-	public void test() {} //empty test to pass didit
-}
+public class ConnectionInfoBoxTest {}

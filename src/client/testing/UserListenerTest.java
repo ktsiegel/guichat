@@ -12,6 +12,4 @@ package client.testing;
  *    
  * @category no_didit
  */
-public class UserListenerTest {
-
-}
+public class UserListenerTest {}
