@@ -54,6 +54,4 @@ import client.GroupChatSelectBox;
  * @category no_didit
  */
 
-public class GroupChatSelectBoxTest {
-	public void test() {} //empty test to pass didit
-}
+public class GroupChatSelectBoxTest {}

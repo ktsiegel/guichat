@@ -61,6 +61,4 @@ package client.testing;
  * @category no_didit
  */
 
-public class ChatClientModelTest {
-	public void test() {} //to pass didit
-}
+public class ChatClientModelTest {}

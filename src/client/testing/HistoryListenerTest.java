@@ -10,8 +10,8 @@ import org.junit.Test;
  * mouseExited: Make sure that no longer mousing over a history label changes the text back to black.
  * mouseClicked: Make sure that clicking a history label opens a HistoryBox containing the history
  * 				associated with this label.
+ * 
+ * @category no_didit
  */
 
-public class HistoryListenerTest {
-	public void test() {} //make sure passes didit
-}
+public class HistoryListenerTest {}
