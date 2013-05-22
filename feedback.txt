@@ -1,0 +1,47 @@
+Project 2: GUI Chat				axc, cmobrien, ksiegel
+===================				(grader: Sunila)
+
+Team contract: 5 / 5
+
+Abstract Design: 10 / 10
+  Snapshot diagram: 5 / 5
+  Conversation and protocol: 5 / 5
+
+System Design: 15 / 15
+  Usability design: 5 / 5
+  Code design and use of MVC: 5 / 5
+  Concurrency strategy: 5 / 5
+
+Testing: 10 / 15
+  Testing strategy: 5 / 10
+  Testing execution: 5 / 5
+
+Implementation: 49 / 50
+  Initial demo: 10 / 10
+  Correctness: 15 / 15
+  Code: 10 / 10
+  User interface: 14 / 15
+
+Bonus points: 5
+(For features above and beyond the specs.)
+
+TOTAL TEAM SCORE: 94 / 95
+
+(Individual scores will include 5 points for the reflection assignment,
+ and will be posted on Stellar.)
+
+Feedback
+--------
+
+your abstract design, concurrency strategy, testing strategy, the way you reported the results of manual testing, code organization, code presentation all were well done. 
+though your design document can do better in terms of content organization and clarity. 
+in your code, you made a clear distinction between listeners(controllers) views(gui) and model classes by your naming convention. good job there too.
+
+the only point you lost is for the login error messages, they were not prominent enough. you could use a different color or a bigger text to attract attention. 
+I gave you bonus points for: 
+1) emoticons 
+2) avatars
+3) your chat window shows when other participants are typing. 
+4) clients can select multiple clients for a group chat.
+
+
