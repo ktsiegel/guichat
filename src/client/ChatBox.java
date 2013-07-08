@@ -1,11 +1,11 @@
 package client;
 
 import java.awt.Color;
-//import java.awt.Graphics2D;
-//import java.awt.Insets;
+import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
-//import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -234,8 +234,8 @@ public class ChatBox extends JFrame {
                 }
             }
             
-            //NOTE: Commented out section that handles laTeX. if
-            /*int dollarIndex = message.indexOf("\\$"); // test whether there is a
+            //NOTE: section that handles laTeX.
+            int dollarIndex = message.indexOf("\\$"); // test whether there is a
                                                       // laTeX string in the
                                                       // message
             if (dollarIndex == 0 && !found) {
@@ -255,7 +255,7 @@ public class ChatBox extends JFrame {
                     	e.printStackTrace();
                     }
                 }
-            }*/
+            }
             
             if (!found) {
                 try {
@@ -308,7 +308,6 @@ public class ChatBox extends JFrame {
      * @param latex
      *            The string that represents laTeX code.
      */
-    /*
     public void processLatex(StyledDocument doc, String latex) {
         // synthesize image
         TeXFormula formula = new TeXFormula(latex);
@@ -336,7 +335,6 @@ public class ChatBox extends JFrame {
             e.printStackTrace();
         }
     }
-    */
 
     /**
      * Add a message to the ongoing chat and update the GUI.
